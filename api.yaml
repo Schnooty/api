@@ -1,0 +1,1617 @@
+openapi: "3.0.0"
+info:
+  description: "This is the Open Monitors API. All operations that a user or an agent would want to complete, including signing up, are listed here."
+  version: "1.0.0"
+  title: "Open Monitors"
+  termsOfService: "http://www.openmonitors.com/terms/"
+  contact:
+    email: "support@openmonitors.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+paths:
+  "/authentication/jwt":
+      post:
+        tags:
+          - "Authentication"
+        summary: "Create an API token in the form of a JWT."
+        responses:
+          200:
+            description: OK
+            content:
+              "application/json":
+                schema: 
+                  $ref: "#/components/schemas/JwtObject"
+          400:
+            description: BadRequest
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorList"
+          422:
+            description: UnprocessableEntity
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorList"
+        security:
+          - BasicAuth: []
+  "/challenge":
+    post:
+      tags: 
+        - "Challenge"
+      summary: "Create a challenge to prove you are human"
+      operationId: create_challenge
+      responses:
+        201:
+          $ref: "#/components/responses/ChallengeResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  "/challenge/{id}":
+    post:
+      tags: 
+          - "Challenge"
+      summary: "Solve a challenge and prove you are human."
+      operationId: update_challenge
+      parameters: 
+        - name: id
+          in: path
+          description: ID of registration to confirm.
+          schema:
+            $ref: "#/components/schemas/IdString"
+          required: true
+      responses:
+        200:
+          $ref: "#/components/responses/ChallengeResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  "/registration":
+    post:
+      tags: 
+        - "Registration"
+      summary: "Register your email address and password."
+      description: "This is the endpoint you will use to create an account. This will enable you to use the API. By submitting your email address, password, and a name for your account, Open Monitors will email you a confirmation code. The confirmation code will be valid for 24 hours or less, and may only be used once. Note that this API will respond with a 200 response code even if your email address is in Open Monitor's system. This is for privacy reasons."
+      operationId: "create_registration"
+      requestBody:
+        description: "Details for registering for an Open Monitors account."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Registration"
+      responses:
+        200:
+          $ref: "#/components/responses/RegistrationResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+        
+  "/registration/{id}":
+    post:
+      tags: 
+        - "Registration"
+      summary: "Confirm registration of Open Monitors account."
+      parameters: 
+        - name: id
+          in: path
+          description: ID of registration to confirm.
+          schema:
+            $ref: "#/components/schemas/IdString"
+          required: true
+      operationId: "confirm_registration"
+      requestBody:
+        description: "Details including confirmation code that prove the user's email address."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationConfirmation"
+      responses:
+        204:
+          description: "The registration was confirmed. You can now authenticate using the email address and password."
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:          
+          $ref: "#/components/responses/UnprocessableEntity"
+  "/monitors":
+    get:
+      tags:
+        - "Monitors"
+      summary: "Get a list of all monitors in your account."
+      description: |
+        Returns a collection of all monitors created. 
+      operationId: "get_monitors"
+      responses:
+        200:
+          $ref: "#/components/responses/MonitorArrayResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "read.monitors"
+    post:
+      tags:
+      - "Monitors"
+      summary: "Create a new monitor"
+      description: "Create a new monitor from the details in the request."
+      operationId: "post_monitor"
+      requestBody:
+        description: "Specify what should be monitored and when."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Monitor"
+      responses:
+        201:
+          $ref: "#/components/responses/MonitorCreatedResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+      
+      security:
+      - BearerAuth:
+        - "write.monitors"
+  "/monitors/{id}":
+    get:
+      parameters: 
+      - name: id
+        in: path
+        description: ID of monitor to retrieve.
+        schema:
+          $ref: "#/components/schemas/IdString"
+        required: true
+      tags:
+        - "Monitors"
+      summary: "Get a monitor by ID"
+      operationId: "get_monitor_by_id"
+      responses:
+        200:
+          $ref: "#/components/responses/MonitorResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+      security:
+        - BearerAuth:
+          - "read.monitors"
+    put:
+      tags: 
+        - "Monitors"
+      parameters: 
+      - name: id
+        in: path
+        description: ID of monitor
+        schema:
+          $ref: "#/components/schemas/IdString"
+        required: true
+      summary: "Update an existing monitor by ID"
+      operationId: "update_monitor"
+      requestBody:
+        description: "Specify what should be monitored and when."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Monitor"
+      responses:
+        200:
+          $ref: "#/components/responses/MonitorResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+      security:
+        - BearerAuth:
+          - "write.monitors"
+    delete:
+      tags:
+        - "Monitors"
+      parameters: 
+      - name: id
+        in: path
+        description: ID of monitor to delete.
+        schema:
+          $ref: "#/components/schemas/IdString"
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/MonitorResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+      security:
+        - BearerAuth:
+          - "write.monitors"
+  "/statuses":
+    get:
+      operationId: "get_monitor_statuses"
+      tags: 
+        - "Statuses"
+      responses:
+        200:
+          $ref: "#/components/responses/MonitorStatusArrayResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+      security:
+        - BearerAuth:
+          - "read.statuses"
+    post:
+      operationId: "update_monitor_statuses"
+      tags:
+        - "Statuses"
+      requestBody:
+        description: "Specify what should be monitored and when."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MonitorStatusArray"
+      responses:
+        204:
+          description: NoContent
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+        404:
+          $ref: "#/components/responses/NotFound"
+      security:
+        - BearerAuth:
+          - "write.statuses"
+  "/alerts":
+    get:
+      tags:
+        - "Alerts"
+      description: 
+        Retrieve all of the alerts you have created in your account. 
+      responses:
+        200:
+          $ref: "#/components/responses/AlertArrayResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+      security:
+        - BearerAuth:
+          - "write.monitors"
+    post:
+      tags:
+        - "Alerts"
+      description: 
+        Create a new alert that can be activated when a monitor goes down. An alert can be a message (email, Microsoft teams), or it can call a web service (webhook). An alert is associated with zero or more of your monitors. If your alert has more than one monitor, the alert will be activated only when the number of monitors that goes down exceededs the `threshold`.  
+      requestBody:
+        description: "Create a new alert."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Alert"
+      responses:
+        200:
+          $ref: "#/components/responses/AlertResponse"
+        204:
+          description: NoContent
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+  "/alerts/{id}":
+    parameters: 
+      - name: id
+        in: path
+        description: ID of the alert.
+        schema:
+          $ref: "#/components/schemas/IdString"
+        required: true
+    get:
+      tags: 
+        - "Alerts"
+      responses:
+        200:
+          $ref: "#/components/responses/AlertResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+      security:
+      - BearerAuth:
+        - "read.alerts"
+    put:
+      tags: 
+        - "Alerts"
+      requestBody:
+        description: "Update an existing alert."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Alert"
+      responses:
+        200:
+          $ref: "#/components/responses/AlertResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "write.alerts"
+    delete:
+      tags: 
+        - "Alerts"
+      responses:
+        200:
+          $ref: "#/components/responses/AlertResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+      security:
+      - BearerAuth:
+        - "write.alerts"
+  "/agents":
+    get:
+      tags: 
+      - "Agents"
+      responses:
+        200:
+          $ref: "#/components/responses/AgentArrayResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+      security:
+      - BearerAuth:
+        - "read.agents"
+    post:
+      tags: 
+      - "Agents"
+      requestBody:
+        description: "Create a new agent and generate a new API key."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Agent"
+      responses:
+        200:
+          $ref: "#/components/responses/AgentResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+  "/agents/{id}":
+    parameters: 
+      - name: id
+        in: path
+        description: ID of the alert.
+        schema:
+          $ref: "#/components/schemas/IdString"
+        required: true
+    get:
+      tags:
+        - "Agents"
+      responses:
+        200:
+          $ref: "#/components/responses/AgentResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+    put:
+      tags:
+        - "Agents"
+      requestBody:
+        description: "Update an existing agent."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Agent"
+      responses:
+        200:
+          $ref: "#/components/responses/AgentResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+    delete:
+      tags:
+        - "Agents"
+      responses:
+        200:
+          $ref: "#/components/responses/AgentResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+  "/session/{groupName}":
+    parameters:
+        - name: groupName
+          in: path
+          description: Name for this group of agents.
+          schema:
+            $ref: "#/components/schemas/EasyString64"
+          required: true
+    get:
+      operationId: "get_agent_session_state"
+      tags: 
+        - "Agent sessions"
+      responses:
+        200:
+          $ref: "#/components/responses/AgentSessionStateResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+    post:
+      operationId: "create_agent_session"
+      tags: 
+        - "Agent sessions"
+      requestBody:
+        description: "Create a new agent and generate a new API key."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/AgentSessionStateResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+  "/accounts":
+    get:
+      tags: 
+        - "Account management"
+      operationId: "get_accounts"
+      responses:
+        200:
+          $ref: "#/components/responses/AccountListResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        403:
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: 
+        - "Account management"
+      operationId: "create_account"
+      requestBody:
+        description: "Account to be created"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Account"
+      responses:
+        200:
+          $ref: "#/components/responses/AccountResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+  "/accounts/{id}":
+    get:
+      tags: 
+        - "Account management"
+      operationId: get_account_by_id
+      parameters:
+        - name: id
+          in: path
+          description: ID of the account.
+          schema:
+            $ref: "#/components/schemas/IdString"
+          required: true
+      responses:
+        200:
+          $ref: "#/components/responses/AccountResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+        403:
+          $ref: "#/components/responses/Forbidden"
+    put:
+      tags: 
+        - "Account management"
+      parameters:
+        - name: id
+          in: path
+          description: ID of the account.
+          schema:
+            $ref: "#/components/schemas/IdString"
+          required: true
+      requestBody:
+        description: "Account to be created"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Account"
+      responses:
+        200:
+          $ref: "#/components/responses/AccountResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+  "/transactions":
+    get:
+      tags: 
+        - "Account management"
+      operationId: "get_transactions"
+      parameters:
+        - in: query
+          name: fromTimestamp
+          schema:
+            $ref: "#/components/schemas/DateTime"
+          description: "The timestamp from which to start searching"
+        - in: query
+          name: toTimestamp
+          schema:
+            $ref: "#/components/schemas/DateTime"
+          description: "The timestamp from which to end searching"
+        - in: query
+          name: accountId
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdString"
+          description: "The account whose transactions we want"
+      responses:
+        200:
+          $ref: "#/components/responses/TransactionResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+  "/balances":
+    get:
+      tags: 
+        - "Account management"
+      operationId: "get_account_balance"
+      parameters:
+        - in: query
+          name: accountId
+          schema:
+            $ref: "#/components/schemas/IdString"
+          description: "The account whose current balance we want"
+          required: true
+      responses:
+        200:
+          $ref: "#/components/responses/BalanceResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  "/plans":
+    get:
+      tags: 
+        - "Account management"
+      operationId: "get_plans"
+      responses:
+        200:
+          $ref: "#/components/responses/PlanArrayResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  "/subscriptions":
+    post:
+      tags: 
+        - "Account management"
+      operationId: "create_subscription"
+      requestBody:
+        description: "Subscription to be created"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Subscription"
+      responses:
+        200:
+          $ref: "#/components/responses/SubscriptionResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+    get:
+      tags: 
+        - "Account management"
+      operationId: "get_subscription_records"
+      responses:
+        200:
+          $ref: "#/components/responses/SubscriptionArrayResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  "/subscriptions/{id}":
+    parameters:
+      - name: id
+        in: path
+        description: ID of the subscription.
+        schema:
+          $ref: "#/components/schemas/IdString"
+        required: true
+    get:
+      tags: 
+        - "Account management"
+      operationId: "get_subscription_by_id"
+      responses:
+        200:
+          $ref: "#/components/responses/SubscriptionResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  "/info":
+    get:
+      operationId: "get_info"
+      tags:
+      - Info
+      responses:
+        200:
+          $ref: "#/components/responses/InfoResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    BadRequest:
+      description: BadRequest
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorList"
+    NotFound:
+      description: NotFound 
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorList"
+    Unauthorised:
+      description: Unauthorized
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorList"
+    Forbidden:
+      description: Forbidden
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorList"
+    UnprocessableEntity:
+      description: UnprocessableEntity
+      content:
+        application/json:
+          schema:                
+            $ref: "#/components/schemas/ErrorList"
+    MonitorResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Monitor"
+    PlanArrayResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PlanArray"
+    SubscriptionArrayResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SubscriptionArray"
+    SubscriptionResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SubscriptionContainer"
+    AccountListResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accounts:
+                items:
+                  $ref: "#/components/schemas/Account"
+    AccountResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              account:
+                $ref: "#/components/schemas/Account"
+    TransactionResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TransactionList"
+    InfoResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ServerInfo"   
+    MonitorCreatedResponse:
+      description: Created 
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Monitor"
+    AlertResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+              $ref: "#/components/schemas/Alert"
+    AlertArrayResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AlertArray"
+    AgentSessionStateResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AgentSessionState"
+    MonitorArrayResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MonitorArray"
+    AgentResponse:
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Agent"
+    NewAgentResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/NewAgent"
+    MonitorStatusArrayResponse:
+      description: OK
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MonitorStatusArray"            
+    RegistrationResponse:
+      description: OK
+      content:  
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Registration"
+    ChallengeResponse:
+      description: OK
+      content:  
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RegistrationChallenge"
+    AgentArrayResponse:
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Agent"
+    BalanceResponse:
+      description: OK
+      content: 
+        application/json:
+          schema:
+              type: object 
+              properties:
+                balance:
+                  $ref: "#/components/schemas/Balance"
+  schemas:
+    Monitor:
+      required: ["type", "enabled", "name", "period", "timeout", "body"]
+      properties:
+        id:
+          $ref: "#/components/schemas/IdString"
+        type:
+          $ref: "#/components/schemas/MonitorType"
+        enabled:
+          type: boolean
+          default: true
+        name: 
+          $ref: "#/components/schemas/EasyString64"
+        description:
+          type: string
+          description: Describes what this monitor checks.
+          example: Checks that the database is up and running
+        period:
+          $ref: "#/components/schemas/TimeDelta"
+        timeout:
+          $ref: "#/components/schemas/TimeDelta"
+        body:
+          $ref: "#/components/schemas/MonitorBody"
+    MonitorBody:
+      oneOf: 
+        - $ref: "#/components/schemas/HttpMonitorBody"
+        - $ref: "#/components/schemas/ProcessMonitorBody"
+        - $ref: "#/components/schemas/TcpMonitorBody"
+    TcpMonitorBody:
+      type: object
+      properties:
+        hostname:
+          type: string
+        port:
+          type: integer
+          minimum: 0
+          maximum: 65535
+    MonitorArray:
+      type: object
+      required: ["monitors"]
+      properties:
+        monitors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Monitor"
+    JwtObject:
+      type: object
+      required: ["jwt", "jwtExpiry", "jwtScopes", "refreshToken", "refreshTokenExpiry"]
+      properties:
+        jwt: 
+          type: string
+          description: The JSON Web Token that can be used to access the API.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        jwtExpiry:
+          type: number
+          description: Time at which the JWT expires in seconds since Unix Epoc 
+          example: 1613274878
+        jwtScopes: 
+          items: 
+            type: string
+          example:
+            - monitors.read
+            - alerts.read
+        refreshToken:
+          type: string
+          description: A Bearer token that can used to get a new JWT.
+          example: 1ka82kjHoiH8789BhlJnl98pkBHjj
+        refreshTokenExpiry:
+          type: number
+          description: Time at which the refresh token expires in seconds since Unix Epoc 
+          example: 1613282078
+    HttpMonitorBody:
+      type: "object"
+      properties:
+        url: 
+          type: "string"
+        method: 
+          type: "string"
+        headers: 
+          type: "array"
+          items: 
+            $ref: "#/components/schemas/HttpHeader"
+        body: 
+          type: "string"
+    ProcessMonitorBody:
+      type: object
+      properties:
+        executable:
+          type: string
+          description: "The name of the executable process to be monitored."
+          example: "node"
+        isPathAbsolute:
+          type: boolean
+          description: "If true, the process(s) will be located by the full path of the executable e.g. /usr/bin/node"
+          default: false
+        minimumCount:
+          type: integer 
+          description: "The minimum number of processes that match the executable."
+          example: 1
+        maximumCount:
+          type: integer 
+          description: "The maximum number of processes that match the executable. "
+          example: 10
+        maximumRamIndividual: 
+          $ref: "#/components/schemas/ByteUnit"
+        maximumRamTotal:
+          $ref: "#/components/schemas/ByteUnit"
+    MonitorStatusArray:
+      type: object
+      required: ["statuses"]
+      properties:
+        statuses: 
+          type: array
+          items:
+            $ref: "#/components/schemas/MonitorStatus"
+    MonitorStatus:
+      type: object
+      required: ["monitorId", "status", "lastResult", "description", "timestamp"]
+      properties:
+        monitorId:
+          $ref: "#/components/schemas/IdString"
+        status:
+          $ref: "#/components/schemas/MonitorStatusIndicator"
+        timestamp:
+          $ref: "#/components/schemas/DateTime"
+        lastResult:
+          $ref: "#/components/schemas/MonitorStatusResult"
+        description:
+          type: string
+          maxLength: 2048
+          example: "HTTP monitor for https://www.example.com"
+        log: 
+          type: array
+          items:
+            $ref: "#/components/schemas/MonitorStatusLogEntry"
+    MonitorStatusResult:
+      type: object
+      required: ["expected", "actual"]
+      properties:
+        expected: 
+          type: string
+          example: "HTTP status code of 200"
+        actual: 
+          type: string
+          example: "HTTP status code of 500"
+    MonitorStatusLogEntry:
+      type: object
+      required: ["timestamp", "value"]
+      properties:
+        timestamp:
+          $ref: "#/components/schemas/DateTime"
+        value:
+          type: string
+          maxLength: 160
+          example: "Beginning HTTP request to https://www.example.com"
+    AgentSessionRequest:
+      type: object
+      required: ["sessionId"]
+      properties:
+        sessionId:
+          type: string
+        isNew:
+          type: boolean
+          description: "Optional indicator that tells the server that this is a new session."
+    MonitorStatusIndicator: 
+      type: string
+      enum:
+        - "ok"
+        - "down"
+    Alert:
+      required: ["type", "monitors", "body", "threshold", "enabled"]
+      properties:
+        type: 
+          type: string
+          enum: 
+            - msteams
+            - webhook
+            - email
+        id:
+          $ref: "#/components/schemas/IdString"
+        description:
+          type: string
+          description: Describes what your alert will do.
+          example: Sends an email if a database monitor goes down.
+        monitors:
+          type: array
+          items:
+            $ref: "#/components/schemas/IdString"
+        threshold: 
+          type: integer
+        enabled: 
+          type: boolean
+        body:
+          $ref: "#/components/schemas/AlertBody"
+    AlertBody:
+      oneOf:
+        - $ref: "#/components/schemas/MsTeamsAlertBody"
+        - $ref: "#/components/schemas/WebhookAlertBody"
+        - $ref: "#/components/schemas/EmailAlertBody"
+    MsTeamsAlertBody:
+      type: object
+      properties:
+        url:
+          type: string
+    EmailAlertBody:
+      type: object
+      properties:
+        from: 
+          type: string
+          example: "agent@example.com"
+        recipients:
+          type: array
+          items:
+            type: string
+          description:
+            The addresses to which the alert email will be sent.
+        host:
+          type: string
+          example: stmp.example.com
+          description: Your SMTP server's hostname
+        port: 
+          type: number
+          example: 587
+          description: The port number for your SMTP server
+        tlsMode:
+          $ref: "#/components/schemas/TlsMode"
+        username:
+          type: string
+          example: admin@example.com
+        password:
+          type: string
+          example: "2gDxccTDVxzfpKcW"
+    WebhookAlertBody:
+      type: object
+      properties:
+        url: 
+          type: string
+        headers: 
+          type: array
+          items:
+            $ref: "#/components/schemas/HttpHeader"
+    Agent:
+      type: object
+      required: ["name"]
+      properties:
+        id:
+          $ref: "#/components/schemas/IdString"
+        name: 
+          $ref: "#/components/schemas/EasyString64"
+        description:
+          type: string
+          description: Describes what this agent is or where it will run.
+          example: The database server agent
+        group:
+          $ref: "#/components/schemas/EasyString64"
+        apiKey:
+          $ref: "#/components/schemas/AgentApiKey"
+    NewAgent:
+      type: object
+      required: ["apiKey"]
+      properties:
+        apiKey:
+            $ref: "#/components/schemas/AgentApiKey"
+      allOf:
+        - $ref: "#/components/schemas/Agent"
+    AgentSessionState:
+      type: object
+      required: ["group", "assignment"]
+      properties:
+        group:
+          $ref: "#/components/schemas/EasyString64"
+        agents:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentSessionAssignment"
+    AgentSessionAssignment:
+      type: object
+      required: ["sessionId", "agentId", "monitorIds", "lastHeartbeat"]
+      properties:
+        sessionId:
+          $ref: "#/components/schemas/EasyString64"
+        agentId:
+          $ref: "#/components/schemas/IdString"
+        monitorIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/IdString"
+        lastHeartbeatTimestamp:
+          type: integer
+          example: 1590656048
+    ByteUnit:
+      type: string
+      maxLength: 64
+      pattern: "^\\d+\\s*(k|K|M|G|T|P)B$"
+    HttpHeader:
+      type: "object"
+      required: ["name", "value"]
+      properties:
+        name: 
+          type: "string"
+        value: 
+          type: "string"
+    EasyString64:
+      type: "string"
+      maxLength: 64
+      pattern: "^([A-Za-z0-9]|_|-){0,64}$"
+      example: "database-agent"
+    TimeDelta:
+      type: "string"
+      maxLength: 64
+      pattern: "(\\d{1,4}(s|m|h|d))( \\d{1,4}(s|m|h|d))*"
+      example: "5m"
+    AgentApiKey:
+      type: "string"
+      readOnly: true
+      minLength: 64
+      maxLength: 64
+      pattern: "^([A-Za-z0-9]){64}$"
+      example: "Xv3ndONX5tyPy1eon8A9ePVCHiThsyGaGFI20mtKVQTANq5oz3pffqXyQjkCDfcP"
+    WriteableIdString:
+      type: "string"
+      minLength: 32
+      maxLength: 64
+      pattern: "[A-Za-z0-9]"
+      example: "aZjL810xa001dz8"
+    IdString:
+      type: "string"
+      minLength: 32
+      maxLength: 64
+      pattern: "[A-Za-z0-9]"
+      readOnly: true
+      example: "aZjL810xa001dz8"
+    ChargeType:
+      enum:
+        - daily
+        - weekly
+        - monthly
+    MonitorType:
+      type: "string"
+      description: "What sort of system or entity the monitor will run a check on"
+      enum:
+        - http
+        - process
+        - tcp
+    ErrorList:
+      type: "object"
+      required: ["errors"]
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResponseError"
+    ResponseError:
+      type: object
+      required: ["errorCode", "errorMessage", "userErrorMessage"]
+      properties:
+        errorCode:
+          $ref: "#/components/schemas/ErrorCode"
+        errorMessage:              
+          type: string
+          example: "A technical explanation of the error useful for debugging."
+        userErrorMessage:
+          type: string
+          example: "A brief explanation of the error you may present to the user."
+    AlertArray:
+      type: object
+      required: ["alerts"]
+      properties:
+        alerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+    Registration:
+      type: object
+      required: ["accountName", "emailAddress", "password", "challengeId", "challengeSolution"]
+      properties:
+        id:
+          $ref: "#/components/schemas/IdString"
+          readonly: true
+        accountName: 
+          type: string
+          maxLength: 64
+          example: "Fun Computers Incorporated"
+        challengeId:
+          type: string
+        challengeSolution:
+          type: string
+        emailAddress: 
+          $ref: "#/components/schemas/EmailAddress"
+        password: 
+          $ref: "#/components/schemas/Password"
+    RegistrationConfirmation:
+      type: object
+      required: ["id", "confirmationCode"]
+      properties:
+        id:
+          $ref: "#/components/schemas/IdString"
+        confirmationCode:
+          type: string
+          minLength: 8
+          maxLength: 32
+          description: "A secret string between the client and the API. A valid confirmation code is proof the user owns the email address"
+        emailAddress:
+          type: string
+    EmailAddress:
+      type: string
+      pattern: "^.*@.*$"
+      example: "jerry@apples.com"
+    Password:
+      type: string
+      writeOnly: true
+      minLength: 8
+      maxLength: 64
+      example: "?wA$hPg?2!qPcYsh"
+    RegistrationChallenge:
+      type: object
+      required: ["type", "encoding", "mimeType"]
+      description: "A Captcha challenge that a human being will have to solve."
+      properties:
+        id:
+          description: "A unique identifier for this challenge"
+          $ref: "#/components/schemas/IdString"
+        status:
+          readOnly: true
+          enum:
+            - unsolved 
+            - solved
+            - inactive
+        solution: 
+          description: "The solution that will activate the challenge. This can be used to prove you are human."
+          writeOnly: true
+          type: string
+        type:
+          description: "What the user has to do to pass the challenge. For now this is just `image`."
+          readOnly: true
+          enum:
+            - captcha
+        encoding:
+          readOnly: true
+          description: "Since this is a JSON api, the image data has to be encoded in some way. For now image data is encoded in base 64."
+          enum:
+            - base64
+        mimeType:
+          readOnly: true
+          description: "Describes how to interpret the `data` field."
+          enum: 
+            - "image/png"
+        url:
+          readOnly: true
+          type: string
+          description: "The URL for the image, if there is one."
+        data: 
+          readOnly: true
+          type: string
+    TlsMode:
+      type: string
+      description: Controls whether or not STARTTLS will be used.
+      enum:
+        - none
+        - tls
+        - starttls
+    ErrorCode:
+      type: string
+      description: "Global error code that indicates what went wrong" 
+      enum:
+        - unauthorised
+        - forbidden
+        - not_found
+        - product_limit_reached
+        - database_failure
+        - solution_incorrect
+        - solution_expired
+        - internal_parse_failure
+        - invalid_string
+        - invalid_confirmation_code
+        - conflict
+    ServerInfo:
+      type: object
+      description: "Server info and status about open connections"
+      required:
+        - activeRequests
+        - activeJwtsLastHour
+        - requestsLastHour
+        - requestsLastMinute
+        - processMemoryBytes
+        - openInwardConnections
+      properties:
+        vcsRef: 
+          type: string
+          example: 5ca8fb27561045fdf0894603179ebb18cb19523b
+        processMemoryBytes:
+          type: number
+          example: 52428800
+        openInwardConnections:
+          type: number 
+          example: 20
+    SubscriptionArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/Subscription"
+    SubscriptionContainer:
+      type: object
+      properties:
+        subscription:
+          $ref: "#/components/schemas/Subscription"
+    PlanArray:
+      type: object
+      required:
+        - plans
+      properties:
+        plans:
+          type: array
+          items:
+            $ref: "#/components/schemas/Plan"
+          
+    Plan:
+      required: 
+        - id
+        - name
+        - products
+        - description
+        - maximumPrice
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/IdString"
+        name:
+          type: string
+          description: "Description of what this plan is for, and what it offers."
+          example: "Basic"
+        description:
+          type: string
+          description: "Description of what this plan is for, and what it offers."
+          example: "The free plan that you get one when you sign up."
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        maximumPrice:
+            $ref: "#/components/schemas/Money"
+    Subscription:
+      type: object
+      required: 
+        - planId
+        - chargeType
+      properties:
+        id:
+          $ref: "#/components/schemas/IdString"
+        organisationId:
+          $ref: "#/components/schemas/IdString"
+        startedAt:
+          $ref: "#/components/schemas/DateTime"
+        stoppedAt:
+          $ref: "#/components/schemas/DateTime"
+        planId:
+          $ref: "#/components/schemas/WriteableIdString"
+        chargeType:
+          $ref: "#/components/schemas/ChargeType"
+    SubscriptionStatus:
+      enum:
+        - active
+        - inactive
+    DateTime:
+      type: string
+      format: date-time
+      description: UTC UNIX timestamp in with fractional offset.
+      example: 2017-07-21T17:32:28Z
+      readOnly: true
+    Account:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - currencyCode
+      properties:
+        id: 
+          $ref: "#/components/schemas/IdString"
+        name:
+          type: string
+          example: "Your organisational's subscription"
+        type: 
+          $ref: "#/components/schemas/AccountType"
+        currencyCode:
+          $ref: "#/components/schemas/CurrencyCode"
+    AccountType:
+      enum:
+        - subscription_charges
+        - subscription_credits
+    Product:
+      type: object
+      required: ["entity", "price", "count", "description"]
+      properties:
+        entity:
+          $ref: "#/components/schemas/ProductEntity"
+        price:
+          $ref: "#/components/schemas/Money"
+        count:
+          type: integer
+          format: int32
+          example: 15
+        description:
+          type: string
+          description: "15 monitors for free."
+          example: "The free plan that you get one when you sign up."
+    ProductEntity:
+      enum:
+        - monitor
+        - status
+        - alert
+        - agent
+        - user
+        - session
+    Money:
+      type: object
+      required: 
+        - value 
+        - decimalPlaces
+        - currencyCode
+      properties:
+        value:
+          type: integer
+          example: 12345
+        decimalPlaces: 
+          type: integer
+          example: 2
+        currencyCode:
+          $ref: "#/components/schemas/CurrencyCode"
+          example: NZD
+    CurrencyCode:
+      enum: 
+        - NZD
+        - USD
+        - EUR
+    Balances:
+      type: object
+      properties:
+        balances:
+          items:
+            $ref: "#/components/schemas/Balance"
+    TransactionList:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+        openingBalance:
+          $ref: "#/components/schemas/Balance"
+        closingBalance:
+          $ref: "#/components/schemas/Balance"
+    Transaction:
+      type: object
+      required: ["id", "timestamp", "amount", "description", "code"]
+      properties:
+        id: 
+          $ref: "#/components/schemas/IdString"
+        timestamp:
+          $ref: "#/components/schemas/DateTime"
+        amount:
+          $ref: "#/components/schemas/Money"
+        description:
+          type: string
+          readOnly: true
+          example: "Subscription charge for the period 2021-06-06 to 2021-07-06 (inclusive)"
+        code:
+          $ref: "#/components/schemas/TransactionCode"
+    TransactionCode:
+      enum:
+        - subscription_credit
+        - subscription_charge
+        - subscription_refund
+        - subscription_correction
+        - subscription_adjustment
+        - opening_balance
+    Balance:
+      type: object
+      required:
+        - accountId
+        - timestamp
+        - balance
+        - availableBalance
+      properties:
+        accountId:
+          $ref: "#/components/schemas/IdString"
+        timestamp:
+          $ref: "#/components/schemas/DateTime"
+        balance:
+          $ref: "#/components/schemas/Money"
+        availableBalance:
+          $ref: "#/components/schemas/Money"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
