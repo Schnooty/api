@@ -1,4 +1,4 @@
-# Documentation for Open Monitors
+# Documentation for Schnooty API
 
 <a name="documentation-for-api-endpoints"></a>
 ## Documentation for API Endpoints
@@ -38,7 +38,7 @@ Class | Method | HTTP request | Description
 *MonitorsApi* | [**monitorsIdDelete**](Apis/MonitorsApi.md#monitorsiddelete) | **DELETE** /monitors/{id} | 
 *MonitorsApi* | [**postMonitor**](Apis/MonitorsApi.md#postmonitor) | **POST** /monitors | Create a new monitor
 *MonitorsApi* | [**updateMonitor**](Apis/MonitorsApi.md#updatemonitor) | **PUT** /monitors/{id} | Update an existing monitor by ID
-*RegistrationApi* | [**confirmRegistration**](Apis/RegistrationApi.md#confirmregistration) | **POST** /registration/{id} | Confirm registration of Open Monitors account.
+*RegistrationApi* | [**confirmRegistration**](Apis/RegistrationApi.md#confirmregistration) | **POST** /registration/{id} | Confirm registration of account.
 *RegistrationApi* | [**createRegistration**](Apis/RegistrationApi.md#createregistration) | **POST** /registration | Register your email address and password.
 *StatusesApi* | [**getMonitorStatuses**](Apis/StatusesApi.md#getmonitorstatuses) | **GET** /statuses | 
 *StatusesApi* | [**updateMonitorStatuses**](Apis/StatusesApi.md#updatemonitorstatuses) | **POST** /statuses | 
