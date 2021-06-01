@@ -35,7 +35,7 @@ export interface Account {
      * @type {string}
      * @memberof Account
      */
-    readonly id: string;
+    readonly id?: string;
     /**
      * 
      * @type {string}
@@ -66,7 +66,7 @@ export function AccountFromJSONTyped(json: any, ignoreDiscriminator: boolean): A
     }
     return {
         
-        'id': json['id'],
+        'id': !exists(json, 'id') ? undefined : json['id'],
         'name': json['name'],
         'type': AccountTypeFromJSON(json['type']),
         'currencyCode': CurrencyCodeFromJSON(json['currencyCode']),

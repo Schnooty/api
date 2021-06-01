@@ -48,7 +48,8 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct Account {
     #[serde(rename = "id")]
-    pub id: String,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub id: Option<String>,
 
     #[serde(rename = "name")]
     pub name: String,
@@ -62,9 +63,9 @@ pub struct Account {
 }
 
 impl Account {
-    pub fn new(id: String, name: String, type_: models::AccountType, currency_code: models::CurrencyCode, ) -> Account {
+    pub fn new(name: String, type_: models::AccountType, currency_code: models::CurrencyCode, ) -> Account {
         Account {
-            id: id,
+            id: None,
             name: name,
             type_: type_,
             currency_code: currency_code,
@@ -79,8 +80,10 @@ impl std::string::ToString for Account {
     fn to_string(&self) -> String {
         let mut params: Vec<String> = vec![];
 
-        params.push("id".to_string());
-        params.push(self.id.to_string());
+        if let Some(ref id) = self.id {
+            params.push("id".to_string());
+            params.push(id.to_string());
+        }
 
 
         params.push("name".to_string());
@@ -138,7 +141,7 @@ impl std::str::FromStr for Account {
 
         // Use the intermediate representation to return the struct
         std::result::Result::Ok(Account {
-            id: intermediate_rep.id.into_iter().next().ok_or("id missing in Account".to_string())?,
+            id: intermediate_rep.id.into_iter().next(),
             name: intermediate_rep.name.into_iter().next().ok_or("name missing in Account".to_string())?,
             type_: intermediate_rep.type_.into_iter().next().ok_or("type missing in Account".to_string())?,
             currency_code: intermediate_rep.currency_code.into_iter().next().ok_or("currencyCode missing in Account".to_string())?,
@@ -3513,7 +3516,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct MonitorBody {
     #[serde(rename = "url")]

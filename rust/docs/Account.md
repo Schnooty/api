@@ -3,7 +3,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **String** |  | [readonly] 
+**id** | **String** |  | [optional] [readonly] [default to None]
 **name** | **String** |  | 
 **type_** | [***models::AccountType**](AccountType.md) |  | 
 **currency_code** | [***models::CurrencyCode**](CurrencyCode.md) |  | 

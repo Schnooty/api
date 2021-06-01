@@ -1492,7 +1492,6 @@ components:
     Account:
       type: object
       required:
-        - id
         - name
         - type
         - currencyCode

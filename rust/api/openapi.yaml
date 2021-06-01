@@ -2551,7 +2551,6 @@ components:
           $ref: '#/components/schemas/CurrencyCode'
       required:
       - currencyCode
-      - id
       - name
       - type
       type: object
