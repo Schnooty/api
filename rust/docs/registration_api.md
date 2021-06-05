@@ -4,13 +4,13 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-**confirm_registration**](registration_api.md#confirm_registration) | **POST** /registration/{id} | Confirm registration of Open Monitors account.
+**confirm_registration**](registration_api.md#confirm_registration) | **POST** /registration/{id} | Confirm registration of account.
 **create_registration**](registration_api.md#create_registration) | **POST** /registration | Register your email address and password.
 
 
 # **confirm_registration**
 > confirm_registration(id, registration_confirmation)
-Confirm registration of Open Monitors account.
+Confirm registration of account.
 
 ### Required Parameters
 
@@ -38,13 +38,13 @@ No authorization required
 > models::Registration create_registration(registration)
 Register your email address and password.
 
-This is the endpoint you will use to create an account. This will enable you to use the API. By submitting your email address, password, and a name for your account, Open Monitors will email you a confirmation code. The confirmation code will be valid for 24 hours or less, and may only be used once. Note that this API will respond with a 200 response code even if your email address is in Open Monitor's system. This is for privacy reasons.
+This is the endpoint you will use to create an account. This will enable you to use the API. By submitting your email address, password, and a name for your account, you will be emailed a confirmation code. The confirmation code will be valid for 24 hours or less, and may only be used once. Note that this API will respond with a 200 response code even if your email address is in Open Monitor's system. This is for privacy reasons.
 
 ### Required Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-  **registration** | [**Registration**](Registration.md)| Details for registering for an Open Monitors account. | 
+  **registration** | [**Registration**](Registration.md)| Details for registering an account. | 
 
 ### Return type
 

@@ -1,8 +1,8 @@
 [package]
 name = "openapi_client"
 version = "1.0.0"
-authors = ["support@openmonitors.com"]
-description = "This is the Open Monitors API. All operations that a user or an agent would want to complete, including signing up, are listed here."
+authors = ["support@schnooty.com"]
+description = "This is the Schnooty API. It is used by both our agent and web application to manage your monitors, agents, alerts, account settings and everything else"
 license = "Unlicense"
 edition = "2018"
 
@@ -67,3 +67,11 @@ tokio-tls = "0.3"
 [target.'cfg(not(any(target_os = "macos", target_os = "windows", target_os = "ios")))'.dev-dependencies]
 tokio-openssl = "0.4"
 openssl = "0.10"
+
+[[example]]
+name = "client"
+required-features = ["client"]
+
+[[example]]
+name = "server"
+required-features = ["server"]

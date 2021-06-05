@@ -1,6 +1,6 @@
 # Rust API for openapi_client
 
-This is the Open Monitors API. All operations that a user or an agent would want to complete, including signing up, are listed here.
+This is the Schnooty API. It is used by both our agent and web application to manage your monitors, agents, alerts, account settings and everything else
 
 ## Overview
 
@@ -14,7 +14,7 @@ To see how to make this your own, look here:
 [README]((https://openapi-generator.tech))
 
 - API version: 1.0.0
-- Build date: 2021-06-01T21:22:21.087977+12:00[Pacific/Auckland]
+- Build date: 2021-06-05T12:56:28.757971+12:00[Pacific/Auckland]
 
 
 
@@ -147,7 +147,7 @@ Method | HTTP request | Description
 [****](docs/monitors_api.md#) | **DELETE** /monitors/{id} | 
 [**post_monitor**](docs/monitors_api.md#post_monitor) | **POST** /monitors | Create a new monitor
 [**update_monitor**](docs/monitors_api.md#update_monitor) | **PUT** /monitors/{id} | Update an existing monitor by ID
-[**confirm_registration**](docs/registration_api.md#confirm_registration) | **POST** /registration/{id} | Confirm registration of Open Monitors account.
+[**confirm_registration**](docs/registration_api.md#confirm_registration) | **POST** /registration/{id} | Confirm registration of account.
 [**create_registration**](docs/registration_api.md#create_registration) | **POST** /registration | Register your email address and password.
 [**get_monitor_statuses**](docs/statuses_api.md#get_monitor_statuses) | **GET** /statuses | 
 [**update_monitor_statuses**](docs/statuses_api.md#update_monitor_statuses) | **POST** /statuses | 
@@ -236,5 +236,5 @@ Example
 
 ## Author
 
-support@openmonitors.com
+support@schnooty.com
 

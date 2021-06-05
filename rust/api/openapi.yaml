@@ -1,14 +1,13 @@
 openapi: 3.0.0
 info:
   contact:
-    email: support@openmonitors.com
-  description: This is the Open Monitors API. All operations that a user or an agent
-    would want to complete, including signing up, are listed here.
+    email: support@schnooty.com
+  description: This is the Schnooty API. It is used by both our agent and web application
+    to manage your monitors, agents, alerts, account settings and everything else
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://www.openmonitors.com/terms/
-  title: Open Monitors
+  title: Schnooty API
   version: 1.0.0
 externalDocs:
   description: Find out more about Swagger
@@ -93,17 +92,17 @@ paths:
     post:
       description: This is the endpoint you will use to create an account. This will
         enable you to use the API. By submitting your email address, password, and
-        a name for your account, Open Monitors will email you a confirmation code.
-        The confirmation code will be valid for 24 hours or less, and may only be
-        used once. Note that this API will respond with a 200 response code even if
-        your email address is in Open Monitor's system. This is for privacy reasons.
+        a name for your account, you will be emailed a confirmation code. The confirmation
+        code will be valid for 24 hours or less, and may only be used once. Note that
+        this API will respond with a 200 response code even if your email address
+        is in Open Monitor's system. This is for privacy reasons.
       operationId: create_registration
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Registration'
-        description: Details for registering for an Open Monitors account.
+        description: Details for registering an account.
         required: true
       responses:
         "200":
@@ -169,7 +168,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorList'
           description: UnprocessableEntity
-      summary: Confirm registration of Open Monitors account.
+      summary: Confirm registration of account.
       tags:
       - Registration
   /monitors:

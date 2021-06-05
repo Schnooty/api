@@ -907,7 +907,7 @@ pub trait Api<C: Send + Sync> {
         monitor: models::Monitor,
         context: &C) -> Result<UpdateMonitorResponse, ApiError>;
 
-    /// Confirm registration of Open Monitors account.
+    /// Confirm registration of account.
     async fn confirm_registration(
         &self,
         id: String,
@@ -1099,7 +1099,7 @@ pub trait ApiNoContext<C: Send + Sync> {
         monitor: models::Monitor,
         ) -> Result<UpdateMonitorResponse, ApiError>;
 
-    /// Confirm registration of Open Monitors account.
+    /// Confirm registration of account.
     async fn confirm_registration(
         &self,
         id: String,
@@ -1430,7 +1430,7 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
         self.api().update_monitor(id, monitor, &context).await
     }
 
-    /// Confirm registration of Open Monitors account.
+    /// Confirm registration of account.
     async fn confirm_registration(
         &self,
         id: String,
