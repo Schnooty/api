@@ -3,7 +3,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | [**String**](string.md) |  | [default to null]
+**id** | [**String**](string.md) |  | [optional] [default to null]
 **name** | [**String**](string.md) |  | [default to null]
 **type** | [**AccountType**](AccountType.md) |  | [default to null]
 **currencyCode** | [**CurrencyCode**](CurrencyCode.md) |  | [default to null]
