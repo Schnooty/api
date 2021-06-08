@@ -2058,6 +2058,8 @@ pub enum ErrorCode {
     INVALID_CONFIRMATION_CODE,
     #[serde(rename = "conflict")]
     CONFLICT,
+    #[serde(rename = "insufficient_funds")]
+    INSUFFICIENT_FUNDS,
 }
 
 impl std::fmt::Display for ErrorCode {
@@ -2074,6 +2076,7 @@ impl std::fmt::Display for ErrorCode {
             ErrorCode::INVALID_STRING => write!(f, "{}", "invalid_string"),
             ErrorCode::INVALID_CONFIRMATION_CODE => write!(f, "{}", "invalid_confirmation_code"),
             ErrorCode::CONFLICT => write!(f, "{}", "conflict"),
+            ErrorCode::INSUFFICIENT_FUNDS => write!(f, "{}", "insufficient_funds"),
         }
     }
 }
@@ -2094,6 +2097,7 @@ impl std::str::FromStr for ErrorCode {
             "invalid_string" => std::result::Result::Ok(ErrorCode::INVALID_STRING),
             "invalid_confirmation_code" => std::result::Result::Ok(ErrorCode::INVALID_CONFIRMATION_CODE),
             "conflict" => std::result::Result::Ok(ErrorCode::CONFLICT),
+            "insufficient_funds" => std::result::Result::Ok(ErrorCode::INSUFFICIENT_FUNDS),
             _ => std::result::Result::Err(format!("Value not valid: {}", s)),
         }
     }
@@ -3516,7 +3520,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct MonitorBody {
     #[serde(rename = "url")]
@@ -4985,7 +4989,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct ProcessMonitorBody {
     /// The name of the executable process to be monitored.
@@ -6496,7 +6500,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct TcpMonitorBody {
     #[serde(rename = "hostname")]

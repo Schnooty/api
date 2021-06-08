@@ -2338,6 +2338,7 @@ components:
       - invalid_string
       - invalid_confirmation_code
       - conflict
+      - insufficient_funds
       type: string
     ServerInfo:
       description: Server info and status about open connections

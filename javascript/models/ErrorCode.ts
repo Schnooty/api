@@ -28,7 +28,8 @@ export enum ErrorCode {
     InternalParseFailure = 'internal_parse_failure',
     InvalidString = 'invalid_string',
     InvalidConfirmationCode = 'invalid_confirmation_code',
-    Conflict = 'conflict'
+    Conflict = 'conflict',
+    InsufficientFunds = 'insufficient_funds'
 }
 
 export function ErrorCodeFromJSON(json: any): ErrorCode {

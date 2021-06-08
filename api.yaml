@@ -1396,6 +1396,7 @@ components:
         - invalid_string
         - invalid_confirmation_code
         - conflict
+        - insufficient_funds
     ServerInfo:
       type: object
       description: "Server info and status about open connections"
