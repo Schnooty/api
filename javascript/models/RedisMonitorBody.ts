@@ -43,6 +43,12 @@ export interface RedisMonitorBody {
      * @type {string}
      * @memberof RedisMonitorBody
      */
+    db?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RedisMonitorBody
+     */
     username?: string;
     /**
      * 
@@ -70,6 +76,7 @@ export function RedisMonitorBodyFromJSONTyped(json: any, ignoreDiscriminator: bo
         
         'hostname': !exists(json, 'hostname') ? undefined : json['hostname'],
         'port': !exists(json, 'port') ? undefined : json['port'],
+        'db': !exists(json, 'db') ? undefined : json['db'],
         'username': !exists(json, 'username') ? undefined : json['username'],
         'password': !exists(json, 'password') ? undefined : json['password'],
         'expression': !exists(json, 'expression') ? undefined : BoolExprFromJSON(json['expression']),
@@ -87,6 +94,7 @@ export function RedisMonitorBodyToJSON(value?: RedisMonitorBody | null): any {
         
         'hostname': value.hostname,
         'port': value.port,
+        'db': value.db,
         'username': value.username,
         'password': value.password,
         'expression': BoolExprToJSON(value.expression),

@@ -1634,6 +1634,8 @@ components:
           maximum: 65535
           minimum: 0
           type: integer
+        db:
+          type: string
         username:
           type: string
         password:

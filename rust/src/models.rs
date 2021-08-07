@@ -7215,6 +7215,10 @@ pub struct RedisMonitorBody {
     #[serde(skip_serializing_if="Option::is_none")]
     pub port: Option<u16>,
 
+    #[serde(rename = "db")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub db: Option<String>,
+
     #[serde(rename = "username")]
     #[serde(skip_serializing_if="Option::is_none")]
     pub username: Option<String>,
@@ -7234,6 +7238,7 @@ impl RedisMonitorBody {
         RedisMonitorBody {
             hostname: None,
             port: None,
+            db: None,
             username: None,
             password: None,
             expression: None,
@@ -7257,6 +7262,12 @@ impl std::string::ToString for RedisMonitorBody {
         if let Some(ref port) = self.port {
             params.push("port".to_string());
             params.push(port.to_string());
+        }
+
+
+        if let Some(ref db) = self.db {
+            params.push("db".to_string());
+            params.push(db.to_string());
         }
 
 
@@ -7289,6 +7300,7 @@ impl std::str::FromStr for RedisMonitorBody {
         struct IntermediateRep {
             pub hostname: Vec<String>,
             pub port: Vec<u16>,
+            pub db: Vec<String>,
             pub username: Vec<String>,
             pub password: Vec<String>,
             pub expression: Vec<models::BoolExpr>,
@@ -7310,6 +7322,7 @@ impl std::str::FromStr for RedisMonitorBody {
                 match key {
                     "hostname" => intermediate_rep.hostname.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "port" => intermediate_rep.port.push(u16::from_str(val).map_err(|x| format!("{}", x))?),
+                    "db" => intermediate_rep.db.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "username" => intermediate_rep.username.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "expression" => intermediate_rep.expression.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
@@ -7325,6 +7338,7 @@ impl std::str::FromStr for RedisMonitorBody {
         std::result::Result::Ok(RedisMonitorBody {
             hostname: intermediate_rep.hostname.into_iter().next(),
             port: intermediate_rep.port.into_iter().next(),
+            db: intermediate_rep.db.into_iter().next(),
             username: intermediate_rep.username.into_iter().next(),
             password: intermediate_rep.password.into_iter().next(),
             expression: intermediate_rep.expression.into_iter().next(),
