@@ -1327,6 +1327,259 @@ impl std::str::FromStr for AlertBody {
 
 
 
+// Methods for converting between header::IntoHeaderValue<AndExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<AndExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<AndExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for AndExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AndExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <AndExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into AndExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct AndExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::BoolExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::BoolExpr,
+
+}
+
+impl AndExpr {
+    pub fn new(lhs: models::BoolExpr, rhs: models::BoolExpr, ) -> AndExpr {
+        AndExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the AndExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for AndExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a AndExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for AndExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::BoolExpr>,
+            pub rhs: Vec<models::BoolExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing AndExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing AndExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(AndExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in AndExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in AndExpr".to_string())?,
+        })
+    }
+}
+
+
+
+// Methods for converting between header::IntoHeaderValue<ArthExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<ArthExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<ArthExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for ArthExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ArthExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <ArthExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into ArthExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct ArthExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+    #[serde(rename = "name")]
+    pub name: String,
+
+}
+
+impl ArthExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, name: String, ) -> ArthExpr {
+        ArthExpr {
+            lhs: lhs,
+            rhs: rhs,
+            name: name,
+        }
+    }
+}
+
+/// Converts the ArthExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for ArthExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+
+        params.push("name".to_string());
+        params.push(self.name.to_string());
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a ArthExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for ArthExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+            pub name: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing ArthExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing ArthExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(ArthExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in ArthExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in ArthExpr".to_string())?,
+            name: intermediate_rep.name.into_iter().next().ok_or("name missing in ArthExpr".to_string())?,
+        })
+    }
+}
+
+
+
 // Methods for converting between header::IntoHeaderValue<Balance> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
@@ -1582,6 +1835,137 @@ impl std::str::FromStr for Balances {
 
 
 
+// Methods for converting between header::IntoHeaderValue<BoolExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<BoolExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<BoolExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for BoolExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<BoolExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <BoolExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into BoolExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct BoolExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+    #[serde(rename = "expr")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expr: Option<models::BoolExpr>,
+
+}
+
+impl BoolExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> BoolExpr {
+        BoolExpr {
+            lhs: lhs,
+            rhs: rhs,
+            expr: None,
+        }
+    }
+}
+
+/// Converts the BoolExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for BoolExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        // Skipping expr in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a BoolExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for BoolExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+            pub expr: Vec<models::BoolExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing BoolExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expr" => intermediate_rep.expr.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing BoolExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(BoolExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in BoolExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in BoolExpr".to_string())?,
+            expr: intermediate_rep.expr.into_iter().next(),
+        })
+    }
+}
+
+
+
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct ByteUnit(String);
@@ -1734,6 +2118,127 @@ impl std::ops::Deref for DateTime {
 impl std::ops::DerefMut for DateTime {
     fn deref_mut(&mut self) -> &mut chrono::DateTime::<chrono::Utc> {
         &mut self.0
+    }
+}
+
+
+
+// Methods for converting between header::IntoHeaderValue<DivExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<DivExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<DivExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for DivExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<DivExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <DivExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into DivExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct DivExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl DivExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> DivExpr {
+        DivExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the DivExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for DivExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a DivExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for DivExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing DivExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing DivExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(DivExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in DivExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in DivExpr".to_string())?,
+        })
     }
 }
 
@@ -2027,6 +2532,127 @@ impl std::str::FromStr for EmailAlertBody {
 
 
 
+// Methods for converting between header::IntoHeaderValue<EqExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<EqExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<EqExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for EqExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<EqExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <EqExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into EqExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct EqExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl EqExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> EqExpr {
+        EqExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the EqExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for EqExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a EqExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for EqExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing EqExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing EqExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(EqExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in EqExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in EqExpr".to_string())?,
+        })
+    }
+}
+
+
+
 /// Global error code that indicates what went wrong
 /// Enumeration of values.
 /// Since this enum's variants do not hold data, we can easily define them them as `#[repr(C)]`
@@ -2219,6 +2845,362 @@ impl std::str::FromStr for ErrorList {
 
 
 
+// Methods for converting between header::IntoHeaderValue<FieldExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<FieldExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<FieldExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for FieldExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<FieldExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <FieldExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into FieldExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct FieldExpr {
+    #[serde(rename = "name")]
+    pub name: String,
+
+}
+
+impl FieldExpr {
+    pub fn new(name: String, ) -> FieldExpr {
+        FieldExpr {
+            name: name,
+        }
+    }
+}
+
+/// Converts the FieldExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for FieldExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+
+        params.push("name".to_string());
+        params.push(self.name.to_string());
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a FieldExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for FieldExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub name: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing FieldExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing FieldExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(FieldExpr {
+            name: intermediate_rep.name.into_iter().next().ok_or("name missing in FieldExpr".to_string())?,
+        })
+    }
+}
+
+
+
+// Methods for converting between header::IntoHeaderValue<GtEqExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<GtEqExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<GtEqExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for GtEqExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<GtEqExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <GtEqExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into GtEqExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct GtEqExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl GtEqExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> GtEqExpr {
+        GtEqExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the GtEqExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for GtEqExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a GtEqExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for GtEqExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing GtEqExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing GtEqExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(GtEqExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in GtEqExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in GtEqExpr".to_string())?,
+        })
+    }
+}
+
+
+
+// Methods for converting between header::IntoHeaderValue<GtExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<GtExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<GtExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for GtExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<GtExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <GtExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into GtExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct GtExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl GtExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> GtExpr {
+        GtExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the GtExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for GtExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a GtExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for GtExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing GtExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing GtExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(GtExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in GtExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in GtExpr".to_string())?,
+        })
+    }
+}
+
+
+
 // Methods for converting between header::IntoHeaderValue<HttpHeader> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
@@ -2383,7 +3365,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct HttpMonitorBody {
     #[serde(rename = "url")]
@@ -3044,6 +4026,248 @@ impl std::str::FromStr for JwtObject {
 
 
 
+// Methods for converting between header::IntoHeaderValue<LtEqExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<LtEqExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<LtEqExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for LtEqExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<LtEqExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <LtEqExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into LtEqExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct LtEqExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl LtEqExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> LtEqExpr {
+        LtEqExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the LtEqExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for LtEqExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a LtEqExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for LtEqExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing LtEqExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing LtEqExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(LtEqExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in LtEqExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in LtEqExpr".to_string())?,
+        })
+    }
+}
+
+
+
+// Methods for converting between header::IntoHeaderValue<LtExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<LtExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<LtExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for LtExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<LtExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <LtExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into LtExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct LtExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl LtExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> LtExpr {
+        LtExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the LtExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for LtExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a LtExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for LtExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing LtExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing LtExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(LtExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in LtExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in LtExpr".to_string())?,
+        })
+    }
+}
+
+
+
 // Methods for converting between header::IntoHeaderValue<Money> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
@@ -3523,7 +4747,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct MonitorBody {
     #[serde(rename = "url")]
@@ -4473,6 +5697,127 @@ impl std::str::FromStr for MsTeamsAlertBody {
 
 
 
+// Methods for converting between header::IntoHeaderValue<MulExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<MulExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<MulExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for MulExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MulExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <MulExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into MulExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct MulExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl MulExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> MulExpr {
+        MulExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the MulExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for MulExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a MulExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for MulExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing MulExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing MulExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(MulExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in MulExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in MulExpr".to_string())?,
+        })
+    }
+}
+
+
+
 // Methods for converting between header::IntoHeaderValue<NewAgent> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
@@ -4635,6 +5980,240 @@ impl std::str::FromStr for NewAgent {
             name: intermediate_rep.name.into_iter().next().ok_or("name missing in NewAgent".to_string())?,
             description: intermediate_rep.description.into_iter().next(),
             group: intermediate_rep.group.into_iter().next(),
+        })
+    }
+}
+
+
+
+// Methods for converting between header::IntoHeaderValue<NotExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<NotExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<NotExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for NotExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<NotExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <NotExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into NotExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct NotExpr {
+    #[serde(rename = "expr")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expr: Option<models::BoolExpr>,
+
+}
+
+impl NotExpr {
+    pub fn new() -> NotExpr {
+        NotExpr {
+            expr: None,
+        }
+    }
+}
+
+/// Converts the NotExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for NotExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping expr in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a NotExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for NotExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub expr: Vec<models::BoolExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing NotExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "expr" => intermediate_rep.expr.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing NotExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(NotExpr {
+            expr: intermediate_rep.expr.into_iter().next(),
+        })
+    }
+}
+
+
+
+// Methods for converting between header::IntoHeaderValue<OrExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<OrExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<OrExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for OrExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<OrExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <OrExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into OrExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct OrExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::BoolExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::BoolExpr,
+
+}
+
+impl OrExpr {
+    pub fn new(lhs: models::BoolExpr, rhs: models::BoolExpr, ) -> OrExpr {
+        OrExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the OrExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for OrExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a OrExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for OrExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::BoolExpr>,
+            pub rhs: Vec<models::BoolExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing OrExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing OrExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(OrExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in OrExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in OrExpr".to_string())?,
         })
     }
 }
@@ -4953,6 +6532,127 @@ impl std::str::FromStr for PlanArray {
 
 
 
+// Methods for converting between header::IntoHeaderValue<PlusExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<PlusExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<PlusExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for PlusExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<PlusExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <PlusExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into PlusExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct PlusExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl PlusExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> PlusExpr {
+        PlusExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the PlusExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for PlusExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a PlusExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for PlusExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing PlusExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing PlusExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(PlusExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in PlusExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in PlusExpr".to_string())?,
+        })
+    }
+}
+
+
+
 // Methods for converting between header::IntoHeaderValue<ProcessMonitorBody> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
@@ -4992,7 +6692,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct ProcessMonitorBody {
     /// The name of the executable process to be monitored.
@@ -5338,6 +7038,175 @@ impl std::str::FromStr for ProductEntity {
         }
     }
 }
+
+
+// Methods for converting between header::IntoHeaderValue<RedisMonitorBody> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<RedisMonitorBody>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<RedisMonitorBody>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for RedisMonitorBody - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<RedisMonitorBody> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <RedisMonitorBody as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into RedisMonitorBody - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct RedisMonitorBody {
+    #[serde(rename = "hostname")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub hostname: Option<String>,
+
+    #[serde(rename = "port")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub port: Option<u16>,
+
+    #[serde(rename = "username")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub username: Option<String>,
+
+    #[serde(rename = "password")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub password: Option<String>,
+
+    #[serde(rename = "expression")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expression: Option<models::BoolExpr>,
+
+}
+
+impl RedisMonitorBody {
+    pub fn new() -> RedisMonitorBody {
+        RedisMonitorBody {
+            hostname: None,
+            port: None,
+            username: None,
+            password: None,
+            expression: None,
+        }
+    }
+}
+
+/// Converts the RedisMonitorBody value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for RedisMonitorBody {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+
+        if let Some(ref hostname) = self.hostname {
+            params.push("hostname".to_string());
+            params.push(hostname.to_string());
+        }
+
+
+        if let Some(ref port) = self.port {
+            params.push("port".to_string());
+            params.push(port.to_string());
+        }
+
+
+        if let Some(ref username) = self.username {
+            params.push("username".to_string());
+            params.push(username.to_string());
+        }
+
+
+        if let Some(ref password) = self.password {
+            params.push("password".to_string());
+            params.push(password.to_string());
+        }
+
+        // Skipping expression in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a RedisMonitorBody value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for RedisMonitorBody {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub hostname: Vec<String>,
+            pub port: Vec<u16>,
+            pub username: Vec<String>,
+            pub password: Vec<String>,
+            pub expression: Vec<models::BoolExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing RedisMonitorBody".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "hostname" => intermediate_rep.hostname.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "port" => intermediate_rep.port.push(u16::from_str(val).map_err(|x| format!("{}", x))?),
+                    "username" => intermediate_rep.username.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expression" => intermediate_rep.expression.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing RedisMonitorBody".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(RedisMonitorBody {
+            hostname: intermediate_rep.hostname.into_iter().next(),
+            port: intermediate_rep.port.into_iter().next(),
+            username: intermediate_rep.username.into_iter().next(),
+            password: intermediate_rep.password.into_iter().next(),
+            expression: intermediate_rep.expression.into_iter().next(),
+        })
+    }
+}
+
 
 
 // Methods for converting between header::IntoHeaderValue<Registration> and hyper::header::HeaderValue
@@ -6142,6 +8011,127 @@ impl std::str::FromStr for ServerInfo {
 
 
 
+// Methods for converting between header::IntoHeaderValue<SubExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<SubExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<SubExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for SubExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<SubExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <SubExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into SubExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct SubExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+}
+
+impl SubExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> SubExpr {
+        SubExpr {
+            lhs: lhs,
+            rhs: rhs,
+        }
+    }
+}
+
+/// Converts the SubExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for SubExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a SubExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for SubExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing SubExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing SubExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(SubExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in SubExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in SubExpr".to_string())?,
+        })
+    }
+}
+
+
+
 // Methods for converting between header::IntoHeaderValue<Subscription> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
@@ -6503,7 +8493,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct TcpMonitorBody {
     #[serde(rename = "hostname")]

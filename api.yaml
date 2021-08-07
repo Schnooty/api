@@ -957,6 +957,159 @@ components:
           type: integer
           minimum: 0
           maximum: 65535
+    RedisMonitorBody:
+      type: object
+      properties:
+        hostname:
+          type: string
+        port:
+          type: integer
+          minimum: 0
+          maximum: 65535
+        username:
+          type: string
+        password:
+          type: string
+        expression:
+          $ref: "#/components/schemas/BoolExpr"  
+    BoolExpr:
+      oneOf:
+        - $ref: "#/components/schemas/AndExpr"
+        - $ref: "#/components/schemas/OrExpr"
+        - $ref: "#/components/schemas/NotExpr"
+        - $ref: "#/components/schemas/EqExpr"
+        - $ref: "#/components/schemas/LtExpr"
+        - $ref: "#/components/schemas/GtExpr"
+        - $ref: "#/components/schemas/LtEqExpr"
+        - $ref: "#/components/schemas/GtEqExpr"
+    ArthExpr:
+      oneOf:
+        - $ref: "#/components/schemas/PlusExpr"
+        - $ref: "#/components/schemas/SubExpr"
+        - $ref: "#/components/schemas/MulExpr"
+        - $ref: "#/components/schemas/DivExpr"
+        - $ref: "#/components/schemas/FieldExpr"
+    AndExpr:
+      required:
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/BoolExpr"
+        rhs: 
+          $ref: "#/components/schemas/BoolExpr"
+    OrExpr:
+      type: object
+      required:
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/BoolExpr"
+        rhs: 
+          $ref: "#/components/schemas/BoolExpr"
+    NotExpr:
+      type: object
+      properties:
+        expr: 
+          $ref: "#/components/schemas/BoolExpr"
+    EqExpr:
+      required:
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    LtExpr:
+      type: object
+      required:
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    GtExpr:
+      type: object
+      required:
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    LtEqExpr:
+      type: object
+      required:
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    GtEqExpr:
+      type: object
+      required:
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    SubExpr:
+      type: object
+      required:
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    PlusExpr:
+      type: object
+      required: 
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    MulExpr:
+      type: object
+      required: 
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    DivExpr:
+      type: object
+      required: 
+        - lhs
+        - rhs
+      properties:
+        lhs: 
+          $ref: "#/components/schemas/ArthExpr"
+        rhs: 
+          $ref: "#/components/schemas/ArthExpr"
+    FieldExpr:
+      type: object
+      required: 
+        - name
+      properties:
+        name: 
+          type:
+            string
     MonitorArray:
       type: object
       required: ["monitors"]
