@@ -20,6 +20,7 @@ docs/Balances.md
 docs/BoolExpr.md
 docs/ByteUnit.md
 docs/ChargeType.md
+docs/ConstExpr.md
 docs/CurrencyCode.md
 docs/DateTime.md
 docs/DivExpr.md

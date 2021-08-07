@@ -13,6 +13,7 @@ export * from './Balance';
 export * from './Balances';
 export * from './BoolExpr';
 export * from './ChargeType';
+export * from './ConstExpr';
 export * from './CurrencyCode';
 export * from './DivExpr';
 export * from './EmailAlertBody';

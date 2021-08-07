@@ -62,6 +62,7 @@ Class | Method | HTTP request | Description
  - [Balances](./Models/Balances.md)
  - [BoolExpr](./Models/BoolExpr.md)
  - [ChargeType](./Models/ChargeType.md)
+ - [ConstExpr](./Models/ConstExpr.md)
  - [CurrencyCode](./Models/CurrencyCode.md)
  - [DivExpr](./Models/DivExpr.md)
  - [EmailAlertBody](./Models/EmailAlertBody.md)

@@ -1499,14 +1499,18 @@ pub struct ArthExpr {
     #[serde(rename = "name")]
     pub name: String,
 
+    #[serde(rename = "constant")]
+    pub constant: f64,
+
 }
 
 impl ArthExpr {
-    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, name: String, ) -> ArthExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, name: String, constant: f64, ) -> ArthExpr {
         ArthExpr {
             lhs: lhs,
             rhs: rhs,
             name: name,
+            constant: constant,
         }
     }
 }
@@ -1525,6 +1529,10 @@ impl std::string::ToString for ArthExpr {
         params.push("name".to_string());
         params.push(self.name.to_string());
 
+
+        params.push("constant".to_string());
+        params.push(self.constant.to_string());
+
         params.join(",").to_string()
     }
 }
@@ -1542,6 +1550,7 @@ impl std::str::FromStr for ArthExpr {
             pub lhs: Vec<models::ArthExpr>,
             pub rhs: Vec<models::ArthExpr>,
             pub name: Vec<String>,
+            pub constant: Vec<f64>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -1561,6 +1570,7 @@ impl std::str::FromStr for ArthExpr {
                     "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
                     "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
                     "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "constant" => intermediate_rep.constant.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing ArthExpr".to_string())
                 }
             }
@@ -1574,6 +1584,7 @@ impl std::str::FromStr for ArthExpr {
             lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in ArthExpr".to_string())?,
             rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in ArthExpr".to_string())?,
             name: intermediate_rep.name.into_iter().next().ok_or("name missing in ArthExpr".to_string())?,
+            constant: intermediate_rep.constant.into_iter().next().ok_or("constant missing in ArthExpr".to_string())?,
         })
     }
 }
@@ -2048,6 +2059,120 @@ impl std::str::FromStr for ChargeType {
         }
     }
 }
+
+
+// Methods for converting between header::IntoHeaderValue<ConstExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<ConstExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<ConstExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for ConstExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ConstExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <ConstExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into ConstExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct ConstExpr {
+    #[serde(rename = "constant")]
+    pub constant: f64,
+
+}
+
+impl ConstExpr {
+    pub fn new(constant: f64, ) -> ConstExpr {
+        ConstExpr {
+            constant: constant,
+        }
+    }
+}
+
+/// Converts the ConstExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for ConstExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+
+        params.push("constant".to_string());
+        params.push(self.constant.to_string());
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a ConstExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for ConstExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub constant: Vec<f64>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing ConstExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "constant" => intermediate_rep.constant.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing ConstExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(ConstExpr {
+            constant: intermediate_rep.constant.into_iter().next().ok_or("constant missing in ConstExpr".to_string())?,
+        })
+    }
+}
+
 
 
 /// Enumeration of values.

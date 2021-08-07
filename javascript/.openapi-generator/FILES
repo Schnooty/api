@@ -25,6 +25,7 @@ models/Balance.ts
 models/Balances.ts
 models/BoolExpr.ts
 models/ChargeType.ts
+models/ConstExpr.ts
 models/CurrencyCode.ts
 models/DivExpr.ts
 models/EmailAlertBody.ts

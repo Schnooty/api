@@ -13,11 +13,14 @@
  */
 
 import {
+    ConstExpr,
     DivExpr,
     FieldExpr,
     MulExpr,
     PlusExpr,
     SubExpr,
+    ConstExprFromJSONTyped,
+    ConstExprToJSON,
     DivExprFromJSONTyped,
     DivExprToJSON,
     FieldExprFromJSONTyped,
@@ -35,7 +38,7 @@ import {
  * 
  * @export
  */
-export type ArthExpr = DivExpr | FieldExpr | MulExpr | PlusExpr | SubExpr;
+export type ArthExpr = ConstExpr | DivExpr | FieldExpr | MulExpr | PlusExpr | SubExpr;
 
 export function ArthExprFromJSON(json: any): ArthExpr {
     return ArthExprFromJSONTyped(json, false);
@@ -45,7 +48,7 @@ export function ArthExprFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     if ((json === undefined) || (json === null)) {
         return json;
     }
-    return { ...DivExprFromJSONTyped(json, true), ...FieldExprFromJSONTyped(json, true), ...MulExprFromJSONTyped(json, true), ...PlusExprFromJSONTyped(json, true), ...SubExprFromJSONTyped(json, true) };
+    return { ...ConstExprFromJSONTyped(json, true), ...DivExprFromJSONTyped(json, true), ...FieldExprFromJSONTyped(json, true), ...MulExprFromJSONTyped(json, true), ...PlusExprFromJSONTyped(json, true), ...SubExprFromJSONTyped(json, true) };
 }
 
 export function ArthExprToJSON(value?: ArthExpr | null): any {
@@ -55,6 +58,6 @@ export function ArthExprToJSON(value?: ArthExpr | null): any {
     if (value === null) {
         return null;
     }
-    return { ...DivExprToJSON(value), ...FieldExprToJSON(value), ...MulExprToJSON(value), ...PlusExprToJSON(value), ...SubExprToJSON(value) };
+    return { ...ConstExprToJSON(value), ...DivExprToJSON(value), ...FieldExprToJSON(value), ...MulExprToJSON(value), ...PlusExprToJSON(value), ...SubExprToJSON(value) };
 }
 

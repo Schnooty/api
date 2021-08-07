@@ -14,7 +14,7 @@ To see how to make this your own, look here:
 [README]((https://openapi-generator.tech))
 
 - API version: 1.0.0
-- Build date: 2021-08-08T11:21:55.244314+12:00[Pacific/Auckland]
+- Build date: 2021-08-08T11:37:51.863307+12:00[Pacific/Auckland]
 
 
 
@@ -172,6 +172,7 @@ Method | HTTP request | Description
  - [BoolExpr](docs/BoolExpr.md)
  - [ByteUnit](docs/ByteUnit.md)
  - [ChargeType](docs/ChargeType.md)
+ - [ConstExpr](docs/ConstExpr.md)
  - [CurrencyCode](docs/CurrencyCode.md)
  - [DateTime](docs/DateTime.md)
  - [DivExpr](docs/DivExpr.md)

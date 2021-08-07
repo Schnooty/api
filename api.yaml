@@ -989,6 +989,7 @@ components:
         - $ref: "#/components/schemas/MulExpr"
         - $ref: "#/components/schemas/DivExpr"
         - $ref: "#/components/schemas/FieldExpr"
+        - $ref: "#/components/schemas/ConstExpr"
     AndExpr:
       required:
         - lhs
@@ -1110,6 +1111,13 @@ components:
         name: 
           type:
             string
+    ConstExpr:
+      type: object
+      required:
+        - constant
+      properties:
+        constant:
+          type: number
     MonitorArray:
       type: object
       required: ["monitors"]

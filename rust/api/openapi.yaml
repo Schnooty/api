@@ -1658,6 +1658,7 @@ components:
       - $ref: '#/components/schemas/MulExpr'
       - $ref: '#/components/schemas/DivExpr'
       - $ref: '#/components/schemas/FieldExpr'
+      - $ref: '#/components/schemas/ConstExpr'
     AndExpr:
       properties:
         lhs:
@@ -1777,6 +1778,13 @@ components:
           type: string
       required:
       - name
+      type: object
+    ConstExpr:
+      properties:
+        constant:
+          type: number
+      required:
+      - constant
       type: object
     MonitorArray:
       example:
