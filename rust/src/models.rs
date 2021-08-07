@@ -2060,6 +2060,8 @@ pub enum ErrorCode {
     CONFLICT,
     #[serde(rename = "insufficient_funds")]
     INSUFFICIENT_FUNDS,
+    #[serde(rename = "internal_error")]
+    INTERNAL_ERROR,
 }
 
 impl std::fmt::Display for ErrorCode {
@@ -2077,6 +2079,7 @@ impl std::fmt::Display for ErrorCode {
             ErrorCode::INVALID_CONFIRMATION_CODE => write!(f, "{}", "invalid_confirmation_code"),
             ErrorCode::CONFLICT => write!(f, "{}", "conflict"),
             ErrorCode::INSUFFICIENT_FUNDS => write!(f, "{}", "insufficient_funds"),
+            ErrorCode::INTERNAL_ERROR => write!(f, "{}", "internal_error"),
         }
     }
 }
