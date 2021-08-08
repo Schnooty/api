@@ -40,10 +40,10 @@ export interface RedisMonitorBody {
     port?: number;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof RedisMonitorBody
      */
-    db?: string;
+    db?: number;
     /**
      * 
      * @type {string}

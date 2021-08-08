@@ -1617,6 +1617,7 @@ components:
       - $ref: '#/components/schemas/HttpMonitorBody'
       - $ref: '#/components/schemas/ProcessMonitorBody'
       - $ref: '#/components/schemas/TcpMonitorBody'
+      - $ref: '#/components/schemas/RedisMonitorBody'
     TcpMonitorBody:
       properties:
         hostname:
@@ -1635,7 +1636,7 @@ components:
           minimum: 0
           type: integer
         db:
-          type: string
+          type: integer
         username:
           type: string
         password:

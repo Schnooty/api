@@ -15,11 +15,14 @@
 import {
     HttpMonitorBody,
     ProcessMonitorBody,
+    RedisMonitorBody,
     TcpMonitorBody,
     HttpMonitorBodyFromJSONTyped,
     HttpMonitorBodyToJSON,
     ProcessMonitorBodyFromJSONTyped,
     ProcessMonitorBodyToJSON,
+    RedisMonitorBodyFromJSONTyped,
+    RedisMonitorBodyToJSON,
     TcpMonitorBodyFromJSONTyped,
     TcpMonitorBodyToJSON,
 } from './';
@@ -29,7 +32,7 @@ import {
  * 
  * @export
  */
-export type MonitorBody = HttpMonitorBody | ProcessMonitorBody | TcpMonitorBody;
+export type MonitorBody = HttpMonitorBody | ProcessMonitorBody | RedisMonitorBody | TcpMonitorBody;
 
 export function MonitorBodyFromJSON(json: any): MonitorBody {
     return MonitorBodyFromJSONTyped(json, false);
@@ -39,7 +42,7 @@ export function MonitorBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean
     if ((json === undefined) || (json === null)) {
         return json;
     }
-    return { ...HttpMonitorBodyFromJSONTyped(json, true), ...ProcessMonitorBodyFromJSONTyped(json, true), ...TcpMonitorBodyFromJSONTyped(json, true) };
+    return { ...HttpMonitorBodyFromJSONTyped(json, true), ...ProcessMonitorBodyFromJSONTyped(json, true), ...RedisMonitorBodyFromJSONTyped(json, true), ...TcpMonitorBodyFromJSONTyped(json, true) };
 }
 
 export function MonitorBodyToJSON(value?: MonitorBody | null): any {
@@ -49,6 +52,6 @@ export function MonitorBodyToJSON(value?: MonitorBody | null): any {
     if (value === null) {
         return null;
     }
-    return { ...HttpMonitorBodyToJSON(value), ...ProcessMonitorBodyToJSON(value), ...TcpMonitorBodyToJSON(value) };
+    return { ...HttpMonitorBodyToJSON(value), ...ProcessMonitorBodyToJSON(value), ...RedisMonitorBodyToJSON(value), ...TcpMonitorBodyToJSON(value) };
 }
 

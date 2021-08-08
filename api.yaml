@@ -948,6 +948,7 @@ components:
         - $ref: "#/components/schemas/HttpMonitorBody"
         - $ref: "#/components/schemas/ProcessMonitorBody"
         - $ref: "#/components/schemas/TcpMonitorBody"
+        - $ref: "#/components/schemas/RedisMonitorBody"
     TcpMonitorBody:
       type: object
       properties:

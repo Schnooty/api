@@ -4927,6 +4927,22 @@ pub struct MonitorBody {
     #[serde(skip_serializing_if="Option::is_none")]
     pub port: Option<u16>,
 
+    #[serde(rename = "db")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub db: Option<isize>,
+
+    #[serde(rename = "username")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub username: Option<String>,
+
+    #[serde(rename = "password")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub password: Option<String>,
+
+    #[serde(rename = "expression")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expression: Option<models::BoolExpr>,
+
 }
 
 impl MonitorBody {
@@ -4944,6 +4960,10 @@ impl MonitorBody {
             maximum_ram_total: None,
             hostname: None,
             port: None,
+            db: None,
+            username: None,
+            password: None,
+            expression: None,
         }
     }
 }
@@ -5022,6 +5042,26 @@ impl std::string::ToString for MonitorBody {
             params.push(port.to_string());
         }
 
+
+        if let Some(ref db) = self.db {
+            params.push("db".to_string());
+            params.push(db.to_string());
+        }
+
+
+        if let Some(ref username) = self.username {
+            params.push("username".to_string());
+            params.push(username.to_string());
+        }
+
+
+        if let Some(ref password) = self.password {
+            params.push("password".to_string());
+            params.push(password.to_string());
+        }
+
+        // Skipping expression in query parameter serialization
+
         params.join(",").to_string()
     }
 }
@@ -5048,6 +5088,10 @@ impl std::str::FromStr for MonitorBody {
             pub maximum_ram_total: Vec<String>,
             pub hostname: Vec<String>,
             pub port: Vec<u16>,
+            pub db: Vec<isize>,
+            pub username: Vec<String>,
+            pub password: Vec<String>,
+            pub expression: Vec<models::BoolExpr>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -5076,6 +5120,10 @@ impl std::str::FromStr for MonitorBody {
                     "maximumRamTotal" => intermediate_rep.maximum_ram_total.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "hostname" => intermediate_rep.hostname.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "port" => intermediate_rep.port.push(u16::from_str(val).map_err(|x| format!("{}", x))?),
+                    "db" => intermediate_rep.db.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
+                    "username" => intermediate_rep.username.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expression" => intermediate_rep.expression.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing MonitorBody".to_string())
                 }
             }
@@ -5098,6 +5146,10 @@ impl std::str::FromStr for MonitorBody {
             maximum_ram_total: intermediate_rep.maximum_ram_total.into_iter().next(),
             hostname: intermediate_rep.hostname.into_iter().next(),
             port: intermediate_rep.port.into_iter().next(),
+            db: intermediate_rep.db.into_iter().next(),
+            username: intermediate_rep.username.into_iter().next(),
+            password: intermediate_rep.password.into_iter().next(),
+            expression: intermediate_rep.expression.into_iter().next(),
         })
     }
 }
@@ -7217,7 +7269,7 @@ pub struct RedisMonitorBody {
 
     #[serde(rename = "db")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub db: Option<String>,
+    pub db: Option<isize>,
 
     #[serde(rename = "username")]
     #[serde(skip_serializing_if="Option::is_none")]
@@ -7300,7 +7352,7 @@ impl std::str::FromStr for RedisMonitorBody {
         struct IntermediateRep {
             pub hostname: Vec<String>,
             pub port: Vec<u16>,
-            pub db: Vec<String>,
+            pub db: Vec<isize>,
             pub username: Vec<String>,
             pub password: Vec<String>,
             pub expression: Vec<models::BoolExpr>,
@@ -7322,7 +7374,7 @@ impl std::str::FromStr for RedisMonitorBody {
                 match key {
                     "hostname" => intermediate_rep.hostname.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "port" => intermediate_rep.port.push(u16::from_str(val).map_err(|x| format!("{}", x))?),
-                    "db" => intermediate_rep.db.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "db" => intermediate_rep.db.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
                     "username" => intermediate_rep.username.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
                     "expression" => intermediate_rep.expression.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
