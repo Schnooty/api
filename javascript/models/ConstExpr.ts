@@ -25,6 +25,20 @@ export interface ConstExpr {
      * @memberof ConstExpr
      */
     constant: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ConstExpr
+     */
+    exprType?: ConstExprExprTypeEnum;
+}
+
+/**
+* @export
+* @enum {string}
+*/
+export enum ConstExprExprTypeEnum {
+    Const = 'const'
 }
 
 export function ConstExprFromJSON(json: any): ConstExpr {
@@ -38,6 +52,7 @@ export function ConstExprFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     return {
         
         'constant': json['constant'],
+        'exprType': !exists(json, 'exprType') ? undefined : json['exprType'],
     };
 }
 
@@ -51,6 +66,7 @@ export function ConstExprToJSON(value?: ConstExpr | null): any {
     return {
         
         'constant': value.constant,
+        'exprType': value.exprType,
     };
 }
 

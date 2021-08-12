@@ -38,6 +38,20 @@ export interface DivExpr {
      * @memberof DivExpr
      */
     rhs: ArthExpr;
+    /**
+     * 
+     * @type {string}
+     * @memberof DivExpr
+     */
+    exprType?: DivExprExprTypeEnum;
+}
+
+/**
+* @export
+* @enum {string}
+*/
+export enum DivExprExprTypeEnum {
+    Div = 'div'
 }
 
 export function DivExprFromJSON(json: any): DivExpr {
@@ -52,6 +66,7 @@ export function DivExprFromJSONTyped(json: any, ignoreDiscriminator: boolean): D
         
         'lhs': ArthExprFromJSON(json['lhs']),
         'rhs': ArthExprFromJSON(json['rhs']),
+        'exprType': !exists(json, 'exprType') ? undefined : json['exprType'],
     };
 }
 
@@ -66,6 +81,7 @@ export function DivExprToJSON(value?: DivExpr | null): any {
         
         'lhs': ArthExprToJSON(value.lhs),
         'rhs': ArthExprToJSON(value.rhs),
+        'exprType': value.exprType,
     };
 }
 

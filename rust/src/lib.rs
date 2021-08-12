@@ -5,13 +5,14 @@ use futures::Stream;
 use std::error::Error;
 use std::task::{Poll, Context};
 use swagger::{ApiError, ContextWrapper};
+use serde::{Serialize, Deserialize};
 
 type ServiceError = Box<dyn Error + Send + Sync + 'static>;
 
 pub const BASE_PATH: &'static str = "";
 pub const API_VERSION: &'static str = "1.0.0";
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AccountsIdPutResponse {
     /// OK
@@ -35,7 +36,7 @@ pub enum AccountsIdPutResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum CreateAccountResponse {
     /// OK
@@ -59,7 +60,7 @@ pub enum CreateAccountResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum CreateSubscriptionResponse {
     /// OK
@@ -75,7 +76,7 @@ pub enum CreateSubscriptionResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetAccountBalanceResponse {
     /// OK
@@ -95,7 +96,7 @@ pub enum GetAccountBalanceResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetAccountByIdResponse {
     /// OK
@@ -119,7 +120,7 @@ pub enum GetAccountByIdResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetAccountsResponse {
     /// OK
@@ -139,7 +140,7 @@ pub enum GetAccountsResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetPlansResponse {
     /// OK
@@ -155,7 +156,7 @@ pub enum GetPlansResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetSubscriptionByIdResponse {
     /// OK
@@ -171,7 +172,7 @@ pub enum GetSubscriptionByIdResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetSubscriptionRecordsResponse {
     /// OK
@@ -187,7 +188,7 @@ pub enum GetSubscriptionRecordsResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetTransactionsResponse {
     /// OK
@@ -211,7 +212,7 @@ pub enum GetTransactionsResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum CreateAgentSessionResponse {
     /// OK
@@ -235,7 +236,7 @@ pub enum CreateAgentSessionResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetAgentSessionStateResponse {
     /// OK
@@ -259,7 +260,7 @@ pub enum GetAgentSessionStateResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AgentsGetResponse {
     /// OK
@@ -283,7 +284,7 @@ pub enum AgentsGetResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AgentsIdDeleteResponse {
     /// OK
@@ -311,7 +312,7 @@ pub enum AgentsIdDeleteResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AgentsIdGetResponse {
     /// OK
@@ -339,7 +340,7 @@ pub enum AgentsIdGetResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AgentsIdPutResponse {
     /// OK
@@ -367,7 +368,7 @@ pub enum AgentsIdPutResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AgentsPostResponse {
     /// OK
@@ -391,7 +392,7 @@ pub enum AgentsPostResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AlertsGetResponse {
     /// OK
@@ -415,7 +416,7 @@ pub enum AlertsGetResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AlertsIdDeleteResponse {
     /// OK
@@ -435,7 +436,7 @@ pub enum AlertsIdDeleteResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AlertsIdGetResponse {
     /// OK
@@ -455,7 +456,7 @@ pub enum AlertsIdGetResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AlertsIdPutResponse {
     /// OK
@@ -475,7 +476,7 @@ pub enum AlertsIdPutResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AlertsPostResponse {
     /// OK
@@ -502,7 +503,7 @@ pub enum AlertsPostResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum AuthenticationJwtPostResponse {
     /// OK
@@ -518,7 +519,7 @@ pub enum AuthenticationJwtPostResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum CreateChallengeResponse {
     /// OK
@@ -530,7 +531,7 @@ pub enum CreateChallengeResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum UpdateChallengeResponse {
     /// OK
@@ -542,7 +543,7 @@ pub enum UpdateChallengeResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetInfoResponse {
     /// OK
@@ -554,7 +555,7 @@ pub enum GetInfoResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetMonitorByIdResponse {
     /// OK
@@ -578,7 +579,7 @@ pub enum GetMonitorByIdResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetMonitorsResponse {
     /// OK
@@ -598,7 +599,7 @@ pub enum GetMonitorsResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum MonitorsIdDeleteResponse {
     /// OK
@@ -618,7 +619,7 @@ pub enum MonitorsIdDeleteResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum PostMonitorResponse {
     /// Created
@@ -638,7 +639,7 @@ pub enum PostMonitorResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum UpdateMonitorResponse {
     /// OK
@@ -662,7 +663,7 @@ pub enum UpdateMonitorResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum ConfirmRegistrationResponse {
     /// The registration was confirmed. You can now authenticate using the email address and password.
@@ -681,7 +682,7 @@ pub enum ConfirmRegistrationResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum CreateRegistrationResponse {
     /// OK
@@ -697,7 +698,7 @@ pub enum CreateRegistrationResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum GetMonitorStatusesResponse {
     /// OK
@@ -717,7 +718,7 @@ pub enum GetMonitorStatusesResponse {
     (models::ErrorList)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 pub enum UpdateMonitorStatusesResponse {
     /// NoContent

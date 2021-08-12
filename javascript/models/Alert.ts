@@ -70,6 +70,16 @@ export interface Alert {
     body: AlertBody;
 }
 
+/**
+* @export
+* @enum {string}
+*/
+export enum AlertTypeEnum {
+    Msteams = 'msteams',
+    Webhook = 'webhook',
+    Email = 'email'
+}
+
 export function AlertFromJSON(json: any): Alert {
     return AlertFromJSONTyped(json, false);
 }
@@ -106,16 +116,6 @@ export function AlertToJSON(value?: Alert | null): any {
         'enabled': value.enabled,
         'body': AlertBodyToJSON(value.body),
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum AlertTypeEnum {
-    Msteams = 'msteams',
-    Webhook = 'webhook',
-    Email = 'email'
 }
 
 

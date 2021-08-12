@@ -4,7 +4,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | [**String**](string.md) |  | [default to null]
-**timestamp** | [**Date**](DateTime.md) |  | [default to null]
+**timestamp** | [**Date**](DateTime.md) | UTC UNIX timestamp in with fractional offset. | [default to null]
 **amount** | [**Money**](Money.md) |  | [default to null]
 **description** | [**String**](string.md) |  | [default to null]
 **code** | [**TransactionCode**](TransactionCode.md) |  | [default to null]

@@ -4,7 +4,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **accountId** | [**String**](string.md) |  | [default to null]
-**timestamp** | [**Date**](DateTime.md) |  | [default to null]
+**timestamp** | [**Date**](DateTime.md) | UTC UNIX timestamp in with fractional offset. | [default to null]
 **balance** | [**Money**](Money.md) |  | [default to null]
 **availableBalance** | [**Money**](Money.md) |  | [default to null]
 

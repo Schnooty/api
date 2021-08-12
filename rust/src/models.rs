@@ -4,46 +4,6 @@ use crate::models;
 #[cfg(any(feature = "client", feature = "server"))]
 use crate::header;
 
-
-// Methods for converting between header::IntoHeaderValue<Account> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Account>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<Account>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Account - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Account> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <Account as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Account - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct Account {
@@ -127,10 +87,10 @@ impl std::str::FromStr for Account {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "type" => intermediate_rep.type_.push(models::AccountType::from_str(val).map_err(|x| format!("{}", x))?),
-                    "currencyCode" => intermediate_rep.currency_code.push(models::CurrencyCode::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "type" => intermediate_rep.type_.push(<models::AccountType as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "currencyCode" => intermediate_rep.currency_code.push(<models::CurrencyCode as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Account".to_string())
                 }
             }
@@ -149,6 +109,43 @@ impl std::str::FromStr for Account {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<Account> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<Account>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<Account>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for Account - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Account> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <Account as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into Account - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 /// Enumeration of values.
@@ -158,7 +155,7 @@ impl std::str::FromStr for Account {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum AccountType { 
+pub enum AccountType {
     #[serde(rename = "subscription_charges")]
     CHARGES,
     #[serde(rename = "subscription_credits")]
@@ -167,7 +164,7 @@ pub enum AccountType {
 
 impl std::fmt::Display for AccountType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             AccountType::CHARGES => write!(f, "{}", "subscription_charges"),
             AccountType::CREDITS => write!(f, "{}", "subscription_credits"),
         }
@@ -185,46 +182,6 @@ impl std::str::FromStr for AccountType {
         }
     }
 }
-
-
-// Methods for converting between header::IntoHeaderValue<Agent> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Agent>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<Agent>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Agent - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Agent> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <Agent as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Agent - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -332,11 +289,11 @@ impl std::str::FromStr for Agent {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "description" => intermediate_rep.description.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "group" => intermediate_rep.group.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "apiKey" => intermediate_rep.api_key.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "group" => intermediate_rep.group.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "apiKey" => intermediate_rep.api_key.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Agent".to_string())
                 }
             }
@@ -356,6 +313,43 @@ impl std::str::FromStr for Agent {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<Agent> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<Agent>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<Agent>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for Agent - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Agent> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <Agent as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into Agent - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
@@ -397,46 +391,6 @@ impl std::ops::Deref for AgentApiKey {
 impl std::ops::DerefMut for AgentApiKey {
     fn deref_mut(&mut self) -> &mut String {
         &mut self.0
-    }
-}
-
-
-
-// Methods for converting between header::IntoHeaderValue<AgentSessionAssignment> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<AgentSessionAssignment>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<AgentSessionAssignment>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for AgentSessionAssignment - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AgentSessionAssignment> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <AgentSessionAssignment as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into AgentSessionAssignment - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
     }
 }
 
@@ -528,10 +482,10 @@ impl std::str::FromStr for AgentSessionAssignment {
 
             if let Some(key) = key_result {
                 match key {
-                    "sessionId" => intermediate_rep.session_id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "agentId" => intermediate_rep.agent_id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "sessionId" => intermediate_rep.session_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "agentId" => intermediate_rep.agent_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "monitorIds" => return std::result::Result::Err("Parsing a container in this style is not supported in AgentSessionAssignment".to_string()),
-                    "lastHeartbeatTimestamp" => intermediate_rep.last_heartbeat_timestamp.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lastHeartbeatTimestamp" => intermediate_rep.last_heartbeat_timestamp.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing AgentSessionAssignment".to_string())
                 }
             }
@@ -550,36 +504,34 @@ impl std::str::FromStr for AgentSessionAssignment {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<AgentSessionRequest> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<AgentSessionAssignment> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<AgentSessionRequest>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<AgentSessionAssignment>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<AgentSessionRequest>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<AgentSessionAssignment>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for AgentSessionRequest - value: {} is invalid {}",
+                 format!("Invalid header value for AgentSessionAssignment - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AgentSessionRequest> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AgentSessionAssignment> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <AgentSessionRequest as std::str::FromStr>::from_str(value) {
+                    match <AgentSessionAssignment as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into AgentSessionRequest - {}",
+                            format!("Unable to convert header value '{}' into AgentSessionAssignment - {}",
                                 value, err))
                     }
              },
@@ -661,8 +613,8 @@ impl std::str::FromStr for AgentSessionRequest {
 
             if let Some(key) = key_result {
                 match key {
-                    "sessionId" => intermediate_rep.session_id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "isNew" => intermediate_rep.is_new.push(bool::from_str(val).map_err(|x| format!("{}", x))?),
+                    "sessionId" => intermediate_rep.session_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "isNew" => intermediate_rep.is_new.push(<bool as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing AgentSessionRequest".to_string())
                 }
             }
@@ -679,36 +631,34 @@ impl std::str::FromStr for AgentSessionRequest {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<AgentSessionState> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<AgentSessionRequest> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<AgentSessionState>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<AgentSessionRequest>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<AgentSessionState>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<AgentSessionRequest>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for AgentSessionState - value: {} is invalid {}",
+                 format!("Invalid header value for AgentSessionRequest - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AgentSessionState> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AgentSessionRequest> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <AgentSessionState as std::str::FromStr>::from_str(value) {
+                    match <AgentSessionRequest as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into AgentSessionState - {}",
+                            format!("Unable to convert header value '{}' into AgentSessionRequest - {}",
                                 value, err))
                     }
              },
@@ -785,7 +735,7 @@ impl std::str::FromStr for AgentSessionState {
 
             if let Some(key) = key_result {
                 match key {
-                    "group" => intermediate_rep.group.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "group" => intermediate_rep.group.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "agents" => return std::result::Result::Err("Parsing a container in this style is not supported in AgentSessionState".to_string()),
                     _ => return std::result::Result::Err("Unexpected key while parsing AgentSessionState".to_string())
                 }
@@ -803,36 +753,34 @@ impl std::str::FromStr for AgentSessionState {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<Alert> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<AgentSessionState> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Alert>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<AgentSessionState>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Alert>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<AgentSessionState>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Alert - value: {} is invalid {}",
+                 format!("Invalid header value for AgentSessionState - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Alert> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AgentSessionState> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <Alert as std::str::FromStr>::from_str(value) {
+                    match <AgentSessionState as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Alert - {}",
+                            format!("Unable to convert header value '{}' into AgentSessionState - {}",
                                 value, err))
                     }
              },
@@ -961,13 +909,13 @@ impl std::str::FromStr for Alert {
 
             if let Some(key) = key_result {
                 match key {
-                    "type" => intermediate_rep.type_.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "description" => intermediate_rep.description.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "type" => intermediate_rep.type_.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "monitors" => return std::result::Result::Err("Parsing a container in this style is not supported in Alert".to_string()),
-                    "threshold" => intermediate_rep.threshold.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "enabled" => intermediate_rep.enabled.push(bool::from_str(val).map_err(|x| format!("{}", x))?),
-                    "body" => intermediate_rep.body.push(models::AlertBody::from_str(val).map_err(|x| format!("{}", x))?),
+                    "threshold" => intermediate_rep.threshold.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "enabled" => intermediate_rep.enabled.push(<bool as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "body" => intermediate_rep.body.push(<models::AlertBody as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Alert".to_string())
                 }
             }
@@ -989,36 +937,34 @@ impl std::str::FromStr for Alert {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<AlertArray> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<Alert> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<AlertArray>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<Alert>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<AlertArray>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<Alert>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for AlertArray - value: {} is invalid {}",
+                 format!("Invalid header value for Alert - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AlertArray> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Alert> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <AlertArray as std::str::FromStr>::from_str(value) {
+                    match <Alert as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into AlertArray - {}",
+                            format!("Unable to convert header value '{}' into Alert - {}",
                                 value, err))
                     }
              },
@@ -1101,36 +1047,34 @@ impl std::str::FromStr for AlertArray {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<AlertBody> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<AlertArray> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<AlertBody>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<AlertArray>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<AlertBody>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<AlertArray>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for AlertBody - value: {} is invalid {}",
+                 format!("Invalid header value for AlertArray - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AlertBody> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AlertArray> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <AlertBody as std::str::FromStr>::from_str(value) {
+                    match <AlertArray as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into AlertBody - {}",
+                            format!("Unable to convert header value '{}' into AlertArray - {}",
                                 value, err))
                     }
              },
@@ -1293,15 +1237,15 @@ impl std::str::FromStr for AlertBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "url" => intermediate_rep.url.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "url" => intermediate_rep.url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "headers" => return std::result::Result::Err("Parsing a container in this style is not supported in AlertBody".to_string()),
-                    "from" => intermediate_rep.from.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "from" => intermediate_rep.from.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "recipients" => return std::result::Result::Err("Parsing a container in this style is not supported in AlertBody".to_string()),
-                    "host" => intermediate_rep.host.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "port" => intermediate_rep.port.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
-                    "tlsMode" => intermediate_rep.tls_mode.push(models::TlsMode::from_str(val).map_err(|x| format!("{}", x))?),
-                    "username" => intermediate_rep.username.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "host" => intermediate_rep.host.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "port" => intermediate_rep.port.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "tlsMode" => intermediate_rep.tls_mode.push(<models::TlsMode as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "username" => intermediate_rep.username.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "password" => intermediate_rep.password.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing AlertBody".to_string())
                 }
             }
@@ -1325,36 +1269,34 @@ impl std::str::FromStr for AlertBody {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<AndExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<AlertBody> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<AndExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<AlertBody>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<AndExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<AlertBody>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for AndExpr - value: {} is invalid {}",
+                 format!("Invalid header value for AlertBody - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AndExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AlertBody> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <AndExpr as std::str::FromStr>::from_str(value) {
+                    match <AlertBody as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into AndExpr - {}",
+                            format!("Unable to convert header value '{}' into AlertBody - {}",
                                 value, err))
                     }
              },
@@ -1428,8 +1370,8 @@ impl std::str::FromStr for AndExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::BoolExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::BoolExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing AndExpr".to_string())
                 }
             }
@@ -1446,7 +1388,161 @@ impl std::str::FromStr for AndExpr {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<AndExpr> and hyper::header::HeaderValue
 
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<AndExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<AndExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for AndExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AndExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <AndExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into AndExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct ArthExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+    // Note: inline enums are not fully supported by openapi-generator
+    #[serde(rename = "exprType")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expr_type: Option<String>,
+
+    #[serde(rename = "name")]
+    pub name: String,
+
+    #[serde(rename = "constant")]
+    pub constant: f64,
+
+}
+
+impl ArthExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, name: String, constant: f64, ) -> ArthExpr {
+        ArthExpr {
+            lhs: lhs,
+            rhs: rhs,
+            expr_type: None,
+            name: name,
+            constant: constant,
+        }
+    }
+}
+
+/// Converts the ArthExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for ArthExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+
+        if let Some(ref expr_type) = self.expr_type {
+            params.push("exprType".to_string());
+            params.push(expr_type.to_string());
+        }
+
+
+        params.push("name".to_string());
+        params.push(self.name.to_string());
+
+
+        params.push("constant".to_string());
+        params.push(self.constant.to_string());
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a ArthExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for ArthExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+            pub expr_type: Vec<String>,
+            pub name: Vec<String>,
+            pub constant: Vec<f64>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing ArthExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "exprType" => intermediate_rep.expr_type.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "constant" => intermediate_rep.constant.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing ArthExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(ArthExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in ArthExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in ArthExpr".to_string())?,
+            expr_type: intermediate_rep.expr_type.into_iter().next(),
+            name: intermediate_rep.name.into_iter().next().ok_or("name missing in ArthExpr".to_string())?,
+            constant: intermediate_rep.constant.into_iter().next().ok_or("constant missing in ArthExpr".to_string())?,
+        })
+    }
+}
 
 // Methods for converting between header::IntoHeaderValue<ArthExpr> and hyper::header::HeaderValue
 
@@ -1476,149 +1572,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into ArthExpr - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct ArthExpr {
-    #[serde(rename = "lhs")]
-    pub lhs: models::ArthExpr,
-
-    #[serde(rename = "rhs")]
-    pub rhs: models::ArthExpr,
-
-    #[serde(rename = "name")]
-    pub name: String,
-
-    #[serde(rename = "constant")]
-    pub constant: f64,
-
-}
-
-impl ArthExpr {
-    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, name: String, constant: f64, ) -> ArthExpr {
-        ArthExpr {
-            lhs: lhs,
-            rhs: rhs,
-            name: name,
-            constant: constant,
-        }
-    }
-}
-
-/// Converts the ArthExpr value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for ArthExpr {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-        // Skipping lhs in query parameter serialization
-
-        // Skipping rhs in query parameter serialization
-
-
-        params.push("name".to_string());
-        params.push(self.name.to_string());
-
-
-        params.push("constant".to_string());
-        params.push(self.constant.to_string());
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a ArthExpr value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for ArthExpr {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub lhs: Vec<models::ArthExpr>,
-            pub rhs: Vec<models::ArthExpr>,
-            pub name: Vec<String>,
-            pub constant: Vec<f64>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing ArthExpr".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "constant" => intermediate_rep.constant.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing ArthExpr".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(ArthExpr {
-            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in ArthExpr".to_string())?,
-            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in ArthExpr".to_string())?,
-            name: intermediate_rep.name.into_iter().next().ok_or("name missing in ArthExpr".to_string())?,
-            constant: intermediate_rep.constant.into_iter().next().ok_or("constant missing in ArthExpr".to_string())?,
-        })
-    }
-}
-
-
-
-// Methods for converting between header::IntoHeaderValue<Balance> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Balance>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<Balance>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Balance - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Balance> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <Balance as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Balance - {}",
                                 value, err))
                     }
              },
@@ -1709,10 +1662,10 @@ impl std::str::FromStr for Balance {
 
             if let Some(key) = key_result {
                 match key {
-                    "accountId" => intermediate_rep.account_id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "timestamp" => intermediate_rep.timestamp.push(chrono::DateTime::<chrono::Utc>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "balance" => intermediate_rep.balance.push(models::Money::from_str(val).map_err(|x| format!("{}", x))?),
-                    "availableBalance" => intermediate_rep.available_balance.push(models::Money::from_str(val).map_err(|x| format!("{}", x))?),
+                    "accountId" => intermediate_rep.account_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "timestamp" => intermediate_rep.timestamp.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "balance" => intermediate_rep.balance.push(<models::Money as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "availableBalance" => intermediate_rep.available_balance.push(<models::Money as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Balance".to_string())
                 }
             }
@@ -1731,36 +1684,34 @@ impl std::str::FromStr for Balance {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<Balances> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<Balance> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Balances>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<Balance>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Balances>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<Balance>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Balances - value: {} is invalid {}",
+                 format!("Invalid header value for Balance - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Balances> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Balance> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <Balances as std::str::FromStr>::from_str(value) {
+                    match <Balance as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Balances - {}",
+                            format!("Unable to convert header value '{}' into Balance - {}",
                                 value, err))
                     }
              },
@@ -1844,36 +1795,34 @@ impl std::str::FromStr for Balances {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<BoolExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<Balances> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<BoolExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<Balances>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<BoolExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<Balances>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for BoolExpr - value: {} is invalid {}",
+                 format!("Invalid header value for Balances - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<BoolExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Balances> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <BoolExpr as std::str::FromStr>::from_str(value) {
+                    match <Balances as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into BoolExpr - {}",
+                            format!("Unable to convert header value '{}' into Balances - {}",
                                 value, err))
                     }
              },
@@ -1955,9 +1904,9 @@ impl std::str::FromStr for BoolExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "expr" => intermediate_rep.expr.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expr" => intermediate_rep.expr.push(<models::BoolExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing BoolExpr".to_string())
                 }
             }
@@ -1975,6 +1924,43 @@ impl std::str::FromStr for BoolExpr {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<BoolExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<BoolExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<BoolExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for BoolExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<BoolExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <BoolExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into BoolExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
@@ -2020,7 +2006,6 @@ impl std::ops::DerefMut for ByteUnit {
 }
 
 
-
 /// Enumeration of values.
 /// Since this enum's variants do not hold data, we can easily define them them as `#[repr(C)]`
 /// which helps with FFI.
@@ -2028,7 +2013,7 @@ impl std::ops::DerefMut for ByteUnit {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum ChargeType { 
+pub enum ChargeType {
     #[serde(rename = "daily")]
     DAILY,
     #[serde(rename = "weekly")]
@@ -2039,7 +2024,7 @@ pub enum ChargeType {
 
 impl std::fmt::Display for ChargeType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             ChargeType::DAILY => write!(f, "{}", "daily"),
             ChargeType::WEEKLY => write!(f, "{}", "weekly"),
             ChargeType::MONTHLY => write!(f, "{}", "monthly"),
@@ -2060,6 +2045,93 @@ impl std::str::FromStr for ChargeType {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct ConstExpr {
+    #[serde(rename = "constant")]
+    pub constant: f64,
+
+    // Note: inline enums are not fully supported by openapi-generator
+    #[serde(rename = "exprType")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expr_type: Option<String>,
+
+}
+
+impl ConstExpr {
+    pub fn new(constant: f64, ) -> ConstExpr {
+        ConstExpr {
+            constant: constant,
+            expr_type: None,
+        }
+    }
+}
+
+/// Converts the ConstExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for ConstExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+
+        params.push("constant".to_string());
+        params.push(self.constant.to_string());
+
+
+        if let Some(ref expr_type) = self.expr_type {
+            params.push("exprType".to_string());
+            params.push(expr_type.to_string());
+        }
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a ConstExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for ConstExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub constant: Vec<f64>,
+            pub expr_type: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing ConstExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "constant" => intermediate_rep.constant.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "exprType" => intermediate_rep.expr_type.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing ConstExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(ConstExpr {
+            constant: intermediate_rep.constant.into_iter().next().ok_or("constant missing in ConstExpr".to_string())?,
+            expr_type: intermediate_rep.expr_type.into_iter().next(),
+        })
+    }
+}
 
 // Methods for converting between header::IntoHeaderValue<ConstExpr> and hyper::header::HeaderValue
 
@@ -2100,81 +2172,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct ConstExpr {
-    #[serde(rename = "constant")]
-    pub constant: f64,
-
-}
-
-impl ConstExpr {
-    pub fn new(constant: f64, ) -> ConstExpr {
-        ConstExpr {
-            constant: constant,
-        }
-    }
-}
-
-/// Converts the ConstExpr value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for ConstExpr {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-
-        params.push("constant".to_string());
-        params.push(self.constant.to_string());
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a ConstExpr value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for ConstExpr {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub constant: Vec<f64>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing ConstExpr".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "constant" => intermediate_rep.constant.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing ConstExpr".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(ConstExpr {
-            constant: intermediate_rep.constant.into_iter().next().ok_or("constant missing in ConstExpr".to_string())?,
-        })
-    }
-}
-
-
-
 /// Enumeration of values.
 /// Since this enum's variants do not hold data, we can easily define them them as `#[repr(C)]`
 /// which helps with FFI.
@@ -2182,7 +2179,7 @@ impl std::str::FromStr for ConstExpr {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum CurrencyCode { 
+pub enum CurrencyCode {
     #[serde(rename = "NZD")]
     NZD,
     #[serde(rename = "USD")]
@@ -2193,7 +2190,7 @@ pub enum CurrencyCode {
 
 impl std::fmt::Display for CurrencyCode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             CurrencyCode::NZD => write!(f, "{}", "NZD"),
             CurrencyCode::USD => write!(f, "{}", "USD"),
             CurrencyCode::EUR => write!(f, "{}", "EUR"),
@@ -2214,7 +2211,6 @@ impl std::str::FromStr for CurrencyCode {
     }
 }
 
-
 /// UTC UNIX timestamp in with fractional offset.
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -2225,7 +2221,6 @@ impl std::convert::From<chrono::DateTime::<chrono::Utc>> for DateTime {
         DateTime(x)
     }
 }
-
 
 impl std::convert::From<DateTime> for chrono::DateTime::<chrono::Utc> {
     fn from(x: DateTime) -> Self {
@@ -2247,6 +2242,100 @@ impl std::ops::DerefMut for DateTime {
 }
 
 
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct DivExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+    // Note: inline enums are not fully supported by openapi-generator
+    #[serde(rename = "exprType")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expr_type: Option<String>,
+
+}
+
+impl DivExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> DivExpr {
+        DivExpr {
+            lhs: lhs,
+            rhs: rhs,
+            expr_type: None,
+        }
+    }
+}
+
+/// Converts the DivExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for DivExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+
+        if let Some(ref expr_type) = self.expr_type {
+            params.push("exprType".to_string());
+            params.push(expr_type.to_string());
+        }
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a DivExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for DivExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+            pub expr_type: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing DivExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "exprType" => intermediate_rep.expr_type.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing DivExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(DivExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in DivExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in DivExpr".to_string())?,
+            expr_type: intermediate_rep.expr_type.into_iter().next(),
+        })
+    }
+}
 
 // Methods for converting between header::IntoHeaderValue<DivExpr> and hyper::header::HeaderValue
 
@@ -2285,88 +2374,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
         }
     }
 }
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct DivExpr {
-    #[serde(rename = "lhs")]
-    pub lhs: models::ArthExpr,
-
-    #[serde(rename = "rhs")]
-    pub rhs: models::ArthExpr,
-
-}
-
-impl DivExpr {
-    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> DivExpr {
-        DivExpr {
-            lhs: lhs,
-            rhs: rhs,
-        }
-    }
-}
-
-/// Converts the DivExpr value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for DivExpr {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-        // Skipping lhs in query parameter serialization
-
-        // Skipping rhs in query parameter serialization
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a DivExpr value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for DivExpr {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub lhs: Vec<models::ArthExpr>,
-            pub rhs: Vec<models::ArthExpr>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing DivExpr".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing DivExpr".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(DivExpr {
-            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in DivExpr".to_string())?,
-            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in DivExpr".to_string())?,
-        })
-    }
-}
-
 
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
@@ -2412,7 +2419,6 @@ impl std::ops::DerefMut for EasyString64 {
 }
 
 
-
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct EmailAddress(String);
@@ -2452,46 +2458,6 @@ impl std::ops::Deref for EmailAddress {
 impl std::ops::DerefMut for EmailAddress {
     fn deref_mut(&mut self) -> &mut String {
         &mut self.0
-    }
-}
-
-
-
-// Methods for converting between header::IntoHeaderValue<EmailAlertBody> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<EmailAlertBody>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<EmailAlertBody>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for EmailAlertBody - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<EmailAlertBody> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <EmailAlertBody as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into EmailAlertBody - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
     }
 }
 
@@ -2627,13 +2593,13 @@ impl std::str::FromStr for EmailAlertBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "from" => intermediate_rep.from.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "from" => intermediate_rep.from.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "recipients" => return std::result::Result::Err("Parsing a container in this style is not supported in EmailAlertBody".to_string()),
-                    "host" => intermediate_rep.host.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "port" => intermediate_rep.port.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
-                    "tlsMode" => intermediate_rep.tls_mode.push(models::TlsMode::from_str(val).map_err(|x| format!("{}", x))?),
-                    "username" => intermediate_rep.username.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "host" => intermediate_rep.host.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "port" => intermediate_rep.port.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "tlsMode" => intermediate_rep.tls_mode.push(<models::TlsMode as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "username" => intermediate_rep.username.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "password" => intermediate_rep.password.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing EmailAlertBody".to_string())
                 }
             }
@@ -2655,36 +2621,34 @@ impl std::str::FromStr for EmailAlertBody {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<EqExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<EmailAlertBody> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<EqExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<EmailAlertBody>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<EqExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<EmailAlertBody>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for EqExpr - value: {} is invalid {}",
+                 format!("Invalid header value for EmailAlertBody - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<EqExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<EmailAlertBody> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <EqExpr as std::str::FromStr>::from_str(value) {
+                    match <EmailAlertBody as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into EqExpr - {}",
+                            format!("Unable to convert header value '{}' into EmailAlertBody - {}",
                                 value, err))
                     }
              },
@@ -2758,8 +2722,8 @@ impl std::str::FromStr for EqExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing EqExpr".to_string())
                 }
             }
@@ -2776,6 +2740,43 @@ impl std::str::FromStr for EqExpr {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<EqExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<EqExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<EqExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for EqExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<EqExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <EqExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into EqExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 /// Global error code that indicates what went wrong
@@ -2786,7 +2787,7 @@ impl std::str::FromStr for EqExpr {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum ErrorCode { 
+pub enum ErrorCode {
     #[serde(rename = "unauthorised")]
     UNAUTHORISED,
     #[serde(rename = "forbidden")]
@@ -2811,13 +2812,11 @@ pub enum ErrorCode {
     CONFLICT,
     #[serde(rename = "insufficient_funds")]
     INSUFFICIENT_FUNDS,
-    #[serde(rename = "internal_error")]
-    INTERNAL_ERROR,
 }
 
 impl std::fmt::Display for ErrorCode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             ErrorCode::UNAUTHORISED => write!(f, "{}", "unauthorised"),
             ErrorCode::FORBIDDEN => write!(f, "{}", "forbidden"),
             ErrorCode::NOT_FOUND => write!(f, "{}", "not_found"),
@@ -2830,7 +2829,6 @@ impl std::fmt::Display for ErrorCode {
             ErrorCode::INVALID_CONFIRMATION_CODE => write!(f, "{}", "invalid_confirmation_code"),
             ErrorCode::CONFLICT => write!(f, "{}", "conflict"),
             ErrorCode::INSUFFICIENT_FUNDS => write!(f, "{}", "insufficient_funds"),
-            ErrorCode::INTERNAL_ERROR => write!(f, "{}", "internal_error"),
         }
     }
 }
@@ -2856,46 +2854,6 @@ impl std::str::FromStr for ErrorCode {
         }
     }
 }
-
-
-// Methods for converting between header::IntoHeaderValue<ErrorList> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<ErrorList>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<ErrorList>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for ErrorList - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ErrorList> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <ErrorList as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into ErrorList - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -2968,7 +2926,132 @@ impl std::str::FromStr for ErrorList {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<ErrorList> and hyper::header::HeaderValue
 
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<ErrorList>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<ErrorList>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for ErrorList - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ErrorList> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <ErrorList as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into ErrorList - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct FieldExpr {
+    #[serde(rename = "name")]
+    pub name: String,
+
+    // Note: inline enums are not fully supported by openapi-generator
+    #[serde(rename = "exprType")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expr_type: Option<String>,
+
+}
+
+impl FieldExpr {
+    pub fn new(name: String, ) -> FieldExpr {
+        FieldExpr {
+            name: name,
+            expr_type: None,
+        }
+    }
+}
+
+/// Converts the FieldExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for FieldExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+
+        params.push("name".to_string());
+        params.push(self.name.to_string());
+
+
+        if let Some(ref expr_type) = self.expr_type {
+            params.push("exprType".to_string());
+            params.push(expr_type.to_string());
+        }
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a FieldExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for FieldExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub name: Vec<String>,
+            pub expr_type: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing FieldExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "exprType" => intermediate_rep.expr_type.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing FieldExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(FieldExpr {
+            name: intermediate_rep.name.into_iter().next().ok_or("name missing in FieldExpr".to_string())?,
+            expr_type: intermediate_rep.expr_type.into_iter().next(),
+        })
+    }
+}
 
 // Methods for converting between header::IntoHeaderValue<FieldExpr> and hyper::header::HeaderValue
 
@@ -2998,120 +3081,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into FieldExpr - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct FieldExpr {
-    #[serde(rename = "name")]
-    pub name: String,
-
-}
-
-impl FieldExpr {
-    pub fn new(name: String, ) -> FieldExpr {
-        FieldExpr {
-            name: name,
-        }
-    }
-}
-
-/// Converts the FieldExpr value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for FieldExpr {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-
-        params.push("name".to_string());
-        params.push(self.name.to_string());
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a FieldExpr value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for FieldExpr {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub name: Vec<String>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing FieldExpr".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing FieldExpr".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(FieldExpr {
-            name: intermediate_rep.name.into_iter().next().ok_or("name missing in FieldExpr".to_string())?,
-        })
-    }
-}
-
-
-
-// Methods for converting between header::IntoHeaderValue<GtEqExpr> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<GtEqExpr>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<GtEqExpr>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for GtEqExpr - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<GtEqExpr> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <GtEqExpr as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into GtEqExpr - {}",
                                 value, err))
                     }
              },
@@ -3185,8 +3154,8 @@ impl std::str::FromStr for GtEqExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing GtEqExpr".to_string())
                 }
             }
@@ -3203,36 +3172,34 @@ impl std::str::FromStr for GtEqExpr {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<GtExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<GtEqExpr> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<GtExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<GtEqExpr>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<GtExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<GtEqExpr>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for GtExpr - value: {} is invalid {}",
+                 format!("Invalid header value for GtEqExpr - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<GtExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<GtEqExpr> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <GtExpr as std::str::FromStr>::from_str(value) {
+                    match <GtEqExpr as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into GtExpr - {}",
+                            format!("Unable to convert header value '{}' into GtEqExpr - {}",
                                 value, err))
                     }
              },
@@ -3306,8 +3273,8 @@ impl std::str::FromStr for GtExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing GtExpr".to_string())
                 }
             }
@@ -3324,36 +3291,34 @@ impl std::str::FromStr for GtExpr {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<HttpHeader> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<GtExpr> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<HttpHeader>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<GtExpr>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<HttpHeader>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<GtExpr>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for HttpHeader - value: {} is invalid {}",
+                 format!("Invalid header value for GtExpr - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<HttpHeader> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<GtExpr> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <HttpHeader as std::str::FromStr>::from_str(value) {
+                    match <GtExpr as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into HttpHeader - {}",
+                            format!("Unable to convert header value '{}' into GtExpr - {}",
                                 value, err))
                     }
              },
@@ -3431,8 +3396,8 @@ impl std::str::FromStr for HttpHeader {
 
             if let Some(key) = key_result {
                 match key {
-                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "value" => intermediate_rep.value.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "value" => intermediate_rep.value.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing HttpHeader".to_string())
                 }
             }
@@ -3449,36 +3414,34 @@ impl std::str::FromStr for HttpHeader {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<HttpMonitorBody> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<HttpHeader> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<HttpMonitorBody>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<HttpHeader>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<HttpMonitorBody>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<HttpHeader>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for HttpMonitorBody - value: {} is invalid {}",
+                 format!("Invalid header value for HttpHeader - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<HttpMonitorBody> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<HttpHeader> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <HttpMonitorBody as std::str::FromStr>::from_str(value) {
+                    match <HttpHeader as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into HttpMonitorBody - {}",
+                            format!("Unable to convert header value '{}' into HttpHeader - {}",
                                 value, err))
                     }
              },
@@ -3582,10 +3545,10 @@ impl std::str::FromStr for HttpMonitorBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "url" => intermediate_rep.url.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "method" => intermediate_rep.method.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "url" => intermediate_rep.url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "method" => intermediate_rep.method.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "headers" => return std::result::Result::Err("Parsing a container in this style is not supported in HttpMonitorBody".to_string()),
-                    "body" => intermediate_rep.body.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "body" => intermediate_rep.body.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing HttpMonitorBody".to_string())
                 }
             }
@@ -3604,6 +3567,43 @@ impl std::str::FromStr for HttpMonitorBody {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<HttpMonitorBody> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<HttpMonitorBody>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<HttpMonitorBody>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for HttpMonitorBody - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<HttpMonitorBody> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <HttpMonitorBody as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into HttpMonitorBody - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
@@ -3645,46 +3645,6 @@ impl std::ops::Deref for IdString {
 impl std::ops::DerefMut for IdString {
     fn deref_mut(&mut self) -> &mut String {
         &mut self.0
-    }
-}
-
-
-
-// Methods for converting between header::IntoHeaderValue<InlineResponse200> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<InlineResponse200>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<InlineResponse200>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for InlineResponse200 - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<InlineResponse200> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <InlineResponse200 as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into InlineResponse200 - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
     }
 }
 
@@ -3761,36 +3721,34 @@ impl std::str::FromStr for InlineResponse200 {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<InlineResponse2001> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<InlineResponse200> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<InlineResponse2001>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<InlineResponse200>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<InlineResponse2001>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<InlineResponse200>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for InlineResponse2001 - value: {} is invalid {}",
+                 format!("Invalid header value for InlineResponse200 - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<InlineResponse2001> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<InlineResponse200> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <InlineResponse2001 as std::str::FromStr>::from_str(value) {
+                    match <InlineResponse200 as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into InlineResponse2001 - {}",
+                            format!("Unable to convert header value '{}' into InlineResponse200 - {}",
                                 value, err))
                     }
              },
@@ -3858,7 +3816,7 @@ impl std::str::FromStr for InlineResponse2001 {
 
             if let Some(key) = key_result {
                 match key {
-                    "account" => intermediate_rep.account.push(models::Account::from_str(val).map_err(|x| format!("{}", x))?),
+                    "account" => intermediate_rep.account.push(<models::Account as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing InlineResponse2001".to_string())
                 }
             }
@@ -3874,36 +3832,34 @@ impl std::str::FromStr for InlineResponse2001 {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<InlineResponse2002> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<InlineResponse2001> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<InlineResponse2002>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<InlineResponse2001>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<InlineResponse2002>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<InlineResponse2001>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for InlineResponse2002 - value: {} is invalid {}",
+                 format!("Invalid header value for InlineResponse2001 - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<InlineResponse2002> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<InlineResponse2001> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <InlineResponse2002 as std::str::FromStr>::from_str(value) {
+                    match <InlineResponse2001 as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into InlineResponse2002 - {}",
+                            format!("Unable to convert header value '{}' into InlineResponse2001 - {}",
                                 value, err))
                     }
              },
@@ -3971,7 +3927,7 @@ impl std::str::FromStr for InlineResponse2002 {
 
             if let Some(key) = key_result {
                 match key {
-                    "balance" => intermediate_rep.balance.push(models::Balance::from_str(val).map_err(|x| format!("{}", x))?),
+                    "balance" => intermediate_rep.balance.push(<models::Balance as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing InlineResponse2002".to_string())
                 }
             }
@@ -3987,36 +3943,34 @@ impl std::str::FromStr for InlineResponse2002 {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<JwtObject> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<InlineResponse2002> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<JwtObject>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<InlineResponse2002>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<JwtObject>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<InlineResponse2002>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for JwtObject - value: {} is invalid {}",
+                 format!("Invalid header value for InlineResponse2002 - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<JwtObject> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<InlineResponse2002> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <JwtObject as std::str::FromStr>::from_str(value) {
+                    match <InlineResponse2002 as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into JwtObject - {}",
+                            format!("Unable to convert header value '{}' into InlineResponse2002 - {}",
                                 value, err))
                     }
              },
@@ -4125,11 +4079,11 @@ impl std::str::FromStr for JwtObject {
 
             if let Some(key) = key_result {
                 match key {
-                    "jwt" => intermediate_rep.jwt.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "jwtExpiry" => intermediate_rep.jwt_expiry.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
+                    "jwt" => intermediate_rep.jwt.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "jwtExpiry" => intermediate_rep.jwt_expiry.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "jwtScopes" => return std::result::Result::Err("Parsing a container in this style is not supported in JwtObject".to_string()),
-                    "refreshToken" => intermediate_rep.refresh_token.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "refreshTokenExpiry" => intermediate_rep.refresh_token_expiry.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
+                    "refreshToken" => intermediate_rep.refresh_token.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "refreshTokenExpiry" => intermediate_rep.refresh_token_expiry.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing JwtObject".to_string())
                 }
             }
@@ -4149,36 +4103,34 @@ impl std::str::FromStr for JwtObject {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<LtEqExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<JwtObject> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<LtEqExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<JwtObject>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<LtEqExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<JwtObject>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for LtEqExpr - value: {} is invalid {}",
+                 format!("Invalid header value for JwtObject - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<LtEqExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<JwtObject> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <LtEqExpr as std::str::FromStr>::from_str(value) {
+                    match <JwtObject as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into LtEqExpr - {}",
+                            format!("Unable to convert header value '{}' into JwtObject - {}",
                                 value, err))
                     }
              },
@@ -4252,8 +4204,8 @@ impl std::str::FromStr for LtEqExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing LtEqExpr".to_string())
                 }
             }
@@ -4270,36 +4222,34 @@ impl std::str::FromStr for LtEqExpr {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<LtExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<LtEqExpr> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<LtExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<LtEqExpr>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<LtExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<LtEqExpr>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for LtExpr - value: {} is invalid {}",
+                 format!("Invalid header value for LtEqExpr - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<LtExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<LtEqExpr> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <LtExpr as std::str::FromStr>::from_str(value) {
+                    match <LtEqExpr as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into LtExpr - {}",
+                            format!("Unable to convert header value '{}' into LtEqExpr - {}",
                                 value, err))
                     }
              },
@@ -4373,8 +4323,8 @@ impl std::str::FromStr for LtExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing LtExpr".to_string())
                 }
             }
@@ -4391,36 +4341,34 @@ impl std::str::FromStr for LtExpr {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<Money> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<LtExpr> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Money>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<LtExpr>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Money>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<LtExpr>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Money - value: {} is invalid {}",
+                 format!("Invalid header value for LtExpr - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Money> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<LtExpr> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <Money as std::str::FromStr>::from_str(value) {
+                    match <LtExpr as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Money - {}",
+                            format!("Unable to convert header value '{}' into LtExpr - {}",
                                 value, err))
                     }
              },
@@ -4505,9 +4453,9 @@ impl std::str::FromStr for Money {
 
             if let Some(key) = key_result {
                 match key {
-                    "value" => intermediate_rep.value.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "decimalPlaces" => intermediate_rep.decimal_places.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "currencyCode" => intermediate_rep.currency_code.push(models::CurrencyCode::from_str(val).map_err(|x| format!("{}", x))?),
+                    "value" => intermediate_rep.value.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "decimalPlaces" => intermediate_rep.decimal_places.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "currencyCode" => intermediate_rep.currency_code.push(<models::CurrencyCode as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Money".to_string())
                 }
             }
@@ -4525,36 +4473,34 @@ impl std::str::FromStr for Money {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<Monitor> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<Money> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Monitor>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<Money>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Monitor>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<Money>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Monitor - value: {} is invalid {}",
+                 format!("Invalid header value for Money - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Monitor> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Money> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <Monitor as std::str::FromStr>::from_str(value) {
+                    match <Money as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Monitor - {}",
+                            format!("Unable to convert header value '{}' into Money - {}",
                                 value, err))
                     }
              },
@@ -4689,14 +4635,14 @@ impl std::str::FromStr for Monitor {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "type" => intermediate_rep.type_.push(models::MonitorType::from_str(val).map_err(|x| format!("{}", x))?),
-                    "enabled" => intermediate_rep.enabled.push(bool::from_str(val).map_err(|x| format!("{}", x))?),
-                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "description" => intermediate_rep.description.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "period" => intermediate_rep.period.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "timeout" => intermediate_rep.timeout.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "body" => intermediate_rep.body.push(models::MonitorBody::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "type" => intermediate_rep.type_.push(<models::MonitorType as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "enabled" => intermediate_rep.enabled.push(<bool as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "period" => intermediate_rep.period.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "timeout" => intermediate_rep.timeout.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "body" => intermediate_rep.body.push(<models::MonitorBody as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Monitor".to_string())
                 }
             }
@@ -4719,36 +4665,34 @@ impl std::str::FromStr for Monitor {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<MonitorArray> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<Monitor> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<MonitorArray>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<Monitor>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<MonitorArray>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<Monitor>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for MonitorArray - value: {} is invalid {}",
+                 format!("Invalid header value for Monitor - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorArray> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Monitor> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <MonitorArray as std::str::FromStr>::from_str(value) {
+                    match <Monitor as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into MonitorArray - {}",
+                            format!("Unable to convert header value '{}' into Monitor - {}",
                                 value, err))
                     }
              },
@@ -4831,36 +4775,34 @@ impl std::str::FromStr for MonitorArray {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<MonitorBody> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<MonitorArray> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<MonitorBody>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<MonitorArray>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<MonitorBody>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<MonitorArray>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for MonitorBody - value: {} is invalid {}",
+                 format!("Invalid header value for MonitorArray - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorBody> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorArray> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <MonitorBody as std::str::FromStr>::from_str(value) {
+                    match <MonitorArray as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into MonitorBody - {}",
+                            format!("Unable to convert header value '{}' into MonitorArray - {}",
                                 value, err))
                     }
              },
@@ -5108,22 +5050,22 @@ impl std::str::FromStr for MonitorBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "url" => intermediate_rep.url.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "method" => intermediate_rep.method.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "url" => intermediate_rep.url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "method" => intermediate_rep.method.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "headers" => return std::result::Result::Err("Parsing a container in this style is not supported in MonitorBody".to_string()),
-                    "body" => intermediate_rep.body.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "executable" => intermediate_rep.executable.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "isPathAbsolute" => intermediate_rep.is_path_absolute.push(bool::from_str(val).map_err(|x| format!("{}", x))?),
-                    "minimumCount" => intermediate_rep.minimum_count.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "maximumCount" => intermediate_rep.maximum_count.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "maximumRamIndividual" => intermediate_rep.maximum_ram_individual.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "maximumRamTotal" => intermediate_rep.maximum_ram_total.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "hostname" => intermediate_rep.hostname.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "port" => intermediate_rep.port.push(u16::from_str(val).map_err(|x| format!("{}", x))?),
-                    "db" => intermediate_rep.db.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "username" => intermediate_rep.username.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "expression" => intermediate_rep.expression.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "body" => intermediate_rep.body.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "executable" => intermediate_rep.executable.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "isPathAbsolute" => intermediate_rep.is_path_absolute.push(<bool as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "minimumCount" => intermediate_rep.minimum_count.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "maximumCount" => intermediate_rep.maximum_count.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "maximumRamIndividual" => intermediate_rep.maximum_ram_individual.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "maximumRamTotal" => intermediate_rep.maximum_ram_total.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "hostname" => intermediate_rep.hostname.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "port" => intermediate_rep.port.push(<u16 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "db" => intermediate_rep.db.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "username" => intermediate_rep.username.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "password" => intermediate_rep.password.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expression" => intermediate_rep.expression.push(<models::BoolExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing MonitorBody".to_string())
                 }
             }
@@ -5154,36 +5096,34 @@ impl std::str::FromStr for MonitorBody {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<MonitorStatus> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<MonitorBody> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatus>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<MonitorBody>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatus>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<MonitorBody>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for MonitorStatus - value: {} is invalid {}",
+                 format!("Invalid header value for MonitorBody - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatus> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorBody> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <MonitorStatus as std::str::FromStr>::from_str(value) {
+                    match <MonitorBody as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into MonitorStatus - {}",
+                            format!("Unable to convert header value '{}' into MonitorBody - {}",
                                 value, err))
                     }
              },
@@ -5291,11 +5231,11 @@ impl std::str::FromStr for MonitorStatus {
 
             if let Some(key) = key_result {
                 match key {
-                    "monitorId" => intermediate_rep.monitor_id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "status" => intermediate_rep.status.push(models::MonitorStatusIndicator::from_str(val).map_err(|x| format!("{}", x))?),
-                    "timestamp" => intermediate_rep.timestamp.push(chrono::DateTime::<chrono::Utc>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "lastResult" => intermediate_rep.last_result.push(models::MonitorStatusResult::from_str(val).map_err(|x| format!("{}", x))?),
-                    "description" => intermediate_rep.description.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "monitorId" => intermediate_rep.monitor_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "status" => intermediate_rep.status.push(<models::MonitorStatusIndicator as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "timestamp" => intermediate_rep.timestamp.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lastResult" => intermediate_rep.last_result.push(<models::MonitorStatusResult as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "log" => return std::result::Result::Err("Parsing a container in this style is not supported in MonitorStatus".to_string()),
                     _ => return std::result::Result::Err("Unexpected key while parsing MonitorStatus".to_string())
                 }
@@ -5317,36 +5257,34 @@ impl std::str::FromStr for MonitorStatus {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<MonitorStatusArray> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<MonitorStatus> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatusArray>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatus>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatusArray>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatus>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for MonitorStatusArray - value: {} is invalid {}",
+                 format!("Invalid header value for MonitorStatus - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatusArray> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatus> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <MonitorStatusArray as std::str::FromStr>::from_str(value) {
+                    match <MonitorStatus as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into MonitorStatusArray - {}",
+                            format!("Unable to convert header value '{}' into MonitorStatus - {}",
                                 value, err))
                     }
              },
@@ -5429,6 +5367,43 @@ impl std::str::FromStr for MonitorStatusArray {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<MonitorStatusArray> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatusArray>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatusArray>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for MonitorStatusArray - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatusArray> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <MonitorStatusArray as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into MonitorStatusArray - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 /// Enumeration of values.
@@ -5438,7 +5413,7 @@ impl std::str::FromStr for MonitorStatusArray {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum MonitorStatusIndicator { 
+pub enum MonitorStatusIndicator {
     #[serde(rename = "ok")]
     OK,
     #[serde(rename = "down")]
@@ -5447,7 +5422,7 @@ pub enum MonitorStatusIndicator {
 
 impl std::fmt::Display for MonitorStatusIndicator {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             MonitorStatusIndicator::OK => write!(f, "{}", "ok"),
             MonitorStatusIndicator::DOWN => write!(f, "{}", "down"),
         }
@@ -5465,46 +5440,6 @@ impl std::str::FromStr for MonitorStatusIndicator {
         }
     }
 }
-
-
-// Methods for converting between header::IntoHeaderValue<MonitorStatusLogEntry> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatusLogEntry>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatusLogEntry>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for MonitorStatusLogEntry - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatusLogEntry> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <MonitorStatusLogEntry as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into MonitorStatusLogEntry - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -5571,8 +5506,8 @@ impl std::str::FromStr for MonitorStatusLogEntry {
 
             if let Some(key) = key_result {
                 match key {
-                    "timestamp" => intermediate_rep.timestamp.push(chrono::DateTime::<chrono::Utc>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "value" => intermediate_rep.value.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "timestamp" => intermediate_rep.timestamp.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "value" => intermediate_rep.value.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing MonitorStatusLogEntry".to_string())
                 }
             }
@@ -5589,36 +5524,34 @@ impl std::str::FromStr for MonitorStatusLogEntry {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<MonitorStatusResult> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<MonitorStatusLogEntry> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatusResult>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatusLogEntry>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatusResult>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatusLogEntry>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for MonitorStatusResult - value: {} is invalid {}",
+                 format!("Invalid header value for MonitorStatusLogEntry - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatusResult> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatusLogEntry> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <MonitorStatusResult as std::str::FromStr>::from_str(value) {
+                    match <MonitorStatusLogEntry as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into MonitorStatusResult - {}",
+                            format!("Unable to convert header value '{}' into MonitorStatusLogEntry - {}",
                                 value, err))
                     }
              },
@@ -5696,8 +5629,8 @@ impl std::str::FromStr for MonitorStatusResult {
 
             if let Some(key) = key_result {
                 match key {
-                    "expected" => intermediate_rep.expected.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "actual" => intermediate_rep.actual.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expected" => intermediate_rep.expected.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "actual" => intermediate_rep.actual.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing MonitorStatusResult".to_string())
                 }
             }
@@ -5714,6 +5647,43 @@ impl std::str::FromStr for MonitorStatusResult {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<MonitorStatusResult> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatusResult>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatusResult>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for MonitorStatusResult - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatusResult> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <MonitorStatusResult as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into MonitorStatusResult - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 /// What sort of system or entity the monitor will run a check on
@@ -5724,7 +5694,7 @@ impl std::str::FromStr for MonitorStatusResult {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum MonitorType { 
+pub enum MonitorType {
     #[serde(rename = "http")]
     HTTP,
     #[serde(rename = "process")]
@@ -5735,7 +5705,7 @@ pub enum MonitorType {
 
 impl std::fmt::Display for MonitorType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             MonitorType::HTTP => write!(f, "{}", "http"),
             MonitorType::PROCESS => write!(f, "{}", "process"),
             MonitorType::TCP => write!(f, "{}", "tcp"),
@@ -5755,46 +5725,6 @@ impl std::str::FromStr for MonitorType {
         }
     }
 }
-
-
-// Methods for converting between header::IntoHeaderValue<MsTeamsAlertBody> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<MsTeamsAlertBody>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<MsTeamsAlertBody>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for MsTeamsAlertBody - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MsTeamsAlertBody> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <MsTeamsAlertBody as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into MsTeamsAlertBody - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -5856,7 +5786,7 @@ impl std::str::FromStr for MsTeamsAlertBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "url" => intermediate_rep.url.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "url" => intermediate_rep.url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing MsTeamsAlertBody".to_string())
                 }
             }
@@ -5872,7 +5802,139 @@ impl std::str::FromStr for MsTeamsAlertBody {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<MsTeamsAlertBody> and hyper::header::HeaderValue
 
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<MsTeamsAlertBody>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<MsTeamsAlertBody>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for MsTeamsAlertBody - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MsTeamsAlertBody> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <MsTeamsAlertBody as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into MsTeamsAlertBody - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct MulExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+    // Note: inline enums are not fully supported by openapi-generator
+    #[serde(rename = "exprType")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expr_type: Option<String>,
+
+}
+
+impl MulExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> MulExpr {
+        MulExpr {
+            lhs: lhs,
+            rhs: rhs,
+            expr_type: None,
+        }
+    }
+}
+
+/// Converts the MulExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for MulExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+
+        if let Some(ref expr_type) = self.expr_type {
+            params.push("exprType".to_string());
+            params.push(expr_type.to_string());
+        }
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a MulExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for MulExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+            pub expr_type: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing MulExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "exprType" => intermediate_rep.expr_type.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing MulExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(MulExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in MulExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in MulExpr".to_string())?,
+            expr_type: intermediate_rep.expr_type.into_iter().next(),
+        })
+    }
+}
 
 // Methods for converting between header::IntoHeaderValue<MulExpr> and hyper::header::HeaderValue
 
@@ -5902,127 +5964,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into MulExpr - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct MulExpr {
-    #[serde(rename = "lhs")]
-    pub lhs: models::ArthExpr,
-
-    #[serde(rename = "rhs")]
-    pub rhs: models::ArthExpr,
-
-}
-
-impl MulExpr {
-    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> MulExpr {
-        MulExpr {
-            lhs: lhs,
-            rhs: rhs,
-        }
-    }
-}
-
-/// Converts the MulExpr value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for MulExpr {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-        // Skipping lhs in query parameter serialization
-
-        // Skipping rhs in query parameter serialization
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a MulExpr value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for MulExpr {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub lhs: Vec<models::ArthExpr>,
-            pub rhs: Vec<models::ArthExpr>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing MulExpr".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing MulExpr".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(MulExpr {
-            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in MulExpr".to_string())?,
-            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in MulExpr".to_string())?,
-        })
-    }
-}
-
-
-
-// Methods for converting between header::IntoHeaderValue<NewAgent> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<NewAgent>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<NewAgent>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for NewAgent - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<NewAgent> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <NewAgent as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into NewAgent - {}",
                                 value, err))
                     }
              },
@@ -6137,11 +6078,11 @@ impl std::str::FromStr for NewAgent {
 
             if let Some(key) = key_result {
                 match key {
-                    "apiKey" => intermediate_rep.api_key.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "description" => intermediate_rep.description.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "group" => intermediate_rep.group.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "apiKey" => intermediate_rep.api_key.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "group" => intermediate_rep.group.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing NewAgent".to_string())
                 }
             }
@@ -6161,36 +6102,34 @@ impl std::str::FromStr for NewAgent {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<NotExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<NewAgent> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<NotExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<NewAgent>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<NotExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<NewAgent>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for NotExpr - value: {} is invalid {}",
+                 format!("Invalid header value for NewAgent - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<NotExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<NewAgent> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <NotExpr as std::str::FromStr>::from_str(value) {
+                    match <NewAgent as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into NotExpr - {}",
+                            format!("Unable to convert header value '{}' into NewAgent - {}",
                                 value, err))
                     }
              },
@@ -6258,7 +6197,7 @@ impl std::str::FromStr for NotExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "expr" => intermediate_rep.expr.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expr" => intermediate_rep.expr.push(<models::BoolExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing NotExpr".to_string())
                 }
             }
@@ -6274,36 +6213,34 @@ impl std::str::FromStr for NotExpr {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<OrExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<NotExpr> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<OrExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<NotExpr>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<OrExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<NotExpr>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for OrExpr - value: {} is invalid {}",
+                 format!("Invalid header value for NotExpr - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<OrExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<NotExpr> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <OrExpr as std::str::FromStr>::from_str(value) {
+                    match <NotExpr as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into OrExpr - {}",
+                            format!("Unable to convert header value '{}' into NotExpr - {}",
                                 value, err))
                     }
              },
@@ -6377,8 +6314,8 @@ impl std::str::FromStr for OrExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::BoolExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::BoolExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing OrExpr".to_string())
                 }
             }
@@ -6395,6 +6332,43 @@ impl std::str::FromStr for OrExpr {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<OrExpr> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<OrExpr>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<OrExpr>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for OrExpr - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<OrExpr> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <OrExpr as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into OrExpr - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
@@ -6436,46 +6410,6 @@ impl std::ops::Deref for Password {
 impl std::ops::DerefMut for Password {
     fn deref_mut(&mut self) -> &mut String {
         &mut self.0
-    }
-}
-
-
-
-// Methods for converting between header::IntoHeaderValue<Plan> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Plan>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<Plan>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Plan - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Plan> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <Plan as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Plan - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
     }
 }
 
@@ -6571,11 +6505,11 @@ impl std::str::FromStr for Plan {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "name" => intermediate_rep.name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "description" => intermediate_rep.description.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "products" => return std::result::Result::Err("Parsing a container in this style is not supported in Plan".to_string()),
-                    "maximumPrice" => intermediate_rep.maximum_price.push(models::Money::from_str(val).map_err(|x| format!("{}", x))?),
+                    "maximumPrice" => intermediate_rep.maximum_price.push(<models::Money as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Plan".to_string())
                 }
             }
@@ -6595,36 +6529,34 @@ impl std::str::FromStr for Plan {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<PlanArray> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<Plan> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<PlanArray>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<Plan>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<PlanArray>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<Plan>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for PlanArray - value: {} is invalid {}",
+                 format!("Invalid header value for Plan - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<PlanArray> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Plan> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <PlanArray as std::str::FromStr>::from_str(value) {
+                    match <Plan as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into PlanArray - {}",
+                            format!("Unable to convert header value '{}' into Plan - {}",
                                 value, err))
                     }
              },
@@ -6707,7 +6639,139 @@ impl std::str::FromStr for PlanArray {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<PlanArray> and hyper::header::HeaderValue
 
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<PlanArray>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<PlanArray>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for PlanArray - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<PlanArray> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <PlanArray as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into PlanArray - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct PlusExpr {
+    #[serde(rename = "lhs")]
+    pub lhs: models::ArthExpr,
+
+    #[serde(rename = "rhs")]
+    pub rhs: models::ArthExpr,
+
+    // Note: inline enums are not fully supported by openapi-generator
+    #[serde(rename = "exprType")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub expr_type: Option<String>,
+
+}
+
+impl PlusExpr {
+    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> PlusExpr {
+        PlusExpr {
+            lhs: lhs,
+            rhs: rhs,
+            expr_type: None,
+        }
+    }
+}
+
+/// Converts the PlusExpr value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for PlusExpr {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping lhs in query parameter serialization
+
+        // Skipping rhs in query parameter serialization
+
+
+        if let Some(ref expr_type) = self.expr_type {
+            params.push("exprType".to_string());
+            params.push(expr_type.to_string());
+        }
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a PlusExpr value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for PlusExpr {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub lhs: Vec<models::ArthExpr>,
+            pub rhs: Vec<models::ArthExpr>,
+            pub expr_type: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing PlusExpr".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "exprType" => intermediate_rep.expr_type.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing PlusExpr".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(PlusExpr {
+            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in PlusExpr".to_string())?,
+            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in PlusExpr".to_string())?,
+            expr_type: intermediate_rep.expr_type.into_iter().next(),
+        })
+    }
+}
 
 // Methods for converting between header::IntoHeaderValue<PlusExpr> and hyper::header::HeaderValue
 
@@ -6737,127 +6801,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into PlusExpr - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct PlusExpr {
-    #[serde(rename = "lhs")]
-    pub lhs: models::ArthExpr,
-
-    #[serde(rename = "rhs")]
-    pub rhs: models::ArthExpr,
-
-}
-
-impl PlusExpr {
-    pub fn new(lhs: models::ArthExpr, rhs: models::ArthExpr, ) -> PlusExpr {
-        PlusExpr {
-            lhs: lhs,
-            rhs: rhs,
-        }
-    }
-}
-
-/// Converts the PlusExpr value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for PlusExpr {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-        // Skipping lhs in query parameter serialization
-
-        // Skipping rhs in query parameter serialization
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a PlusExpr value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for PlusExpr {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub lhs: Vec<models::ArthExpr>,
-            pub rhs: Vec<models::ArthExpr>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing PlusExpr".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing PlusExpr".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(PlusExpr {
-            lhs: intermediate_rep.lhs.into_iter().next().ok_or("lhs missing in PlusExpr".to_string())?,
-            rhs: intermediate_rep.rhs.into_iter().next().ok_or("rhs missing in PlusExpr".to_string())?,
-        })
-    }
-}
-
-
-
-// Methods for converting between header::IntoHeaderValue<ProcessMonitorBody> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<ProcessMonitorBody>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<ProcessMonitorBody>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for ProcessMonitorBody - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ProcessMonitorBody> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <ProcessMonitorBody as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into ProcessMonitorBody - {}",
                                 value, err))
                     }
              },
@@ -6993,12 +6936,12 @@ impl std::str::FromStr for ProcessMonitorBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "executable" => intermediate_rep.executable.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "isPathAbsolute" => intermediate_rep.is_path_absolute.push(bool::from_str(val).map_err(|x| format!("{}", x))?),
-                    "minimumCount" => intermediate_rep.minimum_count.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "maximumCount" => intermediate_rep.maximum_count.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "maximumRamIndividual" => intermediate_rep.maximum_ram_individual.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "maximumRamTotal" => intermediate_rep.maximum_ram_total.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "executable" => intermediate_rep.executable.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "isPathAbsolute" => intermediate_rep.is_path_absolute.push(<bool as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "minimumCount" => intermediate_rep.minimum_count.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "maximumCount" => intermediate_rep.maximum_count.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "maximumRamIndividual" => intermediate_rep.maximum_ram_individual.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "maximumRamTotal" => intermediate_rep.maximum_ram_total.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing ProcessMonitorBody".to_string())
                 }
             }
@@ -7019,36 +6962,34 @@ impl std::str::FromStr for ProcessMonitorBody {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<Product> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<ProcessMonitorBody> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Product>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<ProcessMonitorBody>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Product>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<ProcessMonitorBody>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Product - value: {} is invalid {}",
+                 format!("Invalid header value for ProcessMonitorBody - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Product> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ProcessMonitorBody> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <Product as std::str::FromStr>::from_str(value) {
+                    match <ProcessMonitorBody as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Product - {}",
+                            format!("Unable to convert header value '{}' into ProcessMonitorBody - {}",
                                 value, err))
                     }
              },
@@ -7141,10 +7082,10 @@ impl std::str::FromStr for Product {
 
             if let Some(key) = key_result {
                 match key {
-                    "entity" => intermediate_rep.entity.push(models::ProductEntity::from_str(val).map_err(|x| format!("{}", x))?),
-                    "price" => intermediate_rep.price.push(models::Money::from_str(val).map_err(|x| format!("{}", x))?),
-                    "count" => intermediate_rep.count.push(i32::from_str(val).map_err(|x| format!("{}", x))?),
-                    "description" => intermediate_rep.description.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "entity" => intermediate_rep.entity.push(<models::ProductEntity as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "price" => intermediate_rep.price.push(<models::Money as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "count" => intermediate_rep.count.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Product".to_string())
                 }
             }
@@ -7163,6 +7104,43 @@ impl std::str::FromStr for Product {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<Product> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<Product>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<Product>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for Product - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Product> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <Product as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into Product - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 /// Enumeration of values.
@@ -7172,7 +7150,7 @@ impl std::str::FromStr for Product {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum ProductEntity { 
+pub enum ProductEntity {
     #[serde(rename = "monitor")]
     MONITOR,
     #[serde(rename = "status")]
@@ -7189,7 +7167,7 @@ pub enum ProductEntity {
 
 impl std::fmt::Display for ProductEntity {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             ProductEntity::MONITOR => write!(f, "{}", "monitor"),
             ProductEntity::STATUS => write!(f, "{}", "status"),
             ProductEntity::ALERT => write!(f, "{}", "alert"),
@@ -7215,46 +7193,6 @@ impl std::str::FromStr for ProductEntity {
         }
     }
 }
-
-
-// Methods for converting between header::IntoHeaderValue<RedisMonitorBody> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<RedisMonitorBody>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<RedisMonitorBody>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for RedisMonitorBody - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<RedisMonitorBody> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <RedisMonitorBody as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into RedisMonitorBody - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -7372,12 +7310,12 @@ impl std::str::FromStr for RedisMonitorBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "hostname" => intermediate_rep.hostname.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "port" => intermediate_rep.port.push(u16::from_str(val).map_err(|x| format!("{}", x))?),
-                    "db" => intermediate_rep.db.push(isize::from_str(val).map_err(|x| format!("{}", x))?),
-                    "username" => intermediate_rep.username.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "expression" => intermediate_rep.expression.push(models::BoolExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "hostname" => intermediate_rep.hostname.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "port" => intermediate_rep.port.push(<u16 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "db" => intermediate_rep.db.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "username" => intermediate_rep.username.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "password" => intermediate_rep.password.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expression" => intermediate_rep.expression.push(<models::BoolExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing RedisMonitorBody".to_string())
                 }
             }
@@ -7398,36 +7336,34 @@ impl std::str::FromStr for RedisMonitorBody {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<Registration> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<RedisMonitorBody> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Registration>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<RedisMonitorBody>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Registration>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<RedisMonitorBody>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Registration - value: {} is invalid {}",
+                 format!("Invalid header value for RedisMonitorBody - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Registration> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<RedisMonitorBody> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <Registration as std::str::FromStr>::from_str(value) {
+                    match <RedisMonitorBody as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Registration - {}",
+                            format!("Unable to convert header value '{}' into RedisMonitorBody - {}",
                                 value, err))
                     }
              },
@@ -7544,12 +7480,12 @@ impl std::str::FromStr for Registration {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "accountName" => intermediate_rep.account_name.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "challengeId" => intermediate_rep.challenge_id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "challengeSolution" => intermediate_rep.challenge_solution.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "emailAddress" => intermediate_rep.email_address.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "password" => intermediate_rep.password.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "accountName" => intermediate_rep.account_name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "challengeId" => intermediate_rep.challenge_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "challengeSolution" => intermediate_rep.challenge_solution.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "emailAddress" => intermediate_rep.email_address.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "password" => intermediate_rep.password.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Registration".to_string())
                 }
             }
@@ -7570,37 +7506,34 @@ impl std::str::FromStr for Registration {
     }
 }
 
-
-
-/// A Captcha challenge that a human being will have to solve.
-// Methods for converting between header::IntoHeaderValue<RegistrationChallenge> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<Registration> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<RegistrationChallenge>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<Registration>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<RegistrationChallenge>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<Registration>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for RegistrationChallenge - value: {} is invalid {}",
+                 format!("Invalid header value for Registration - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<RegistrationChallenge> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Registration> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <RegistrationChallenge as std::str::FromStr>::from_str(value) {
+                    match <Registration as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into RegistrationChallenge - {}",
+                            format!("Unable to convert header value '{}' into Registration - {}",
                                 value, err))
                     }
              },
@@ -7612,6 +7545,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
+/// A Captcha challenge that a human being will have to solve.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct RegistrationChallenge {
@@ -7756,14 +7690,14 @@ impl std::str::FromStr for RegistrationChallenge {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "status" => intermediate_rep.status.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "solution" => intermediate_rep.solution.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "type" => intermediate_rep.type_.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "encoding" => intermediate_rep.encoding.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "mimeType" => intermediate_rep.mime_type.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "url" => intermediate_rep.url.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "data" => intermediate_rep.data.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "status" => intermediate_rep.status.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "solution" => intermediate_rep.solution.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "type" => intermediate_rep.type_.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "encoding" => intermediate_rep.encoding.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "mimeType" => intermediate_rep.mime_type.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "url" => intermediate_rep.url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "data" => intermediate_rep.data.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing RegistrationChallenge".to_string())
                 }
             }
@@ -7786,36 +7720,34 @@ impl std::str::FromStr for RegistrationChallenge {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<RegistrationConfirmation> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<RegistrationChallenge> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<RegistrationConfirmation>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<RegistrationChallenge>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<RegistrationConfirmation>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<RegistrationChallenge>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for RegistrationConfirmation - value: {} is invalid {}",
+                 format!("Invalid header value for RegistrationChallenge - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<RegistrationConfirmation> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<RegistrationChallenge> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <RegistrationConfirmation as std::str::FromStr>::from_str(value) {
+                    match <RegistrationChallenge as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into RegistrationConfirmation - {}",
+                            format!("Unable to convert header value '{}' into RegistrationChallenge - {}",
                                 value, err))
                     }
              },
@@ -7906,9 +7838,9 @@ impl std::str::FromStr for RegistrationConfirmation {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "confirmationCode" => intermediate_rep.confirmation_code.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "emailAddress" => intermediate_rep.email_address.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "confirmationCode" => intermediate_rep.confirmation_code.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "emailAddress" => intermediate_rep.email_address.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing RegistrationConfirmation".to_string())
                 }
             }
@@ -7926,36 +7858,34 @@ impl std::str::FromStr for RegistrationConfirmation {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<ResponseError> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<RegistrationConfirmation> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<ResponseError>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<RegistrationConfirmation>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<ResponseError>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<RegistrationConfirmation>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for ResponseError - value: {} is invalid {}",
+                 format!("Invalid header value for RegistrationConfirmation - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ResponseError> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<RegistrationConfirmation> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <ResponseError as std::str::FromStr>::from_str(value) {
+                    match <RegistrationConfirmation as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into ResponseError - {}",
+                            format!("Unable to convert header value '{}' into RegistrationConfirmation - {}",
                                 value, err))
                     }
              },
@@ -8040,9 +7970,9 @@ impl std::str::FromStr for ResponseError {
 
             if let Some(key) = key_result {
                 match key {
-                    "errorCode" => intermediate_rep.error_code.push(models::ErrorCode::from_str(val).map_err(|x| format!("{}", x))?),
-                    "errorMessage" => intermediate_rep.error_message.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "userErrorMessage" => intermediate_rep.user_error_message.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "errorCode" => intermediate_rep.error_code.push(<models::ErrorCode as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "errorMessage" => intermediate_rep.error_message.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "userErrorMessage" => intermediate_rep.user_error_message.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing ResponseError".to_string())
                 }
             }
@@ -8060,37 +7990,34 @@ impl std::str::FromStr for ResponseError {
     }
 }
 
-
-
-/// Server info and status about open connections
-// Methods for converting between header::IntoHeaderValue<ServerInfo> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<ResponseError> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<ServerInfo>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<ResponseError>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<ServerInfo>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<ResponseError>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for ServerInfo - value: {} is invalid {}",
+                 format!("Invalid header value for ResponseError - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ServerInfo> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ResponseError> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <ServerInfo as std::str::FromStr>::from_str(value) {
+                    match <ResponseError as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into ServerInfo - {}",
+                            format!("Unable to convert header value '{}' into ResponseError - {}",
                                 value, err))
                     }
              },
@@ -8102,6 +8029,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
+/// Server info and status about open connections
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct ServerInfo {
@@ -8180,9 +8108,9 @@ impl std::str::FromStr for ServerInfo {
 
             if let Some(key) = key_result {
                 match key {
-                    "vcsRef" => intermediate_rep.vcs_ref.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "processMemoryBytes" => intermediate_rep.process_memory_bytes.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
-                    "openInwardConnections" => intermediate_rep.open_inward_connections.push(f64::from_str(val).map_err(|x| format!("{}", x))?),
+                    "vcsRef" => intermediate_rep.vcs_ref.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "processMemoryBytes" => intermediate_rep.process_memory_bytes.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "openInwardConnections" => intermediate_rep.open_inward_connections.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing ServerInfo".to_string())
                 }
             }
@@ -8200,36 +8128,34 @@ impl std::str::FromStr for ServerInfo {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<SubExpr> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<ServerInfo> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<SubExpr>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<ServerInfo>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<SubExpr>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<ServerInfo>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for SubExpr - value: {} is invalid {}",
+                 format!("Invalid header value for ServerInfo - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<SubExpr> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<ServerInfo> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <SubExpr as std::str::FromStr>::from_str(value) {
+                    match <ServerInfo as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into SubExpr - {}",
+                            format!("Unable to convert header value '{}' into ServerInfo - {}",
                                 value, err))
                     }
              },
@@ -8303,8 +8229,8 @@ impl std::str::FromStr for SubExpr {
 
             if let Some(key) = key_result {
                 match key {
-                    "lhs" => intermediate_rep.lhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
-                    "rhs" => intermediate_rep.rhs.push(models::ArthExpr::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lhs" => intermediate_rep.lhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "rhs" => intermediate_rep.rhs.push(<models::ArthExpr as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing SubExpr".to_string())
                 }
             }
@@ -8321,36 +8247,34 @@ impl std::str::FromStr for SubExpr {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<Subscription> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<SubExpr> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Subscription>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<SubExpr>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<Subscription>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<SubExpr>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Subscription - value: {} is invalid {}",
+                 format!("Invalid header value for SubExpr - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Subscription> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<SubExpr> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <Subscription as std::str::FromStr>::from_str(value) {
+                    match <SubExpr as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Subscription - {}",
+                            format!("Unable to convert header value '{}' into SubExpr - {}",
                                 value, err))
                     }
              },
@@ -8468,12 +8392,12 @@ impl std::str::FromStr for Subscription {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "organisationId" => intermediate_rep.organisation_id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "startedAt" => intermediate_rep.started_at.push(chrono::DateTime::<chrono::Utc>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "stoppedAt" => intermediate_rep.stopped_at.push(chrono::DateTime::<chrono::Utc>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "planId" => intermediate_rep.plan_id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "chargeType" => intermediate_rep.charge_type.push(models::ChargeType::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "organisationId" => intermediate_rep.organisation_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "startedAt" => intermediate_rep.started_at.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "stoppedAt" => intermediate_rep.stopped_at.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "planId" => intermediate_rep.plan_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "chargeType" => intermediate_rep.charge_type.push(<models::ChargeType as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Subscription".to_string())
                 }
             }
@@ -8494,36 +8418,34 @@ impl std::str::FromStr for Subscription {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<SubscriptionContainer> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<Subscription> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<SubscriptionContainer>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<Subscription>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<SubscriptionContainer>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<Subscription>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for SubscriptionContainer - value: {} is invalid {}",
+                 format!("Invalid header value for Subscription - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<SubscriptionContainer> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Subscription> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <SubscriptionContainer as std::str::FromStr>::from_str(value) {
+                    match <Subscription as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into SubscriptionContainer - {}",
+                            format!("Unable to convert header value '{}' into Subscription - {}",
                                 value, err))
                     }
              },
@@ -8591,7 +8513,7 @@ impl std::str::FromStr for SubscriptionContainer {
 
             if let Some(key) = key_result {
                 match key {
-                    "subscription" => intermediate_rep.subscription.push(models::Subscription::from_str(val).map_err(|x| format!("{}", x))?),
+                    "subscription" => intermediate_rep.subscription.push(<models::Subscription as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing SubscriptionContainer".to_string())
                 }
             }
@@ -8607,6 +8529,43 @@ impl std::str::FromStr for SubscriptionContainer {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<SubscriptionContainer> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<SubscriptionContainer>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<SubscriptionContainer>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for SubscriptionContainer - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<SubscriptionContainer> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <SubscriptionContainer as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into SubscriptionContainer - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 /// Enumeration of values.
@@ -8616,7 +8575,7 @@ impl std::str::FromStr for SubscriptionContainer {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum SubscriptionStatus { 
+pub enum SubscriptionStatus {
     #[serde(rename = "active")]
     ACTIVE,
     #[serde(rename = "inactive")]
@@ -8625,7 +8584,7 @@ pub enum SubscriptionStatus {
 
 impl std::fmt::Display for SubscriptionStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             SubscriptionStatus::ACTIVE => write!(f, "{}", "active"),
             SubscriptionStatus::INACTIVE => write!(f, "{}", "inactive"),
         }
@@ -8643,46 +8602,6 @@ impl std::str::FromStr for SubscriptionStatus {
         }
     }
 }
-
-
-// Methods for converting between header::IntoHeaderValue<TcpMonitorBody> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<TcpMonitorBody>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<TcpMonitorBody>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for TcpMonitorBody - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<TcpMonitorBody> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <TcpMonitorBody as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into TcpMonitorBody - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -8756,8 +8675,8 @@ impl std::str::FromStr for TcpMonitorBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "hostname" => intermediate_rep.hostname.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "port" => intermediate_rep.port.push(u16::from_str(val).map_err(|x| format!("{}", x))?),
+                    "hostname" => intermediate_rep.hostname.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "port" => intermediate_rep.port.push(<u16 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing TcpMonitorBody".to_string())
                 }
             }
@@ -8774,6 +8693,43 @@ impl std::str::FromStr for TcpMonitorBody {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<TcpMonitorBody> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<TcpMonitorBody>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<TcpMonitorBody>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for TcpMonitorBody - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<TcpMonitorBody> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <TcpMonitorBody as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into TcpMonitorBody - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
@@ -8819,7 +8775,6 @@ impl std::ops::DerefMut for TimeDelta {
 }
 
 
-
 /// Controls whether or not STARTTLS will be used.
 /// Enumeration of values.
 /// Since this enum's variants do not hold data, we can easily define them them as `#[repr(C)]`
@@ -8828,7 +8783,7 @@ impl std::ops::DerefMut for TimeDelta {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum TlsMode { 
+pub enum TlsMode {
     #[serde(rename = "none")]
     NONE,
     #[serde(rename = "tls")]
@@ -8839,7 +8794,7 @@ pub enum TlsMode {
 
 impl std::fmt::Display for TlsMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             TlsMode::NONE => write!(f, "{}", "none"),
             TlsMode::TLS => write!(f, "{}", "tls"),
             TlsMode::STARTTLS => write!(f, "{}", "starttls"),
@@ -8859,46 +8814,6 @@ impl std::str::FromStr for TlsMode {
         }
     }
 }
-
-
-// Methods for converting between header::IntoHeaderValue<Transaction> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Transaction>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<Transaction>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Transaction - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Transaction> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <Transaction as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Transaction - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -8988,11 +8903,11 @@ impl std::str::FromStr for Transaction {
 
             if let Some(key) = key_result {
                 match key {
-                    "id" => intermediate_rep.id.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "timestamp" => intermediate_rep.timestamp.push(chrono::DateTime::<chrono::Utc>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "amount" => intermediate_rep.amount.push(models::Money::from_str(val).map_err(|x| format!("{}", x))?),
-                    "description" => intermediate_rep.description.push(String::from_str(val).map_err(|x| format!("{}", x))?),
-                    "code" => intermediate_rep.code.push(models::TransactionCode::from_str(val).map_err(|x| format!("{}", x))?),
+                    "id" => intermediate_rep.id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "timestamp" => intermediate_rep.timestamp.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "amount" => intermediate_rep.amount.push(<models::Money as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "code" => intermediate_rep.code.push(<models::TransactionCode as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Transaction".to_string())
                 }
             }
@@ -9012,6 +8927,43 @@ impl std::str::FromStr for Transaction {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<Transaction> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<Transaction>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<Transaction>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for Transaction - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Transaction> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <Transaction as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into Transaction - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 /// Enumeration of values.
@@ -9021,7 +8973,7 @@ impl std::str::FromStr for Transaction {
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk_enum_derive::LabelledGenericEnum))]
-pub enum TransactionCode { 
+pub enum TransactionCode {
     #[serde(rename = "subscription_credit")]
     SUBSCRIPTION_CREDIT,
     #[serde(rename = "subscription_charge")]
@@ -9038,7 +8990,7 @@ pub enum TransactionCode {
 
 impl std::fmt::Display for TransactionCode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self { 
+        match *self {
             TransactionCode::SUBSCRIPTION_CREDIT => write!(f, "{}", "subscription_credit"),
             TransactionCode::SUBSCRIPTION_CHARGE => write!(f, "{}", "subscription_charge"),
             TransactionCode::SUBSCRIPTION_REFUND => write!(f, "{}", "subscription_refund"),
@@ -9064,46 +9016,6 @@ impl std::str::FromStr for TransactionCode {
         }
     }
 }
-
-
-// Methods for converting between header::IntoHeaderValue<TransactionList> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<TransactionList>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<TransactionList>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for TransactionList - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<TransactionList> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <TransactionList as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into TransactionList - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
@@ -9178,8 +9090,8 @@ impl std::str::FromStr for TransactionList {
             if let Some(key) = key_result {
                 match key {
                     "transactions" => return std::result::Result::Err("Parsing a container in this style is not supported in TransactionList".to_string()),
-                    "openingBalance" => intermediate_rep.opening_balance.push(models::Balance::from_str(val).map_err(|x| format!("{}", x))?),
-                    "closingBalance" => intermediate_rep.closing_balance.push(models::Balance::from_str(val).map_err(|x| format!("{}", x))?),
+                    "openingBalance" => intermediate_rep.opening_balance.push(<models::Balance as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "closingBalance" => intermediate_rep.closing_balance.push(<models::Balance as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing TransactionList".to_string())
                 }
             }
@@ -9197,36 +9109,34 @@ impl std::str::FromStr for TransactionList {
     }
 }
 
-
-
-// Methods for converting between header::IntoHeaderValue<WebhookAlertBody> and hyper::header::HeaderValue
+// Methods for converting between header::IntoHeaderValue<TransactionList> and hyper::header::HeaderValue
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<WebhookAlertBody>> for hyper::header::HeaderValue {
+impl std::convert::TryFrom<header::IntoHeaderValue<TransactionList>> for hyper::header::HeaderValue {
     type Error = String;
 
-    fn try_from(hdr_value: header::IntoHeaderValue<WebhookAlertBody>) -> std::result::Result<Self, Self::Error> {
+    fn try_from(hdr_value: header::IntoHeaderValue<TransactionList>) -> std::result::Result<Self, Self::Error> {
         let hdr_value = hdr_value.to_string();
         match hyper::header::HeaderValue::from_str(&hdr_value) {
              std::result::Result::Ok(value) => std::result::Result::Ok(value),
              std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for WebhookAlertBody - value: {} is invalid {}",
+                 format!("Invalid header value for TransactionList - value: {} is invalid {}",
                      hdr_value, e))
         }
     }
 }
 
 #[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<WebhookAlertBody> {
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<TransactionList> {
     type Error = String;
 
     fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
         match hdr_value.to_str() {
              std::result::Result::Ok(value) => {
-                    match <WebhookAlertBody as std::str::FromStr>::from_str(value) {
+                    match <TransactionList as std::str::FromStr>::from_str(value) {
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into WebhookAlertBody - {}",
+                            format!("Unable to convert header value '{}' into TransactionList - {}",
                                 value, err))
                     }
              },
@@ -9306,7 +9216,7 @@ impl std::str::FromStr for WebhookAlertBody {
 
             if let Some(key) = key_result {
                 match key {
-                    "url" => intermediate_rep.url.push(String::from_str(val).map_err(|x| format!("{}", x))?),
+                    "url" => intermediate_rep.url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "headers" => return std::result::Result::Err("Parsing a container in this style is not supported in WebhookAlertBody".to_string()),
                     _ => return std::result::Result::Err("Unexpected key while parsing WebhookAlertBody".to_string())
                 }
@@ -9324,6 +9234,43 @@ impl std::str::FromStr for WebhookAlertBody {
     }
 }
 
+// Methods for converting between header::IntoHeaderValue<WebhookAlertBody> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<WebhookAlertBody>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<WebhookAlertBody>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for WebhookAlertBody - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<WebhookAlertBody> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <WebhookAlertBody as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into WebhookAlertBody - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
 
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize)]
@@ -9367,5 +9314,4 @@ impl std::ops::DerefMut for WriteableIdString {
         &mut self.0
     }
 }
-
 

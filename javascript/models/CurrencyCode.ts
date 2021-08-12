@@ -18,9 +18,9 @@
  * @enum {string}
  */
 export enum CurrencyCode {
-    NZD = 'NZD',
-    USD = 'USD',
-    EUR = 'EUR'
+    Nzd = 'NZD',
+    Usd = 'USD',
+    Eur = 'EUR'
 }
 
 export function CurrencyCodeFromJSON(json: any): CurrencyCode {

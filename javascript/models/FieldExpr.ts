@@ -25,6 +25,20 @@ export interface FieldExpr {
      * @memberof FieldExpr
      */
     name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FieldExpr
+     */
+    exprType?: FieldExprExprTypeEnum;
+}
+
+/**
+* @export
+* @enum {string}
+*/
+export enum FieldExprExprTypeEnum {
+    Field = 'field'
 }
 
 export function FieldExprFromJSON(json: any): FieldExpr {
@@ -38,6 +52,7 @@ export function FieldExprFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     return {
         
         'name': json['name'],
+        'exprType': !exists(json, 'exprType') ? undefined : json['exprType'],
     };
 }
 
@@ -51,6 +66,7 @@ export function FieldExprToJSON(value?: FieldExpr | null): any {
     return {
         
         'name': value.name,
+        'exprType': value.exprType,
     };
 }
 

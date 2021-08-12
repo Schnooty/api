@@ -5,8 +5,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | [**String**](string.md) |  | [optional] [default to null]
 **organisationId** | [**String**](string.md) |  | [optional] [default to null]
-**startedAt** | [**Date**](DateTime.md) |  | [optional] [default to null]
-**stoppedAt** | [**Date**](DateTime.md) |  | [optional] [default to null]
+**startedAt** | [**Date**](DateTime.md) | UTC UNIX timestamp in with fractional offset. | [optional] [default to null]
+**stoppedAt** | [**Date**](DateTime.md) | UTC UNIX timestamp in with fractional offset. | [optional] [default to null]
 **planId** | [**String**](string.md) |  | [default to null]
 **chargeType** | [**ChargeType**](ChargeType.md) |  | [default to null]
 

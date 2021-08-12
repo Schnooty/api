@@ -69,6 +69,34 @@ export interface RegistrationChallenge {
     readonly data?: string;
 }
 
+/**
+* @export
+* @enum {string}
+*/
+export enum RegistrationChallengeStatusEnum {
+    Unsolved = 'unsolved',
+    Solved = 'solved',
+    Inactive = 'inactive'
+}/**
+* @export
+* @enum {string}
+*/
+export enum RegistrationChallengeTypeEnum {
+    Captcha = 'captcha'
+}/**
+* @export
+* @enum {string}
+*/
+export enum RegistrationChallengeEncodingEnum {
+    Base64 = 'base64'
+}/**
+* @export
+* @enum {string}
+*/
+export enum RegistrationChallengeMimeTypeEnum {
+    ImagePng = 'image/png'
+}
+
 export function RegistrationChallengeFromJSON(json: any): RegistrationChallenge {
     return RegistrationChallengeFromJSONTyped(json, false);
 }
@@ -101,37 +129,6 @@ export function RegistrationChallengeToJSON(value?: RegistrationChallenge | null
         
         'solution': value.solution,
     };
-}
-
-/**
-* @export
-* @enum {string}
-*/
-export enum RegistrationChallengeStatusEnum {
-    Unsolved = 'unsolved',
-    Solved = 'solved',
-    Inactive = 'inactive'
-}
-/**
-* @export
-* @enum {string}
-*/
-export enum RegistrationChallengeTypeEnum {
-    Captcha = 'captcha'
-}
-/**
-* @export
-* @enum {string}
-*/
-export enum RegistrationChallengeEncodingEnum {
-    Base64 = 'base64'
-}
-/**
-* @export
-* @enum {string}
-*/
-export enum RegistrationChallengeMimeTypeEnum {
-    ImagePng = 'image/png'
 }
 
 

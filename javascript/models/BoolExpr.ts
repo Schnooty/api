@@ -44,7 +44,7 @@ import {
  * 
  * @export
  */
-export type BoolExpr = AndExpr | EqExpr | GtEqExpr | GtExpr | LtEqExpr | LtExpr | NotExpr | OrExpr;
+export type BoolExpr = ;
 
 export function BoolExprFromJSON(json: any): BoolExpr {
     return BoolExprFromJSONTyped(json, false);
@@ -54,7 +54,10 @@ export function BoolExprFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     if ((json === undefined) || (json === null)) {
         return json;
     }
-    return { ...AndExprFromJSONTyped(json, true), ...EqExprFromJSONTyped(json, true), ...GtEqExprFromJSONTyped(json, true), ...GtExprFromJSONTyped(json, true), ...LtEqExprFromJSONTyped(json, true), ...LtExprFromJSONTyped(json, true), ...NotExprFromJSONTyped(json, true), ...OrExprFromJSONTyped(json, true) };
+    switch (json['exprType']) {
+        default:
+            throw new Error(`No variant of BoolExpr exists with 'exprType=${json['exprType']}'`);
+    }
 }
 
 export function BoolExprToJSON(value?: BoolExpr | null): any {
@@ -64,6 +67,9 @@ export function BoolExprToJSON(value?: BoolExpr | null): any {
     if (value === null) {
         return null;
     }
-    return { ...AndExprToJSON(value), ...EqExprToJSON(value), ...GtEqExprToJSON(value), ...GtExprToJSON(value), ...LtEqExprToJSON(value), ...LtExprToJSON(value), ...NotExprToJSON(value), ...OrExprToJSON(value) };
+    switch (value['exprType']) {
+        default:
+            throw new Error(`No variant of BoolExpr exists with 'exprType=${value['exprType']}'`);
+    }
 }
 

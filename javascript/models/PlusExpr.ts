@@ -38,6 +38,20 @@ export interface PlusExpr {
      * @memberof PlusExpr
      */
     rhs: ArthExpr;
+    /**
+     * 
+     * @type {string}
+     * @memberof PlusExpr
+     */
+    exprType?: PlusExprExprTypeEnum;
+}
+
+/**
+* @export
+* @enum {string}
+*/
+export enum PlusExprExprTypeEnum {
+    Plus = 'plus'
 }
 
 export function PlusExprFromJSON(json: any): PlusExpr {
@@ -52,6 +66,7 @@ export function PlusExprFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         
         'lhs': ArthExprFromJSON(json['lhs']),
         'rhs': ArthExprFromJSON(json['rhs']),
+        'exprType': !exists(json, 'exprType') ? undefined : json['exprType'],
     };
 }
 
@@ -66,6 +81,7 @@ export function PlusExprToJSON(value?: PlusExpr | null): any {
         
         'lhs': ArthExprToJSON(value.lhs),
         'rhs': ArthExprToJSON(value.rhs),
+        'exprType': value.exprType,
     };
 }
 

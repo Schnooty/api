@@ -1645,6 +1645,8 @@ components:
           $ref: '#/components/schemas/BoolExpr'
       type: object
     BoolExpr:
+      discriminator:
+        propertyName: exprType
       oneOf:
       - $ref: '#/components/schemas/AndExpr'
       - $ref: '#/components/schemas/OrExpr'
@@ -1654,6 +1656,7 @@ components:
       - $ref: '#/components/schemas/GtExpr'
       - $ref: '#/components/schemas/LtEqExpr'
       - $ref: '#/components/schemas/GtEqExpr'
+      type: object
     ArthExpr:
       oneOf:
       - $ref: '#/components/schemas/PlusExpr'
@@ -1662,6 +1665,7 @@ components:
       - $ref: '#/components/schemas/DivExpr'
       - $ref: '#/components/schemas/FieldExpr'
       - $ref: '#/components/schemas/ConstExpr'
+      type: object
     AndExpr:
       properties:
         lhs:
@@ -1751,6 +1755,10 @@ components:
           $ref: '#/components/schemas/ArthExpr'
         rhs:
           $ref: '#/components/schemas/ArthExpr'
+        exprType:
+          enum:
+          - plus
+          type: string
       required:
       - lhs
       - rhs
@@ -1761,6 +1769,10 @@ components:
           $ref: '#/components/schemas/ArthExpr'
         rhs:
           $ref: '#/components/schemas/ArthExpr'
+        exprType:
+          enum:
+          - mul
+          type: string
       required:
       - lhs
       - rhs
@@ -1771,6 +1783,10 @@ components:
           $ref: '#/components/schemas/ArthExpr'
         rhs:
           $ref: '#/components/schemas/ArthExpr'
+        exprType:
+          enum:
+          - div
+          type: string
       required:
       - lhs
       - rhs
@@ -1779,6 +1795,10 @@ components:
       properties:
         name:
           type: string
+        exprType:
+          enum:
+          - field
+          type: string
       required:
       - name
       type: object
@@ -1786,6 +1806,10 @@ components:
       properties:
         constant:
           type: number
+        exprType:
+          enum:
+          - const
+          type: string
       required:
       - constant
       type: object

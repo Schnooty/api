@@ -5,7 +5,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **monitorId** | [**String**](string.md) |  | [default to null]
 **status** | [**MonitorStatusIndicator**](MonitorStatusIndicator.md) |  | [default to null]
-**timestamp** | [**Date**](DateTime.md) |  | [default to null]
+**timestamp** | [**Date**](DateTime.md) | UTC UNIX timestamp in with fractional offset. | [default to null]
 **lastResult** | [**MonitorStatusResult**](MonitorStatusResult.md) |  | [default to null]
 **description** | [**String**](string.md) |  | [default to null]
 **log** | [**List**](MonitorStatusLogEntry.md) |  | [optional] [default to null]

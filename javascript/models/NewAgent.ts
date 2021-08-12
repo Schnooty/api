@@ -25,13 +25,37 @@ import {
  * @export
  * @interface NewAgent
  */
-export interface NewAgent extends Agent {
+export interface NewAgent {
     /**
      * 
      * @type {string}
      * @memberof NewAgent
      */
     readonly apiKey: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof NewAgent
+     */
+    readonly id?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof NewAgent
+     */
+    name: string;
+    /**
+     * Describes what this agent is or where it will run.
+     * @type {string}
+     * @memberof NewAgent
+     */
+    description?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof NewAgent
+     */
+    group?: string;
 }
 
 export function NewAgentFromJSON(json: any): NewAgent {
@@ -43,8 +67,12 @@ export function NewAgentFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         return json;
     }
     return {
-        ...AgentFromJSONTyped(json, ignoreDiscriminator),
+        
         'apiKey': json['apiKey'],
+        'id': !exists(json, 'id') ? undefined : json['id'],
+        'name': json['name'],
+        'description': !exists(json, 'description') ? undefined : json['description'],
+        'group': !exists(json, 'group') ? undefined : json['group'],
     };
 }
 
@@ -56,7 +84,10 @@ export function NewAgentToJSON(value?: NewAgent | null): any {
         return null;
     }
     return {
-        ...AgentToJSON(value),
+        
+        'name': value.name,
+        'description': value.description,
+        'group': value.group,
     };
 }
 

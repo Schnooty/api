@@ -976,6 +976,7 @@ components:
         expression:
           $ref: "#/components/schemas/BoolExpr"  
     BoolExpr:
+      type: object
       oneOf:
         - $ref: "#/components/schemas/AndExpr"
         - $ref: "#/components/schemas/OrExpr"
@@ -986,6 +987,7 @@ components:
         - $ref: "#/components/schemas/LtEqExpr"
         - $ref: "#/components/schemas/GtEqExpr"
     ArthExpr:
+      type: object
       oneOf:
         - $ref: "#/components/schemas/PlusExpr"
         - $ref: "#/components/schemas/SubExpr"
@@ -1086,6 +1088,10 @@ components:
           $ref: "#/components/schemas/ArthExpr"
         rhs: 
           $ref: "#/components/schemas/ArthExpr"
+        exprType:
+          type: string
+          enum: 
+            - plus
     MulExpr:
       type: object
       required: 
@@ -1096,6 +1102,10 @@ components:
           $ref: "#/components/schemas/ArthExpr"
         rhs: 
           $ref: "#/components/schemas/ArthExpr"
+        exprType:
+          type: string
+          enum: 
+            - mul
     DivExpr:
       type: object
       required: 
@@ -1106,6 +1116,10 @@ components:
           $ref: "#/components/schemas/ArthExpr"
         rhs: 
           $ref: "#/components/schemas/ArthExpr"
+        exprType:
+          type: string
+          enum: 
+            - div
     FieldExpr:
       type: object
       required: 
@@ -1114,6 +1128,10 @@ components:
         name: 
           type:
             string
+        exprType:
+          type: string
+          enum: 
+            - field
     ConstExpr:
       type: object
       required:
@@ -1121,6 +1139,10 @@ components:
       properties:
         constant:
           type: number
+        exprType:
+          type: string
+          enum: 
+            - const
     MonitorArray:
       type: object
       required: ["monitors"]

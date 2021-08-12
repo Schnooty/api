@@ -5,6 +5,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **lhs** | [***models::ArthExpr**](ArthExpr.md) |  | 
 **rhs** | [***models::ArthExpr**](ArthExpr.md) |  | 
+**expr_type** | **String** |  | [optional] [default to None]
 **name** | **String** |  | 
 **constant** | **f64** |  | 
 

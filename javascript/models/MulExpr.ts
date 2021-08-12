@@ -38,6 +38,20 @@ export interface MulExpr {
      * @memberof MulExpr
      */
     rhs: ArthExpr;
+    /**
+     * 
+     * @type {string}
+     * @memberof MulExpr
+     */
+    exprType?: MulExprExprTypeEnum;
+}
+
+/**
+* @export
+* @enum {string}
+*/
+export enum MulExprExprTypeEnum {
+    Mul = 'mul'
 }
 
 export function MulExprFromJSON(json: any): MulExpr {
@@ -52,6 +66,7 @@ export function MulExprFromJSONTyped(json: any, ignoreDiscriminator: boolean): M
         
         'lhs': ArthExprFromJSON(json['lhs']),
         'rhs': ArthExprFromJSON(json['rhs']),
+        'exprType': !exists(json, 'exprType') ? undefined : json['exprType'],
     };
 }
 
@@ -66,6 +81,7 @@ export function MulExprToJSON(value?: MulExpr | null): any {
         
         'lhs': ArthExprToJSON(value.lhs),
         'rhs': ArthExprToJSON(value.rhs),
+        'exprType': value.exprType,
     };
 }
 
