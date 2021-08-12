@@ -1641,178 +1641,33 @@ components:
           type: string
         password:
           type: string
-        expression:
-          $ref: '#/components/schemas/BoolExpr'
+        constraints:
+          items:
+            $ref: '#/components/schemas/FieldConstraint'
+          type: array
       type: object
-    BoolExpr:
-      discriminator:
-        propertyName: exprType
-      oneOf:
-      - $ref: '#/components/schemas/AndExpr'
-      - $ref: '#/components/schemas/OrExpr'
-      - $ref: '#/components/schemas/NotExpr'
-      - $ref: '#/components/schemas/EqExpr'
-      - $ref: '#/components/schemas/LtExpr'
-      - $ref: '#/components/schemas/GtExpr'
-      - $ref: '#/components/schemas/LtEqExpr'
-      - $ref: '#/components/schemas/GtEqExpr'
-      type: object
-    ArthExpr:
-      oneOf:
-      - $ref: '#/components/schemas/PlusExpr'
-      - $ref: '#/components/schemas/SubExpr'
-      - $ref: '#/components/schemas/MulExpr'
-      - $ref: '#/components/schemas/DivExpr'
-      - $ref: '#/components/schemas/FieldExpr'
-      - $ref: '#/components/schemas/ConstExpr'
-      type: object
-    AndExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/BoolExpr'
-        rhs:
-          $ref: '#/components/schemas/BoolExpr'
-      required:
-      - lhs
-      - rhs
-    OrExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/BoolExpr'
-        rhs:
-          $ref: '#/components/schemas/BoolExpr'
-      required:
-      - lhs
-      - rhs
-      type: object
-    NotExpr:
-      properties:
-        expr:
-          $ref: '#/components/schemas/BoolExpr'
-      type: object
-    EqExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-      required:
-      - lhs
-      - rhs
-    LtExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-      required:
-      - lhs
-      - rhs
-      type: object
-    GtExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-      required:
-      - lhs
-      - rhs
-      type: object
-    LtEqExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-      required:
-      - lhs
-      - rhs
-      type: object
-    GtEqExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-      required:
-      - lhs
-      - rhs
-      type: object
-    SubExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-      required:
-      - lhs
-      - rhs
-      type: object
-    PlusExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-        exprType:
-          enum:
-          - plus
-          type: string
-      required:
-      - lhs
-      - rhs
-      type: object
-    MulExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-        exprType:
-          enum:
-          - mul
-          type: string
-      required:
-      - lhs
-      - rhs
-      type: object
-    DivExpr:
-      properties:
-        lhs:
-          $ref: '#/components/schemas/ArthExpr'
-        rhs:
-          $ref: '#/components/schemas/ArthExpr'
-        exprType:
-          enum:
-          - div
-          type: string
-      required:
-      - lhs
-      - rhs
-      type: object
-    FieldExpr:
+    FieldConstraint:
       properties:
         name:
           type: string
-        exprType:
-          enum:
-          - field
+        operator:
+          $ref: '#/components/schemas/CmpOperator'
+        field:
           type: string
       required:
       - name
+      - operator
+      - value
       type: object
-    ConstExpr:
-      properties:
-        constant:
-          type: number
-        exprType:
-          enum:
-          - const
-          type: string
-      required:
-      - constant
-      type: object
+    CmpOperator:
+      enum:
+      - eq
+      - lt
+      - le
+      - gt
+      - ge
+      - ne
+      type: string
     MonitorArray:
       example:
         monitors:

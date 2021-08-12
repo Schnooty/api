@@ -14,10 +14,10 @@
 
 import { exists, mapValues } from '../runtime';
 import {
-    BoolExpr,
-    BoolExprFromJSON,
-    BoolExprFromJSONTyped,
-    BoolExprToJSON,
+    FieldConstraint,
+    FieldConstraintFromJSON,
+    FieldConstraintFromJSONTyped,
+    FieldConstraintToJSON,
 } from './';
 
 /**
@@ -58,10 +58,10 @@ export interface RedisMonitorBody {
     password?: string;
     /**
      * 
-     * @type {BoolExpr}
+     * @type {Array<FieldConstraint>}
      * @memberof RedisMonitorBody
      */
-    expression?: BoolExpr;
+    constraints?: Array<FieldConstraint>;
 }
 
 export function RedisMonitorBodyFromJSON(json: any): RedisMonitorBody {
@@ -79,7 +79,7 @@ export function RedisMonitorBodyFromJSONTyped(json: any, ignoreDiscriminator: bo
         'db': !exists(json, 'db') ? undefined : json['db'],
         'username': !exists(json, 'username') ? undefined : json['username'],
         'password': !exists(json, 'password') ? undefined : json['password'],
-        'expression': !exists(json, 'expression') ? undefined : BoolExprFromJSON(json['expression']),
+        'constraints': !exists(json, 'constraints') ? undefined : ((json['constraints'] as Array<any>).map(FieldConstraintFromJSON)),
     };
 }
 
@@ -97,7 +97,7 @@ export function RedisMonitorBodyToJSON(value?: RedisMonitorBody | null): any {
         'db': value.db,
         'username': value.username,
         'password': value.password,
-        'expression': BoolExprToJSON(value.expression),
+        'constraints': value.constraints === undefined ? undefined : ((value.constraints as Array<any>).map(FieldConstraintToJSON)),
     };
 }
 
