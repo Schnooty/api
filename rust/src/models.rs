@@ -2241,18 +2241,17 @@ pub struct FieldConstraint {
     #[serde(rename = "operator")]
     pub operator: models::CmpOperator,
 
-    #[serde(rename = "field")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub field: Option<String>,
+    #[serde(rename = "value")]
+    pub value: String,
 
 }
 
 impl FieldConstraint {
-    pub fn new(name: String, operator: models::CmpOperator, ) -> FieldConstraint {
+    pub fn new(name: String, operator: models::CmpOperator, value: String, ) -> FieldConstraint {
         FieldConstraint {
             name: name,
             operator: operator,
-            field: None,
+            value: value,
         }
     }
 }
@@ -2270,10 +2269,8 @@ impl std::string::ToString for FieldConstraint {
         // Skipping operator in query parameter serialization
 
 
-        if let Some(ref field) = self.field {
-            params.push("field".to_string());
-            params.push(field.to_string());
-        }
+        params.push("value".to_string());
+        params.push(self.value.to_string());
 
         params.join(",").to_string()
     }
@@ -2291,7 +2288,7 @@ impl std::str::FromStr for FieldConstraint {
         struct IntermediateRep {
             pub name: Vec<String>,
             pub operator: Vec<models::CmpOperator>,
-            pub field: Vec<String>,
+            pub value: Vec<String>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -2310,7 +2307,7 @@ impl std::str::FromStr for FieldConstraint {
                 match key {
                     "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "operator" => intermediate_rep.operator.push(<models::CmpOperator as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "field" => intermediate_rep.field.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "value" => intermediate_rep.value.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing FieldConstraint".to_string())
                 }
             }
@@ -2323,7 +2320,7 @@ impl std::str::FromStr for FieldConstraint {
         std::result::Result::Ok(FieldConstraint {
             name: intermediate_rep.name.into_iter().next().ok_or("name missing in FieldConstraint".to_string())?,
             operator: intermediate_rep.operator.into_iter().next().ok_or("operator missing in FieldConstraint".to_string())?,
-            field: intermediate_rep.field.into_iter().next(),
+            value: intermediate_rep.value.into_iter().next().ok_or("value missing in FieldConstraint".to_string())?,
         })
     }
 }

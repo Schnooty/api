@@ -988,7 +988,7 @@ components:
           type: string
         operator:
           $ref: "#/components/schemas/CmpOperator"  
-        field:
+        value:
           type: string
     CmpOperator:
       type: string

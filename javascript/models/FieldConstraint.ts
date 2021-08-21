@@ -43,7 +43,7 @@ export interface FieldConstraint {
      * @type {string}
      * @memberof FieldConstraint
      */
-    field?: string;
+    value: string;
 }
 
 export function FieldConstraintFromJSON(json: any): FieldConstraint {
@@ -58,7 +58,7 @@ export function FieldConstraintFromJSONTyped(json: any, ignoreDiscriminator: boo
         
         'name': json['name'],
         'operator': CmpOperatorFromJSON(json['operator']),
-        'field': !exists(json, 'field') ? undefined : json['field'],
+        'value': json['value'],
     };
 }
 
@@ -73,7 +73,7 @@ export function FieldConstraintToJSON(value?: FieldConstraint | null): any {
         
         'name': value.name,
         'operator': CmpOperatorToJSON(value.operator),
-        'field': value.field,
+        'value': value.value,
     };
 }
 
