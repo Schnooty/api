@@ -2079,6 +2079,8 @@ pub enum ErrorCode {
     CONFLICT,
     #[serde(rename = "insufficient_funds")]
     INSUFFICIENT_FUNDS,
+    #[serde(rename = "internal_error")]
+    INTERNAL_ERROR,
 }
 
 impl std::fmt::Display for ErrorCode {
@@ -2096,6 +2098,7 @@ impl std::fmt::Display for ErrorCode {
             ErrorCode::INVALID_CONFIRMATION_CODE => write!(f, "{}", "invalid_confirmation_code"),
             ErrorCode::CONFLICT => write!(f, "{}", "conflict"),
             ErrorCode::INSUFFICIENT_FUNDS => write!(f, "{}", "insufficient_funds"),
+            ErrorCode::INTERNAL_ERROR => write!(f, "{}", "internal_error"),
         }
     }
 }
@@ -2487,7 +2490,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct HttpMonitorBody {
     #[serde(rename = "url")]
@@ -3610,7 +3613,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct MonitorBody {
     #[serde(rename = "url")]
@@ -4497,6 +4500,8 @@ pub enum MonitorType {
     PROCESS,
     #[serde(rename = "tcp")]
     TCP,
+    #[serde(rename = "redis")]
+    REDIS,
 }
 
 impl std::fmt::Display for MonitorType {
@@ -4505,6 +4510,7 @@ impl std::fmt::Display for MonitorType {
             MonitorType::HTTP => write!(f, "{}", "http"),
             MonitorType::PROCESS => write!(f, "{}", "process"),
             MonitorType::TCP => write!(f, "{}", "tcp"),
+            MonitorType::REDIS => write!(f, "{}", "redis"),
         }
     }
 }
@@ -4517,6 +4523,7 @@ impl std::str::FromStr for MonitorType {
             "http" => std::result::Result::Ok(MonitorType::HTTP),
             "process" => std::result::Result::Ok(MonitorType::PROCESS),
             "tcp" => std::result::Result::Ok(MonitorType::TCP),
+            "redis" => std::result::Result::Ok(MonitorType::REDIS),
             _ => std::result::Result::Err(format!("Value not valid: {}", s)),
         }
     }

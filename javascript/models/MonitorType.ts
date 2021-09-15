@@ -20,7 +20,8 @@
 export enum MonitorType {
     Http = 'http',
     Process = 'process',
-    Tcp = 'tcp'
+    Tcp = 'tcp',
+    Redis = 'redis'
 }
 
 export function MonitorTypeFromJSON(json: any): MonitorType {
