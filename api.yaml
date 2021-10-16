@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  description: "This is the Schnooty API. It is used by both our agent and web application to manage your monitors, agents, alerts, account settings and everything else"
+  description: "This is the Schnooty API. It is used by both our agent and web application to manage your agents, statuses, agent sessions and everything else"
   version: "1.0.0"
   title: "Schnooty API"
   contact:
@@ -9,8 +9,8 @@ info:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 paths:
-  "/authentication/jwt":
-      post:
+  "/jwt":
+      get:
         tags:
           - "Authentication"
         summary: "Create an API token in the form of a JWT."
@@ -115,134 +115,6 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:          
           $ref: "#/components/responses/UnprocessableEntity"
-  "/monitors":
-    get:
-      tags:
-        - "Monitors"
-      summary: "Get a list of all monitors in your account."
-      description: |
-        Returns a collection of all monitors created. 
-      operationId: "get_monitors"
-      responses:
-        200:
-          $ref: "#/components/responses/MonitorArrayResponse"
-        401:
-          $ref: "#/components/responses/Unauthorised"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        422:
-          $ref: "#/components/responses/UnprocessableEntity"
-      security:
-      - BearerAuth:
-        - "read.monitors"
-    post:
-      tags:
-      - "Monitors"
-      summary: "Create a new monitor"
-      description: "Create a new monitor from the details in the request."
-      operationId: "post_monitor"
-      requestBody:
-        description: "Specify what should be monitored and when."
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Monitor"
-      responses:
-        201:
-          $ref: "#/components/responses/MonitorCreatedResponse"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        401:
-          $ref: "#/components/responses/Unauthorised"
-        422:
-          $ref: "#/components/responses/UnprocessableEntity"
-      
-      security:
-      - BearerAuth:
-        - "write.monitors"
-  "/monitors/{id}":
-    get:
-      parameters: 
-      - name: id
-        in: path
-        description: ID of monitor to retrieve.
-        schema:
-          $ref: "#/components/schemas/IdString"
-        required: true
-      tags:
-        - "Monitors"
-      summary: "Get a monitor by ID"
-      operationId: "get_monitor_by_id"
-      responses:
-        200:
-          $ref: "#/components/responses/MonitorResponse"
-        401:
-          $ref: "#/components/responses/Unauthorised"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        404:
-          $ref: "#/components/responses/NotFound"
-        422:
-          $ref: "#/components/responses/UnprocessableEntity"
-      security:
-        - BearerAuth:
-          - "read.monitors"
-    put:
-      tags: 
-        - "Monitors"
-      parameters: 
-      - name: id
-        in: path
-        description: ID of monitor
-        schema:
-          $ref: "#/components/schemas/IdString"
-        required: true
-      summary: "Update an existing monitor by ID"
-      operationId: "update_monitor"
-      requestBody:
-        description: "Specify what should be monitored and when."
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Monitor"
-      responses:
-        200:
-          $ref: "#/components/responses/MonitorResponse"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        401:
-          $ref: "#/components/responses/Unauthorised"
-        404:
-          $ref: "#/components/responses/NotFound"
-        422:
-          $ref: "#/components/responses/UnprocessableEntity"
-      security:
-        - BearerAuth:
-          - "write.monitors"
-    delete:
-      tags:
-        - "Monitors"
-      parameters: 
-      - name: id
-        in: path
-        description: ID of monitor to delete.
-        schema:
-          $ref: "#/components/schemas/IdString"
-        required: true
-      responses:
-        200:
-          $ref: "#/components/responses/MonitorResponse"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        401:
-          $ref: "#/components/responses/Unauthorised"
-        404:
-          $ref: "#/components/responses/NotFound"
-      security:
-        - BearerAuth:
-          - "write.monitors"
   "/statuses":
     get:
       operationId: "get_monitor_statuses"
@@ -260,26 +132,65 @@ paths:
       security:
         - BearerAuth:
           - "read.statuses"
-    post:
-      operationId: "update_monitor_statuses"
-      tags:
-        - "Statuses"
-      requestBody:
-        description: "Specify what should be monitored and when."
+  "/statuses/{statusId}":
+    parameters: 
+      - name: statusId
+        in: path
+        description: "Name of the monitor status"
+        schema:
+          $ref: "#/components/schemas/IdString"
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MonitorStatusArray"
+    get:
+      operationId: "get_monitor_status"
+      tags: 
+        - "Statuses"
       responses:
-        204:
-          description: NoContent
+        200:
+          $ref: "#/components/responses/MonitorStatusResponse"
         400:
           $ref: "#/components/responses/BadRequest"
         401:
           $ref: "#/components/responses/Unauthorised"
-        422:
-          $ref: "#/components/responses/UnprocessableEntity"
+        404:
+          $ref: "#/components/responses/NotFound"
+      security:
+        - BearerAuth:
+          - "read.statuses"
+    post:
+      operationId: "set_status"
+      tags: 
+        - "Statuses"
+      requestBody:
+        description: "Status you wish to set"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MonitorStatus"
+      responses:
+        200:
+          $ref: "#/components/responses/MonitorStatusResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        404:
+          $ref: "#/components/responses/NotFound"
+      security:
+        - BearerAuth:
+          - "write.statuses"
+    delete:
+      operationId: "clear_status"
+      description: "Remove a status from being active"
+      tags: 
+        - "Statuses"
+      responses:
+        200:
+          $ref: "#/components/responses/MonitorStatusResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorised"
         404:
           $ref: "#/components/responses/NotFound"
       security:
@@ -492,21 +403,42 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
-  "/session/{groupName}":
-    parameters:
-        - name: groupName
-          in: path
-          description: Name for this group of agents.
-          schema:
-            $ref: "#/components/schemas/EasyString64"
-          required: true
+  "/sessions":
     get:
-      operationId: "get_agent_session_state"
+      operationId: "get_sessions"
       tags: 
         - "Agent sessions"
       responses:
         200:
-          $ref: "#/components/responses/AgentSessionStateResponse"
+          $ref: "#/components/responses/SessionArrayResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        403:
+          $ref: "#/components/responses/Forbidden"
+  "/sessions/{identifier}":
+    parameters:
+        - name: identifier
+          in: path
+          description: "Unique name for this session."
+          schema:
+            $ref: "#/components/schemas/EasyString64"
+          required: true
+    put:
+      operationId: "put_session"
+      requestBody:
+        description: "Create a new agent and generate a new API key."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentSessionRequest"
+      tags: 
+        - "Agent sessions"
+      responses:
+        200:
+          $ref: "#/components/responses/SessionResponse"
         401:
           $ref: "#/components/responses/Unauthorised"
         400:
@@ -515,20 +447,28 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
-    post:
-      operationId: "create_agent_session"
+    get:
+      operationId: "clear_session"
       tags: 
         - "Agent sessions"
-      requestBody:
-        description: "Create a new agent and generate a new API key."
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AgentSessionRequest"
       responses:
         200:
-          $ref: "#/components/responses/AgentSessionStateResponse"
+          $ref: "#/components/responses/SessionResponse"
+        401:
+          $ref: "#/components/responses/Unauthorised"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+    delete:
+      operationId: "get_session"
+      tags: 
+        - "Agent sessions"
+      responses:
+        200:
+          $ref: "#/components/responses/SessionResponse"
         401:
           $ref: "#/components/responses/Unauthorised"
         400:
@@ -671,7 +611,7 @@ paths:
           required: true
       responses:
         200:
-          $ref: "#/components/responses/BalanceResponse"
+          $ref: "#/components/responses/BalancesResponse"
         401:
           $ref: "#/components/responses/Unauthorised"
         404:
@@ -794,6 +734,12 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Monitor"
+    MonitorStatusResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MonitorStatusContainer"
     PlanArrayResponse:
       description: OK
       content:
@@ -861,12 +807,18 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/AlertArray"
-    AgentSessionStateResponse:
+    SessionArrayResponse:
       description: OK
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/AgentSessionState"
+            $ref: "#/components/schemas/SessionArray"
+    SessionResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SessionContainer"
     MonitorArrayResponse:
       description: OK
       content:
@@ -919,6 +871,15 @@ components:
               type: object 
               properties:
                 balance:
+                  $ref: "#/components/schemas/Balance"
+    BalancesResponse:
+      description: OK
+      content: 
+        application/json:
+          schema:
+              type: object 
+              properties:
+                balances:
                   $ref: "#/components/schemas/Balance"
   schemas:
     Monitor:
@@ -1077,36 +1038,51 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MonitorStatus"
+    MonitorStatusContainer:
+      type: object
+      required: ["status"]
+      properties:
+        statuse: 
+          $ref: "#/components/schemas/MonitorStatus"
     MonitorStatus:
       type: object
-      required: ["monitorId", "status", "lastResult", "description", "timestamp"]
+      required: 
+        - "statusId"
+        - "monitorType" 
+        - "status"
+        - "timestamp"
+        - "expectedResult"
+        - "actualResult"
+        - "description" 
+        - "expiresAt"
+        - "log"
       properties:
-        monitorId:
+        statusId:
           $ref: "#/components/schemas/IdString"
+        monitorType: 
+          $ref: "#/components/schemas/MonitorType"
         status:
           $ref: "#/components/schemas/MonitorStatusIndicator"
         timestamp:
           $ref: "#/components/schemas/DateTime"
-        lastResult:
-          $ref: "#/components/schemas/MonitorStatusResult"
+        expiresAt:
+          $ref: "#/components/schemas/DateTime"
+        expectedResult: 
+          type: string
+          example: "HTTP status code of 200"
+        actualResult: 
+          type: string
+          example: "HTTP status code of 500"
         description:
           type: string
           maxLength: 2048
           example: "HTTP monitor for https://www.example.com"
+        session:
+          $ref: "#/components/schemas/Session"
         log: 
           type: array
           items:
             $ref: "#/components/schemas/MonitorStatusLogEntry"
-    MonitorStatusResult:
-      type: object
-      required: ["expected", "actual"]
-      properties:
-        expected: 
-          type: string
-          example: "HTTP status code of 200"
-        actual: 
-          type: string
-          example: "HTTP status code of 500"
     MonitorStatusLogEntry:
       type: object
       required: ["timestamp", "value"]
@@ -1227,31 +1203,44 @@ components:
             $ref: "#/components/schemas/AgentApiKey"
       allOf:
         - $ref: "#/components/schemas/Agent"
-    AgentSessionState:
+    Session:
       type: object
-      required: ["group", "assignment"]
+      required: 
+        - name
+        - lastUpdated
+        - expiresAt
       properties:
-        group:
+        name:
           $ref: "#/components/schemas/EasyString64"
-        agents:
+        hostname:
+          type: string
+        platform:
+          $ref: "#/components/schemas/PlatformInfo"
+        lastUpdated:
+          $ref: "#/components/schemas/DateTime"
+    PlatformInfo:
+      type: object
+      properties:
+        os:
+          type: string
+          example: Linux
+        cpu:
+          type: string
+          example: "AMD Ryzen 5 2600 Six-Core Processor"
+    SessionArray:
+      type: object
+      required: ["sessions"]
+      properties:
+        sessions:
           type: array
           items:
-            $ref: "#/components/schemas/AgentSessionAssignment"
-    AgentSessionAssignment:
+            $ref: "#/components/schemas/Session"
+    SessionContainer:
       type: object
-      required: ["sessionId", "agentId", "monitorIds", "lastHeartbeat"]
+      required: ["session"]
       properties:
-        sessionId:
-          $ref: "#/components/schemas/EasyString64"
-        agentId:
-          $ref: "#/components/schemas/IdString"
-        monitorIds:
-          type: array
-          items:
-            $ref: "#/components/schemas/IdString"
-        lastHeartbeatTimestamp:
-          type: integer
-          example: 1590656048
+        session:
+          $ref: "#/components/schemas/Session"
     ByteUnit:
       type: string
       maxLength: 64
@@ -1530,7 +1519,7 @@ components:
       type: string
       format: date-time
       description: UTC UNIX timestamp in with fractional offset.
-      example: 2017-07-21T17:32:28Z
+      example: "2017-07-21T17:32:28Z"
       readOnly: true
     Account:
       type: object
@@ -1598,11 +1587,9 @@ components:
         - USD
         - EUR
     Balances:
-      type: object
-      properties:
-        balances:
-          items:
-            $ref: "#/components/schemas/Balance"
+      type: array
+      items:
+        $ref: "#/components/schemas/Balance"
     TransactionList:
       type: object
       properties:
