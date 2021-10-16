@@ -14,7 +14,7 @@ To see how to make this your own, look here:
 [README]((https://openapi-generator.tech))
 
 - API version: 1.0.0
-- Build date: 2021-08-22T15:26:17.731639+12:00[Pacific/Auckland]
+- Build date: 2021-10-17T09:35:51.234446+13:00[Pacific/Auckland]
 
 
 
@@ -68,20 +68,21 @@ cargo run --example client GetPlans
 cargo run --example client GetSubscriptionById
 cargo run --example client GetSubscriptionRecords
 cargo run --example client GetTransactions
-cargo run --example client GetAgentSessionState
+cargo run --example client ClearSession
+cargo run --example client GetSession
+cargo run --example client GetSessions
 cargo run --example client AgentsGet
 cargo run --example client AgentsIdDelete
 cargo run --example client AgentsIdGet
 cargo run --example client AlertsGet
 cargo run --example client AlertsIdDelete
 cargo run --example client AlertsIdGet
-cargo run --example client AuthenticationJwtPost
+cargo run --example client JwtGet
 cargo run --example client CreateChallenge
 cargo run --example client UpdateChallenge
 cargo run --example client GetInfo
-cargo run --example client GetMonitorById
-cargo run --example client GetMonitors
-cargo run --example client MonitorsIdDelete
+cargo run --example client ClearStatus
+cargo run --example client GetMonitorStatus
 cargo run --example client GetMonitorStatuses
 ```
 
@@ -126,8 +127,10 @@ Method | HTTP request | Description
 [**get_subscription_by_id**](docs/account_management_api.md#get_subscription_by_id) | **GET** /subscriptions/{id} | 
 [**get_subscription_records**](docs/account_management_api.md#get_subscription_records) | **GET** /subscriptions | 
 [**get_transactions**](docs/account_management_api.md#get_transactions) | **GET** /transactions | 
-[**create_agent_session**](docs/agent_sessions_api.md#create_agent_session) | **POST** /session/{groupName} | 
-[**get_agent_session_state**](docs/agent_sessions_api.md#get_agent_session_state) | **GET** /session/{groupName} | 
+[**clear_session**](docs/agent_sessions_api.md#clear_session) | **GET** /sessions/{identifier} | 
+[**get_session**](docs/agent_sessions_api.md#get_session) | **DELETE** /sessions/{identifier} | 
+[**get_sessions**](docs/agent_sessions_api.md#get_sessions) | **GET** /sessions | 
+[**put_session**](docs/agent_sessions_api.md#put_session) | **PUT** /sessions/{identifier} | 
 [****](docs/agents_api.md#) | **GET** /agents | 
 [****](docs/agents_api.md#) | **DELETE** /agents/{id} | 
 [****](docs/agents_api.md#) | **GET** /agents/{id} | 
@@ -138,19 +141,16 @@ Method | HTTP request | Description
 [****](docs/alerts_api.md#) | **GET** /alerts/{id} | 
 [****](docs/alerts_api.md#) | **PUT** /alerts/{id} | 
 [****](docs/alerts_api.md#) | **POST** /alerts | 
-[****](docs/authentication_api.md#) | **POST** /authentication/jwt | Create an API token in the form of a JWT.
+[****](docs/authentication_api.md#) | **GET** /jwt | Create an API token in the form of a JWT.
 [**create_challenge**](docs/challenge_api.md#create_challenge) | **POST** /challenge | Create a challenge to prove you are human
 [**update_challenge**](docs/challenge_api.md#update_challenge) | **POST** /challenge/{id} | Solve a challenge and prove you are human.
 [**get_info**](docs/info_api.md#get_info) | **GET** /info | 
-[**get_monitor_by_id**](docs/monitors_api.md#get_monitor_by_id) | **GET** /monitors/{id} | Get a monitor by ID
-[**get_monitors**](docs/monitors_api.md#get_monitors) | **GET** /monitors | Get a list of all monitors in your account.
-[****](docs/monitors_api.md#) | **DELETE** /monitors/{id} | 
-[**post_monitor**](docs/monitors_api.md#post_monitor) | **POST** /monitors | Create a new monitor
-[**update_monitor**](docs/monitors_api.md#update_monitor) | **PUT** /monitors/{id} | Update an existing monitor by ID
 [**confirm_registration**](docs/registration_api.md#confirm_registration) | **POST** /registration/{id} | Confirm registration of account.
 [**create_registration**](docs/registration_api.md#create_registration) | **POST** /registration | Register your email address and password.
+[**clear_status**](docs/statuses_api.md#clear_status) | **DELETE** /statuses/{statusId} | 
+[**get_monitor_status**](docs/statuses_api.md#get_monitor_status) | **GET** /statuses/{statusId} | 
 [**get_monitor_statuses**](docs/statuses_api.md#get_monitor_statuses) | **GET** /statuses | 
-[**update_monitor_statuses**](docs/statuses_api.md#update_monitor_statuses) | **POST** /statuses | 
+[**set_status**](docs/statuses_api.md#set_status) | **POST** /statuses/{statusId} | 
 
 
 ## Documentation For Models
@@ -159,14 +159,11 @@ Method | HTTP request | Description
  - [AccountType](docs/AccountType.md)
  - [Agent](docs/Agent.md)
  - [AgentApiKey](docs/AgentApiKey.md)
- - [AgentSessionAssignment](docs/AgentSessionAssignment.md)
  - [AgentSessionRequest](docs/AgentSessionRequest.md)
- - [AgentSessionState](docs/AgentSessionState.md)
  - [Alert](docs/Alert.md)
  - [AlertArray](docs/AlertArray.md)
  - [AlertBody](docs/AlertBody.md)
  - [Balance](docs/Balance.md)
- - [Balances](docs/Balances.md)
  - [ByteUnit](docs/ByteUnit.md)
  - [ChargeType](docs/ChargeType.md)
  - [CmpOperator](docs/CmpOperator.md)
@@ -191,15 +188,16 @@ Method | HTTP request | Description
  - [MonitorBody](docs/MonitorBody.md)
  - [MonitorStatus](docs/MonitorStatus.md)
  - [MonitorStatusArray](docs/MonitorStatusArray.md)
+ - [MonitorStatusContainer](docs/MonitorStatusContainer.md)
  - [MonitorStatusIndicator](docs/MonitorStatusIndicator.md)
  - [MonitorStatusLogEntry](docs/MonitorStatusLogEntry.md)
- - [MonitorStatusResult](docs/MonitorStatusResult.md)
  - [MonitorType](docs/MonitorType.md)
  - [MsTeamsAlertBody](docs/MsTeamsAlertBody.md)
  - [NewAgent](docs/NewAgent.md)
  - [Password](docs/Password.md)
  - [Plan](docs/Plan.md)
  - [PlanArray](docs/PlanArray.md)
+ - [PlatformInfo](docs/PlatformInfo.md)
  - [ProcessMonitorBody](docs/ProcessMonitorBody.md)
  - [Product](docs/Product.md)
  - [ProductEntity](docs/ProductEntity.md)
@@ -209,6 +207,9 @@ Method | HTTP request | Description
  - [RegistrationConfirmation](docs/RegistrationConfirmation.md)
  - [ResponseError](docs/ResponseError.md)
  - [ServerInfo](docs/ServerInfo.md)
+ - [Session](docs/Session.md)
+ - [SessionArray](docs/SessionArray.md)
+ - [SessionContainer](docs/SessionContainer.md)
  - [Subscription](docs/Subscription.md)
  - [SubscriptionContainer](docs/SubscriptionContainer.md)
  - [SubscriptionStatus](docs/SubscriptionStatus.md)

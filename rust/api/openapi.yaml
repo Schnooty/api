@@ -15,8 +15,8 @@ externalDocs:
 servers:
 - url: /
 paths:
-  /authentication/jwt:
-    post:
+  /jwt:
+    get:
       responses:
         "200":
           content:
@@ -171,226 +171,6 @@ paths:
       summary: Confirm registration of account.
       tags:
       - Registration
-  /monitors:
-    get:
-      description: "Returns a collection of all monitors created. \n"
-      operationId: get_monitors
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MonitorArray'
-          description: OK
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: Unauthorized
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: BadRequest
-        "422":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: UnprocessableEntity
-      security:
-      - BearerAuth:
-        - read.monitors
-      summary: Get a list of all monitors in your account.
-      tags:
-      - Monitors
-    post:
-      description: Create a new monitor from the details in the request.
-      operationId: post_monitor
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Monitor'
-        description: Specify what should be monitored and when.
-        required: true
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Monitor'
-          description: Created
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: BadRequest
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: Unauthorized
-        "422":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: UnprocessableEntity
-      security:
-      - BearerAuth:
-        - write.monitors
-      summary: Create a new monitor
-      tags:
-      - Monitors
-  /monitors/{id}:
-    delete:
-      parameters:
-      - description: ID of monitor to delete.
-        explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          $ref: '#/components/schemas/IdString'
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Monitor'
-          description: OK
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: BadRequest
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: Unauthorized
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: NotFound
-      security:
-      - BearerAuth:
-        - write.monitors
-      tags:
-      - Monitors
-    get:
-      operationId: get_monitor_by_id
-      parameters:
-      - description: ID of monitor to retrieve.
-        explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          $ref: '#/components/schemas/IdString'
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Monitor'
-          description: OK
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: Unauthorized
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: BadRequest
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: NotFound
-        "422":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: UnprocessableEntity
-      security:
-      - BearerAuth:
-        - read.monitors
-      summary: Get a monitor by ID
-      tags:
-      - Monitors
-    put:
-      operationId: update_monitor
-      parameters:
-      - description: ID of monitor
-        explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          $ref: '#/components/schemas/IdString'
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Monitor'
-        description: Specify what should be monitored and when.
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Monitor'
-          description: OK
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: BadRequest
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: Unauthorized
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: NotFound
-        "422":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorList'
-          description: UnprocessableEntity
-      security:
-      - BearerAuth:
-        - write.monitors
-      summary: Update an existing monitor by ID
-      tags:
-      - Monitors
   /statuses:
     get:
       operationId: get_monitor_statuses
@@ -424,18 +204,26 @@ paths:
         - read.statuses
       tags:
       - Statuses
-    post:
-      operationId: update_monitor_statuses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MonitorStatusArray'
-        description: Specify what should be monitored and when.
+  /statuses/{statusId}:
+    delete:
+      description: Remove a status from being active
+      operationId: clear_status
+      parameters:
+      - description: Name of the monitor status
+        explode: false
+        in: path
+        name: statusId
         required: true
+        schema:
+          $ref: '#/components/schemas/IdString'
+        style: simple
       responses:
-        "204":
-          description: NoContent
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorStatusContainer'
+          description: OK
         "400":
           content:
             application/json:
@@ -448,12 +236,95 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorList'
           description: Unauthorized
-        "422":
+        "404":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorList'
-          description: UnprocessableEntity
+          description: NotFound
+      security:
+      - BearerAuth:
+        - write.statuses
+      tags:
+      - Statuses
+    get:
+      operationId: get_monitor_status
+      parameters:
+      - description: Name of the monitor status
+        explode: false
+        in: path
+        name: statusId
+        required: true
+        schema:
+          $ref: '#/components/schemas/IdString'
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorStatusContainer'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: BadRequest
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: NotFound
+      security:
+      - BearerAuth:
+        - read.statuses
+      tags:
+      - Statuses
+    post:
+      operationId: set_status
+      parameters:
+      - description: Name of the monitor status
+        explode: false
+        in: path
+        name: statusId
+        required: true
+        schema:
+          $ref: '#/components/schemas/IdString'
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitorStatus'
+        description: Status you wish to set
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorStatusContainer'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: BadRequest
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: Unauthorized
         "404":
           content:
             application/json:
@@ -916,14 +787,44 @@ paths:
           description: UnprocessableEntity
       tags:
       - Agents
-  /session/{groupName}:
+  /sessions:
     get:
-      operationId: get_agent_session_state
+      operationId: get_sessions
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionArray'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: Unauthorized
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: BadRequest
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: Forbidden
+      tags:
+      - Agent sessions
+  /sessions/{identifier}:
+    delete:
+      operationId: get_session
       parameters:
-      - description: Name for this group of agents.
+      - description: Unique name for this session.
         explode: false
         in: path
-        name: groupName
+        name: identifier
         required: true
         schema:
           $ref: '#/components/schemas/EasyString64'
@@ -933,7 +834,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AgentSessionState'
+                $ref: '#/components/schemas/SessionContainer'
           description: OK
         "401":
           content:
@@ -961,13 +862,57 @@ paths:
           description: UnprocessableEntity
       tags:
       - Agent sessions
-    post:
-      operationId: create_agent_session
+    get:
+      operationId: clear_session
       parameters:
-      - description: Name for this group of agents.
+      - description: Unique name for this session.
         explode: false
         in: path
-        name: groupName
+        name: identifier
+        required: true
+        schema:
+          $ref: '#/components/schemas/EasyString64'
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionContainer'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: Unauthorized
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: BadRequest
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: NotFound
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorList'
+          description: UnprocessableEntity
+      tags:
+      - Agent sessions
+    put:
+      operationId: put_session
+      parameters:
+      - description: Unique name for this session.
+        explode: false
+        in: path
+        name: identifier
         required: true
         schema:
           $ref: '#/components/schemas/EasyString64'
@@ -984,7 +929,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AgentSessionState'
+                $ref: '#/components/schemas/SessionContainer'
           description: OK
         "401":
           content:
@@ -1446,6 +1391,12 @@ components:
           schema:
             $ref: '#/components/schemas/Monitor'
       description: OK
+    MonitorStatusResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MonitorStatusContainer'
+      description: OK
     PlanArrayResponse:
       content:
         application/json:
@@ -1506,11 +1457,17 @@ components:
           schema:
             $ref: '#/components/schemas/AlertArray'
       description: OK
-    AgentSessionStateResponse:
+    SessionArrayResponse:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/AgentSessionState'
+            $ref: '#/components/schemas/SessionArray'
+      description: OK
+    SessionResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SessionContainer'
       description: OK
     MonitorArrayResponse:
       content:
@@ -1560,17 +1517,19 @@ components:
       content:
         application/json:
           schema:
+            properties:
+              balance:
+                $ref: '#/components/schemas/Balance'
+            type: object
+      description: OK
+    BalancesResponse:
+      content:
+        application/json:
+          schema:
             $ref: '#/components/schemas/inline_response_200_2'
       description: OK
   schemas:
     Monitor:
-      example:
-        period: 5m
-        name: database-agent
-        description: Checks that the database is up and running
-        id: aZjL810xa001dz8
-        enabled: true
-        timeout: 5m
       properties:
         id:
           example: aZjL810xa001dz8
@@ -1669,20 +1628,6 @@ components:
       - ne
       type: string
     MonitorArray:
-      example:
-        monitors:
-        - period: 5m
-          name: database-agent
-          description: Checks that the database is up and running
-          id: aZjL810xa001dz8
-          enabled: true
-          timeout: 5m
-        - period: 5m
-          name: database-agent
-          description: Checks that the database is up and running
-          id: aZjL810xa001dz8
-          enabled: true
-          timeout: 5m
       properties:
         monitors:
           items:
@@ -1776,28 +1721,44 @@ components:
     MonitorStatusArray:
       example:
         statuses:
-        - monitorId: aZjL810xa001dz8
-          lastResult:
-            actual: HTTP status code of 500
-            expected: HTTP status code of 200
+        - statusId: aZjL810xa001dz8
+          expectedResult: HTTP status code of 200
           log:
           - value: Beginning HTTP request to https://www.example.com
             timestamp: 2017-07-21T17:32:28Z
           - value: Beginning HTTP request to https://www.example.com
             timestamp: 2017-07-21T17:32:28Z
+          monitorName: ""
+          session:
+            lastUpdated: 2017-07-21T17:32:28Z
+            hostname: hostname
+            name: database-agent
+            platform:
+              os: Linux
+              cpu: AMD Ryzen 5 2600 Six-Core Processor
           description: HTTP monitor for https://www.example.com
+          expiresAt: 2017-07-21T17:32:28Z
           timestamp: 2017-07-21T17:32:28Z
-        - monitorId: aZjL810xa001dz8
-          lastResult:
-            actual: HTTP status code of 500
-            expected: HTTP status code of 200
+          actualResult: HTTP status code of 500
+        - statusId: aZjL810xa001dz8
+          expectedResult: HTTP status code of 200
           log:
           - value: Beginning HTTP request to https://www.example.com
             timestamp: 2017-07-21T17:32:28Z
           - value: Beginning HTTP request to https://www.example.com
             timestamp: 2017-07-21T17:32:28Z
+          monitorName: ""
+          session:
+            lastUpdated: 2017-07-21T17:32:28Z
+            hostname: hostname
+            name: database-agent
+            platform:
+              os: Linux
+              cpu: AMD Ryzen 5 2600 Six-Core Processor
           description: HTTP monitor for https://www.example.com
+          expiresAt: 2017-07-21T17:32:28Z
           timestamp: 2017-07-21T17:32:28Z
+          actualResult: HTTP status code of 500
       properties:
         statuses:
           items:
@@ -1806,27 +1767,69 @@ components:
       required:
       - statuses
       type: object
+    MonitorStatusContainer:
+      example:
+        statuse:
+          statusId: aZjL810xa001dz8
+          expectedResult: HTTP status code of 200
+          log:
+          - value: Beginning HTTP request to https://www.example.com
+            timestamp: 2017-07-21T17:32:28Z
+          - value: Beginning HTTP request to https://www.example.com
+            timestamp: 2017-07-21T17:32:28Z
+          monitorName: ""
+          session:
+            lastUpdated: 2017-07-21T17:32:28Z
+            hostname: hostname
+            name: database-agent
+            platform:
+              os: Linux
+              cpu: AMD Ryzen 5 2600 Six-Core Processor
+          description: HTTP monitor for https://www.example.com
+          expiresAt: 2017-07-21T17:32:28Z
+          timestamp: 2017-07-21T17:32:28Z
+          actualResult: HTTP status code of 500
+      properties:
+        statuse:
+          $ref: '#/components/schemas/MonitorStatus'
+      required:
+      - status
+      type: object
     MonitorStatus:
       example:
-        monitorId: aZjL810xa001dz8
-        lastResult:
-          actual: HTTP status code of 500
-          expected: HTTP status code of 200
+        statusId: aZjL810xa001dz8
+        expectedResult: HTTP status code of 200
         log:
         - value: Beginning HTTP request to https://www.example.com
           timestamp: 2017-07-21T17:32:28Z
         - value: Beginning HTTP request to https://www.example.com
           timestamp: 2017-07-21T17:32:28Z
+        monitorName: ""
+        session:
+          lastUpdated: 2017-07-21T17:32:28Z
+          hostname: hostname
+          name: database-agent
+          platform:
+            os: Linux
+            cpu: AMD Ryzen 5 2600 Six-Core Processor
         description: HTTP monitor for https://www.example.com
+        expiresAt: 2017-07-21T17:32:28Z
         timestamp: 2017-07-21T17:32:28Z
+        actualResult: HTTP status code of 500
       properties:
-        monitorId:
+        statusId:
           example: aZjL810xa001dz8
           maxLength: 64
           minLength: 32
           pattern: '[A-Za-z0-9]'
           readOnly: true
           type: string
+        monitorType:
+          $ref: '#/components/schemas/MonitorType'
+        monitorName:
+          allOf:
+          - $ref: '#/components/schemas/EasyString64'
+          - example: database-monitor
         status:
           $ref: '#/components/schemas/MonitorStatusIndicator'
         timestamp:
@@ -1835,37 +1838,39 @@ components:
           format: date-time
           readOnly: true
           type: string
-        lastResult:
-          $ref: '#/components/schemas/MonitorStatusResult'
+        expiresAt:
+          description: UTC UNIX timestamp in with fractional offset.
+          example: 2017-07-21T17:32:28Z
+          format: date-time
+          readOnly: true
+          type: string
+        expectedResult:
+          example: HTTP status code of 200
+          type: string
+        actualResult:
+          example: HTTP status code of 500
+          type: string
         description:
           example: HTTP monitor for https://www.example.com
           maxLength: 2048
           type: string
+        session:
+          $ref: '#/components/schemas/Session'
         log:
           items:
             $ref: '#/components/schemas/MonitorStatusLogEntry'
           type: array
       required:
+      - actualResult
       - description
-      - lastResult
-      - monitorId
+      - expectedResult
+      - expiresAt
+      - log
+      - monitorName
+      - monitorType
       - status
+      - statusId
       - timestamp
-      type: object
-    MonitorStatusResult:
-      example:
-        actual: HTTP status code of 500
-        expected: HTTP status code of 200
-      properties:
-        expected:
-          example: HTTP status code of 200
-          type: string
-        actual:
-          example: HTTP status code of 500
-          type: string
-      required:
-      - actual
-      - expected
       type: object
     MonitorStatusLogEntry:
       example:
@@ -2048,69 +2053,84 @@ components:
       required:
       - apiKey
       type: object
-    AgentSessionState:
+    Session:
       example:
-        group: database-agent
-        agents:
-        - agentId: aZjL810xa001dz8
-          lastHeartbeatTimestamp: 1590656048
-          monitorIds:
-          - aZjL810xa001dz8
-          - aZjL810xa001dz8
-          sessionId: database-agent
-        - agentId: aZjL810xa001dz8
-          lastHeartbeatTimestamp: 1590656048
-          monitorIds:
-          - aZjL810xa001dz8
-          - aZjL810xa001dz8
-          sessionId: database-agent
+        lastUpdated: 2017-07-21T17:32:28Z
+        hostname: hostname
+        name: database-agent
+        platform:
+          os: Linux
+          cpu: AMD Ryzen 5 2600 Six-Core Processor
       properties:
-        group:
+        name:
           example: database-agent
           maxLength: 64
           pattern: ^([A-Za-z0-9]|_|-){0,64}$
           type: string
-        agents:
-          items:
-            $ref: '#/components/schemas/AgentSessionAssignment'
-          type: array
-      required:
-      - assignment
-      - group
-      type: object
-    AgentSessionAssignment:
-      example:
-        agentId: aZjL810xa001dz8
-        lastHeartbeatTimestamp: 1590656048
-        monitorIds:
-        - aZjL810xa001dz8
-        - aZjL810xa001dz8
-        sessionId: database-agent
-      properties:
-        sessionId:
-          example: database-agent
-          maxLength: 64
-          pattern: ^([A-Za-z0-9]|_|-){0,64}$
+        hostname:
           type: string
-        agentId:
-          example: aZjL810xa001dz8
-          maxLength: 64
-          minLength: 32
-          pattern: '[A-Za-z0-9]'
+        platform:
+          $ref: '#/components/schemas/PlatformInfo'
+        lastUpdated:
+          description: UTC UNIX timestamp in with fractional offset.
+          example: 2017-07-21T17:32:28Z
+          format: date-time
           readOnly: true
           type: string
-        monitorIds:
-          items:
-            $ref: '#/components/schemas/IdString'
-          type: array
-        lastHeartbeatTimestamp:
-          example: 1590656048
-          type: integer
       required:
-      - agentId
-      - lastHeartbeat
-      - monitorIds
-      - sessionId
+      - expiresAt
+      - lastUpdated
+      - name
+      type: object
+    PlatformInfo:
+      example:
+        os: Linux
+        cpu: AMD Ryzen 5 2600 Six-Core Processor
+      properties:
+        os:
+          example: Linux
+          type: string
+        cpu:
+          example: AMD Ryzen 5 2600 Six-Core Processor
+          type: string
+      type: object
+    SessionArray:
+      example:
+        sessions:
+        - lastUpdated: 2017-07-21T17:32:28Z
+          hostname: hostname
+          name: database-agent
+          platform:
+            os: Linux
+            cpu: AMD Ryzen 5 2600 Six-Core Processor
+        - lastUpdated: 2017-07-21T17:32:28Z
+          hostname: hostname
+          name: database-agent
+          platform:
+            os: Linux
+            cpu: AMD Ryzen 5 2600 Six-Core Processor
+      properties:
+        sessions:
+          items:
+            $ref: '#/components/schemas/Session'
+          type: array
+      required:
+      - sessions
+      type: object
+    SessionContainer:
+      example:
+        session:
+          lastUpdated: 2017-07-21T17:32:28Z
+          hostname: hostname
+          name: database-agent
+          platform:
+            os: Linux
+            cpu: AMD Ryzen 5 2600 Six-Core Processor
+      properties:
+        session:
+          $ref: '#/components/schemas/Session'
+      required:
+      - session
       type: object
     ByteUnit:
       maxLength: 64
@@ -2662,12 +2682,9 @@ components:
       - EUR
       type: string
     Balances:
-      properties:
-        balances:
-          items:
-            $ref: '#/components/schemas/Balance'
-          type: array
-      type: object
+      items:
+        $ref: '#/components/schemas/Balance'
+      type: array
     TransactionList:
       example:
         closingBalance:
@@ -2817,7 +2834,7 @@ components:
       type: object
     inline_response_200_2:
       example:
-        balance:
+        balances:
           accountId: aZjL810xa001dz8
           balance:
             decimalPlaces: 2
@@ -2827,7 +2844,7 @@ components:
             decimalPlaces: 2
             value: 12345
       properties:
-        balance:
+        balances:
           $ref: '#/components/schemas/Balance'
       type: object
   securitySchemes:

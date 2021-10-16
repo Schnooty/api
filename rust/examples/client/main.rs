@@ -15,8 +15,10 @@ use openapi_client::{Api, ApiNoContext, Client, ContextWrapperExt, models,
                       GetSubscriptionByIdResponse,
                       GetSubscriptionRecordsResponse,
                       GetTransactionsResponse,
-                      CreateAgentSessionResponse,
-                      GetAgentSessionStateResponse,
+                      ClearSessionResponse,
+                      GetSessionResponse,
+                      GetSessionsResponse,
+                      PutSessionResponse,
                       AgentsGetResponse,
                       AgentsIdDeleteResponse,
                       AgentsIdGetResponse,
@@ -27,19 +29,16 @@ use openapi_client::{Api, ApiNoContext, Client, ContextWrapperExt, models,
                       AlertsIdGetResponse,
                       AlertsIdPutResponse,
                       AlertsPostResponse,
-                      AuthenticationJwtPostResponse,
+                      JwtGetResponse,
                       CreateChallengeResponse,
                       UpdateChallengeResponse,
                       GetInfoResponse,
-                      GetMonitorByIdResponse,
-                      GetMonitorsResponse,
-                      MonitorsIdDeleteResponse,
-                      PostMonitorResponse,
-                      UpdateMonitorResponse,
                       ConfirmRegistrationResponse,
                       CreateRegistrationResponse,
+                      ClearStatusResponse,
+                      GetMonitorStatusResponse,
                       GetMonitorStatusesResponse,
-                      UpdateMonitorStatusesResponse,
+                      SetStatusResponse,
                      };
 use clap::{App, Arg};
 
@@ -68,20 +67,21 @@ fn main() {
                 "GetSubscriptionById",
                 "GetSubscriptionRecords",
                 "GetTransactions",
-                "GetAgentSessionState",
+                "ClearSession",
+                "GetSession",
+                "GetSessions",
                 "AgentsGet",
                 "AgentsIdDelete",
                 "AgentsIdGet",
                 "AlertsGet",
                 "AlertsIdDelete",
                 "AlertsIdGet",
-                "AuthenticationJwtPost",
+                "JwtGet",
                 "CreateChallenge",
                 "UpdateChallenge",
                 "GetInfo",
-                "GetMonitorById",
-                "GetMonitors",
-                "MonitorsIdDelete",
+                "ClearStatus",
+                "GetMonitorStatus",
                 "GetMonitorStatuses",
             ])
             .required(true)
@@ -192,21 +192,32 @@ fn main() {
             ));
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },
+        Some("ClearSession") => {
+            let result = rt.block_on(client.clear_session(
+                  "identifier_example".to_string()
+            ));
+            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
+        },
+        Some("GetSession") => {
+            let result = rt.block_on(client.get_session(
+                  "identifier_example".to_string()
+            ));
+            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
+        },
+        Some("GetSessions") => {
+            let result = rt.block_on(client.get_sessions(
+            ));
+            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
+        },
         /* Disabled because there's no example.
-        Some("CreateAgentSession") => {
-            let result = rt.block_on(client.create_agent_session(
-                  "group_name_example".to_string(),
+        Some("PutSession") => {
+            let result = rt.block_on(client.put_session(
+                  "identifier_example".to_string(),
                   ???
             ));
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },
         */
-        Some("GetAgentSessionState") => {
-            let result = rt.block_on(client.get_agent_session_state(
-                  "group_name_example".to_string()
-            ));
-            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
-        },
         Some("AgentsGet") => {
             let result = rt.block_on(client.agents_get(
             ));
@@ -275,8 +286,8 @@ fn main() {
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },
         */
-        Some("AuthenticationJwtPost") => {
-            let result = rt.block_on(client.authentication_jwt_post(
+        Some("JwtGet") => {
+            let result = rt.block_on(client.jwt_get(
             ));
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },
@@ -296,40 +307,6 @@ fn main() {
             ));
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },
-        Some("GetMonitorById") => {
-            let result = rt.block_on(client.get_monitor_by_id(
-                  "id_example".to_string()
-            ));
-            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
-        },
-        Some("GetMonitors") => {
-            let result = rt.block_on(client.get_monitors(
-            ));
-            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
-        },
-        Some("MonitorsIdDelete") => {
-            let result = rt.block_on(client.monitors_id_delete(
-                  "id_example".to_string()
-            ));
-            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
-        },
-        /* Disabled because there's no example.
-        Some("PostMonitor") => {
-            let result = rt.block_on(client.post_monitor(
-                  ???
-            ));
-            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
-        },
-        */
-        /* Disabled because there's no example.
-        Some("UpdateMonitor") => {
-            let result = rt.block_on(client.update_monitor(
-                  "id_example".to_string(),
-                  ???
-            ));
-            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
-        },
-        */
         /* Disabled because there's no example.
         Some("ConfirmRegistration") => {
             let result = rt.block_on(client.confirm_registration(
@@ -347,14 +324,27 @@ fn main() {
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },
         */
+        Some("ClearStatus") => {
+            let result = rt.block_on(client.clear_status(
+                  "status_id_example".to_string()
+            ));
+            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
+        },
+        Some("GetMonitorStatus") => {
+            let result = rt.block_on(client.get_monitor_status(
+                  "status_id_example".to_string()
+            ));
+            info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
+        },
         Some("GetMonitorStatuses") => {
             let result = rt.block_on(client.get_monitor_statuses(
             ));
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },
         /* Disabled because there's no example.
-        Some("UpdateMonitorStatuses") => {
-            let result = rt.block_on(client.update_monitor_statuses(
+        Some("SetStatus") => {
+            let result = rt.block_on(client.set_status(
+                  "status_id_example".to_string(),
                   ???
             ));
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());

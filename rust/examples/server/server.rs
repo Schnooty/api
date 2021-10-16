@@ -106,8 +106,10 @@ use openapi_client::{
     GetSubscriptionByIdResponse,
     GetSubscriptionRecordsResponse,
     GetTransactionsResponse,
-    CreateAgentSessionResponse,
-    GetAgentSessionStateResponse,
+    ClearSessionResponse,
+    GetSessionResponse,
+    GetSessionsResponse,
+    PutSessionResponse,
     AgentsGetResponse,
     AgentsIdDeleteResponse,
     AgentsIdGetResponse,
@@ -118,19 +120,16 @@ use openapi_client::{
     AlertsIdGetResponse,
     AlertsIdPutResponse,
     AlertsPostResponse,
-    AuthenticationJwtPostResponse,
+    JwtGetResponse,
     CreateChallengeResponse,
     UpdateChallengeResponse,
     GetInfoResponse,
-    GetMonitorByIdResponse,
-    GetMonitorsResponse,
-    MonitorsIdDeleteResponse,
-    PostMonitorResponse,
-    UpdateMonitorResponse,
     ConfirmRegistrationResponse,
     CreateRegistrationResponse,
+    ClearStatusResponse,
+    GetMonitorStatusResponse,
     GetMonitorStatusesResponse,
-    UpdateMonitorStatusesResponse,
+    SetStatusResponse,
 };
 use openapi_client::server::MakeService;
 use std::error::Error;
@@ -239,24 +238,43 @@ impl<C> Api<C> for Server<C> where C: Has<XSpanIdString> + Send + Sync
         Err("Generic failuare".into())
     }
 
-    async fn create_agent_session(
+    async fn clear_session(
         &self,
-        group_name: String,
-        agent_session_request: models::AgentSessionRequest,
-        context: &C) -> Result<CreateAgentSessionResponse, ApiError>
+        identifier: String,
+        context: &C) -> Result<ClearSessionResponse, ApiError>
     {
         let context = context.clone();
-        info!("create_agent_session(\"{}\", {:?}) - X-Span-ID: {:?}", group_name, agent_session_request, context.get().0.clone());
+        info!("clear_session(\"{}\") - X-Span-ID: {:?}", identifier, context.get().0.clone());
         Err("Generic failuare".into())
     }
 
-    async fn get_agent_session_state(
+    async fn get_session(
         &self,
-        group_name: String,
-        context: &C) -> Result<GetAgentSessionStateResponse, ApiError>
+        identifier: String,
+        context: &C) -> Result<GetSessionResponse, ApiError>
     {
         let context = context.clone();
-        info!("get_agent_session_state(\"{}\") - X-Span-ID: {:?}", group_name, context.get().0.clone());
+        info!("get_session(\"{}\") - X-Span-ID: {:?}", identifier, context.get().0.clone());
+        Err("Generic failuare".into())
+    }
+
+    async fn get_sessions(
+        &self,
+        context: &C) -> Result<GetSessionsResponse, ApiError>
+    {
+        let context = context.clone();
+        info!("get_sessions() - X-Span-ID: {:?}", context.get().0.clone());
+        Err("Generic failuare".into())
+    }
+
+    async fn put_session(
+        &self,
+        identifier: String,
+        agent_session_request: models::AgentSessionRequest,
+        context: &C) -> Result<PutSessionResponse, ApiError>
+    {
+        let context = context.clone();
+        info!("put_session(\"{}\", {:?}) - X-Span-ID: {:?}", identifier, agent_session_request, context.get().0.clone());
         Err("Generic failuare".into())
     }
 
@@ -361,12 +379,12 @@ impl<C> Api<C> for Server<C> where C: Has<XSpanIdString> + Send + Sync
     }
 
     /// Create an API token in the form of a JWT.
-    async fn authentication_jwt_post(
+    async fn jwt_get(
         &self,
-        context: &C) -> Result<AuthenticationJwtPostResponse, ApiError>
+        context: &C) -> Result<JwtGetResponse, ApiError>
     {
         let context = context.clone();
-        info!("authentication_jwt_post() - X-Span-ID: {:?}", context.get().0.clone());
+        info!("jwt_get() - X-Span-ID: {:?}", context.get().0.clone());
         Err("Generic failuare".into())
     }
 
@@ -400,60 +418,6 @@ impl<C> Api<C> for Server<C> where C: Has<XSpanIdString> + Send + Sync
         Err("Generic failuare".into())
     }
 
-    /// Get a monitor by ID
-    async fn get_monitor_by_id(
-        &self,
-        id: String,
-        context: &C) -> Result<GetMonitorByIdResponse, ApiError>
-    {
-        let context = context.clone();
-        info!("get_monitor_by_id(\"{}\") - X-Span-ID: {:?}", id, context.get().0.clone());
-        Err("Generic failuare".into())
-    }
-
-    /// Get a list of all monitors in your account.
-    async fn get_monitors(
-        &self,
-        context: &C) -> Result<GetMonitorsResponse, ApiError>
-    {
-        let context = context.clone();
-        info!("get_monitors() - X-Span-ID: {:?}", context.get().0.clone());
-        Err("Generic failuare".into())
-    }
-
-    async fn monitors_id_delete(
-        &self,
-        id: String,
-        context: &C) -> Result<MonitorsIdDeleteResponse, ApiError>
-    {
-        let context = context.clone();
-        info!("monitors_id_delete(\"{}\") - X-Span-ID: {:?}", id, context.get().0.clone());
-        Err("Generic failuare".into())
-    }
-
-    /// Create a new monitor
-    async fn post_monitor(
-        &self,
-        monitor: models::Monitor,
-        context: &C) -> Result<PostMonitorResponse, ApiError>
-    {
-        let context = context.clone();
-        info!("post_monitor({:?}) - X-Span-ID: {:?}", monitor, context.get().0.clone());
-        Err("Generic failuare".into())
-    }
-
-    /// Update an existing monitor by ID
-    async fn update_monitor(
-        &self,
-        id: String,
-        monitor: models::Monitor,
-        context: &C) -> Result<UpdateMonitorResponse, ApiError>
-    {
-        let context = context.clone();
-        info!("update_monitor(\"{}\", {:?}) - X-Span-ID: {:?}", id, monitor, context.get().0.clone());
-        Err("Generic failuare".into())
-    }
-
     /// Confirm registration of account.
     async fn confirm_registration(
         &self,
@@ -477,6 +441,26 @@ impl<C> Api<C> for Server<C> where C: Has<XSpanIdString> + Send + Sync
         Err("Generic failuare".into())
     }
 
+    async fn clear_status(
+        &self,
+        status_id: String,
+        context: &C) -> Result<ClearStatusResponse, ApiError>
+    {
+        let context = context.clone();
+        info!("clear_status(\"{}\") - X-Span-ID: {:?}", status_id, context.get().0.clone());
+        Err("Generic failuare".into())
+    }
+
+    async fn get_monitor_status(
+        &self,
+        status_id: String,
+        context: &C) -> Result<GetMonitorStatusResponse, ApiError>
+    {
+        let context = context.clone();
+        info!("get_monitor_status(\"{}\") - X-Span-ID: {:?}", status_id, context.get().0.clone());
+        Err("Generic failuare".into())
+    }
+
     async fn get_monitor_statuses(
         &self,
         context: &C) -> Result<GetMonitorStatusesResponse, ApiError>
@@ -486,13 +470,14 @@ impl<C> Api<C> for Server<C> where C: Has<XSpanIdString> + Send + Sync
         Err("Generic failuare".into())
     }
 
-    async fn update_monitor_statuses(
+    async fn set_status(
         &self,
-        monitor_status_array: models::MonitorStatusArray,
-        context: &C) -> Result<UpdateMonitorStatusesResponse, ApiError>
+        status_id: String,
+        monitor_status: models::MonitorStatus,
+        context: &C) -> Result<SetStatusResponse, ApiError>
     {
         let context = context.clone();
-        info!("update_monitor_statuses({:?}) - X-Span-ID: {:?}", monitor_status_array, context.get().0.clone());
+        info!("set_status(\"{}\", {:?}) - X-Span-ID: {:?}", status_id, monitor_status, context.get().0.clone());
         Err("Generic failuare".into())
     }
 

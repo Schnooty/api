@@ -1,9 +1,9 @@
-# InlineResponse2002
+# SessionContainer
 
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**balances** | [***models::Balance**](Balance.md) |  | [optional] [default to None]
+**session** | [***models::Session**](Session.md) |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

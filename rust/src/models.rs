@@ -397,154 +397,6 @@ impl std::ops::DerefMut for AgentApiKey {
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct AgentSessionAssignment {
-    #[serde(rename = "sessionId")]
-    pub session_id: String,
-
-    #[serde(rename = "agentId")]
-    pub agent_id: String,
-
-    #[serde(rename = "monitorIds")]
-    pub monitor_ids: Vec<models::IdString>,
-
-    #[serde(rename = "lastHeartbeatTimestamp")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub last_heartbeat_timestamp: Option<isize>,
-
-}
-
-impl AgentSessionAssignment {
-    pub fn new(session_id: String, agent_id: String, monitor_ids: Vec<models::IdString>, ) -> AgentSessionAssignment {
-        AgentSessionAssignment {
-            session_id: session_id,
-            agent_id: agent_id,
-            monitor_ids: monitor_ids,
-            last_heartbeat_timestamp: None,
-        }
-    }
-}
-
-/// Converts the AgentSessionAssignment value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for AgentSessionAssignment {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-
-        params.push("sessionId".to_string());
-        params.push(self.session_id.to_string());
-
-
-        params.push("agentId".to_string());
-        params.push(self.agent_id.to_string());
-
-
-        params.push("monitorIds".to_string());
-        params.push(self.monitor_ids.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",").to_string());
-
-
-        if let Some(ref last_heartbeat_timestamp) = self.last_heartbeat_timestamp {
-            params.push("lastHeartbeatTimestamp".to_string());
-            params.push(last_heartbeat_timestamp.to_string());
-        }
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a AgentSessionAssignment value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for AgentSessionAssignment {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub session_id: Vec<String>,
-            pub agent_id: Vec<String>,
-            pub monitor_ids: Vec<Vec<models::IdString>>,
-            pub last_heartbeat_timestamp: Vec<isize>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing AgentSessionAssignment".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "sessionId" => intermediate_rep.session_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "agentId" => intermediate_rep.agent_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "monitorIds" => return std::result::Result::Err("Parsing a container in this style is not supported in AgentSessionAssignment".to_string()),
-                    "lastHeartbeatTimestamp" => intermediate_rep.last_heartbeat_timestamp.push(<isize as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing AgentSessionAssignment".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(AgentSessionAssignment {
-            session_id: intermediate_rep.session_id.into_iter().next().ok_or("sessionId missing in AgentSessionAssignment".to_string())?,
-            agent_id: intermediate_rep.agent_id.into_iter().next().ok_or("agentId missing in AgentSessionAssignment".to_string())?,
-            monitor_ids: intermediate_rep.monitor_ids.into_iter().next().ok_or("monitorIds missing in AgentSessionAssignment".to_string())?,
-            last_heartbeat_timestamp: intermediate_rep.last_heartbeat_timestamp.into_iter().next(),
-        })
-    }
-}
-
-// Methods for converting between header::IntoHeaderValue<AgentSessionAssignment> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<AgentSessionAssignment>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<AgentSessionAssignment>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for AgentSessionAssignment - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AgentSessionAssignment> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <AgentSessionAssignment as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into AgentSessionAssignment - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct AgentSessionRequest {
     #[serde(rename = "sessionId")]
     pub session_id: String,
@@ -659,128 +511,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into AgentSessionRequest - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct AgentSessionState {
-    #[serde(rename = "group")]
-    pub group: String,
-
-    #[serde(rename = "agents")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub agents: Option<Vec<models::AgentSessionAssignment>>,
-
-}
-
-impl AgentSessionState {
-    pub fn new(group: String, ) -> AgentSessionState {
-        AgentSessionState {
-            group: group,
-            agents: None,
-        }
-    }
-}
-
-/// Converts the AgentSessionState value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for AgentSessionState {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-
-        params.push("group".to_string());
-        params.push(self.group.to_string());
-
-        // Skipping agents in query parameter serialization
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a AgentSessionState value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for AgentSessionState {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub group: Vec<String>,
-            pub agents: Vec<Vec<models::AgentSessionAssignment>>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing AgentSessionState".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "group" => intermediate_rep.group.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "agents" => return std::result::Result::Err("Parsing a container in this style is not supported in AgentSessionState".to_string()),
-                    _ => return std::result::Result::Err("Unexpected key while parsing AgentSessionState".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(AgentSessionState {
-            group: intermediate_rep.group.into_iter().next().ok_or("group missing in AgentSessionState".to_string())?,
-            agents: intermediate_rep.agents.into_iter().next(),
-        })
-    }
-}
-
-// Methods for converting between header::IntoHeaderValue<AgentSessionState> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<AgentSessionState>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<AgentSessionState>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for AgentSessionState - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<AgentSessionState> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <AgentSessionState as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into AgentSessionState - {}",
                                 value, err))
                     }
              },
@@ -1437,117 +1167,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into Balance - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct Balances {
-    #[serde(rename = "balances")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub balances: Option<Vec<models::Balance>>,
-
-}
-
-impl Balances {
-    pub fn new() -> Balances {
-        Balances {
-            balances: None,
-        }
-    }
-}
-
-/// Converts the Balances value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for Balances {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-        // Skipping balances in query parameter serialization
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a Balances value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for Balances {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub balances: Vec<Vec<models::Balance>>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing Balances".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "balances" => return std::result::Result::Err("Parsing a container in this style is not supported in Balances".to_string()),
-                    _ => return std::result::Result::Err("Unexpected key while parsing Balances".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(Balances {
-            balances: intermediate_rep.balances.into_iter().next(),
-        })
-    }
-}
-
-// Methods for converting between header::IntoHeaderValue<Balances> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<Balances>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<Balances>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for Balances - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Balances> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <Balances as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into Balances - {}",
                                 value, err))
                     }
              },
@@ -2490,7 +2109,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct HttpMonitorBody {
     #[serde(rename = "url")]
@@ -2911,16 +2530,16 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct InlineResponse2002 {
-    #[serde(rename = "balance")]
+    #[serde(rename = "balances")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub balance: Option<models::Balance>,
+    pub balances: Option<models::Balance>,
 
 }
 
 impl InlineResponse2002 {
     pub fn new() -> InlineResponse2002 {
         InlineResponse2002 {
-            balance: None,
+            balances: None,
         }
     }
 }
@@ -2931,7 +2550,7 @@ impl InlineResponse2002 {
 impl std::string::ToString for InlineResponse2002 {
     fn to_string(&self) -> String {
         let mut params: Vec<String> = vec![];
-        // Skipping balance in query parameter serialization
+        // Skipping balances in query parameter serialization
 
         params.join(",").to_string()
     }
@@ -2947,7 +2566,7 @@ impl std::str::FromStr for InlineResponse2002 {
         #[derive(Default)]
         // An intermediate representation of the struct to use for parsing.
         struct IntermediateRep {
-            pub balance: Vec<models::Balance>,
+            pub balances: Vec<models::Balance>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -2964,7 +2583,7 @@ impl std::str::FromStr for InlineResponse2002 {
 
             if let Some(key) = key_result {
                 match key {
-                    "balance" => intermediate_rep.balance.push(<models::Balance as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "balances" => intermediate_rep.balances.push(<models::Balance as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing InlineResponse2002".to_string())
                 }
             }
@@ -2975,7 +2594,7 @@ impl std::str::FromStr for InlineResponse2002 {
 
         // Use the intermediate representation to return the struct
         std::result::Result::Ok(InlineResponse2002 {
-            balance: intermediate_rep.balance.into_iter().next(),
+            balances: intermediate_rep.balances.into_iter().next(),
         })
     }
 }
@@ -3613,7 +3232,7 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 }
 
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct MonitorBody {
     #[serde(rename = "url")]
@@ -3937,8 +3556,14 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct MonitorStatus {
-    #[serde(rename = "monitorId")]
-    pub monitor_id: String,
+    #[serde(rename = "statusId")]
+    pub status_id: String,
+
+    #[serde(rename = "monitorType")]
+    pub monitor_type: models::MonitorType,
+
+    #[serde(rename = "monitorName")]
+    pub monitor_name: String,
 
     #[serde(rename = "status")]
     pub status: models::MonitorStatusIndicator,
@@ -3947,27 +3572,42 @@ pub struct MonitorStatus {
     #[serde(rename = "timestamp")]
     pub timestamp: chrono::DateTime::<chrono::Utc>,
 
-    #[serde(rename = "lastResult")]
-    pub last_result: models::MonitorStatusResult,
+    /// UTC UNIX timestamp in with fractional offset.
+    #[serde(rename = "expiresAt")]
+    pub expires_at: chrono::DateTime::<chrono::Utc>,
+
+    #[serde(rename = "expectedResult")]
+    pub expected_result: String,
+
+    #[serde(rename = "actualResult")]
+    pub actual_result: String,
 
     #[serde(rename = "description")]
     pub description: String,
 
-    #[serde(rename = "log")]
+    #[serde(rename = "session")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub log: Option<Vec<models::MonitorStatusLogEntry>>,
+    pub session: Option<models::Session>,
+
+    #[serde(rename = "log")]
+    pub log: Vec<models::MonitorStatusLogEntry>,
 
 }
 
 impl MonitorStatus {
-    pub fn new(monitor_id: String, status: models::MonitorStatusIndicator, timestamp: chrono::DateTime::<chrono::Utc>, last_result: models::MonitorStatusResult, description: String, ) -> MonitorStatus {
+    pub fn new(status_id: String, monitor_type: models::MonitorType, monitor_name: String, status: models::MonitorStatusIndicator, timestamp: chrono::DateTime::<chrono::Utc>, expires_at: chrono::DateTime::<chrono::Utc>, expected_result: String, actual_result: String, description: String, log: Vec<models::MonitorStatusLogEntry>, ) -> MonitorStatus {
         MonitorStatus {
-            monitor_id: monitor_id,
+            status_id: status_id,
+            monitor_type: monitor_type,
+            monitor_name: monitor_name,
             status: status,
             timestamp: timestamp,
-            last_result: last_result,
+            expires_at: expires_at,
+            expected_result: expected_result,
+            actual_result: actual_result,
             description: description,
-            log: None,
+            session: None,
+            log: log,
         }
     }
 }
@@ -3979,18 +3619,34 @@ impl std::string::ToString for MonitorStatus {
     fn to_string(&self) -> String {
         let mut params: Vec<String> = vec![];
 
-        params.push("monitorId".to_string());
-        params.push(self.monitor_id.to_string());
+        params.push("statusId".to_string());
+        params.push(self.status_id.to_string());
+
+        // Skipping monitorType in query parameter serialization
+
+
+        params.push("monitorName".to_string());
+        params.push(self.monitor_name.to_string());
 
         // Skipping status in query parameter serialization
 
         // Skipping timestamp in query parameter serialization
 
-        // Skipping lastResult in query parameter serialization
+        // Skipping expiresAt in query parameter serialization
+
+
+        params.push("expectedResult".to_string());
+        params.push(self.expected_result.to_string());
+
+
+        params.push("actualResult".to_string());
+        params.push(self.actual_result.to_string());
 
 
         params.push("description".to_string());
         params.push(self.description.to_string());
+
+        // Skipping session in query parameter serialization
 
         // Skipping log in query parameter serialization
 
@@ -4008,11 +3664,16 @@ impl std::str::FromStr for MonitorStatus {
         #[derive(Default)]
         // An intermediate representation of the struct to use for parsing.
         struct IntermediateRep {
-            pub monitor_id: Vec<String>,
+            pub status_id: Vec<String>,
+            pub monitor_type: Vec<models::MonitorType>,
+            pub monitor_name: Vec<String>,
             pub status: Vec<models::MonitorStatusIndicator>,
             pub timestamp: Vec<chrono::DateTime::<chrono::Utc>>,
-            pub last_result: Vec<models::MonitorStatusResult>,
+            pub expires_at: Vec<chrono::DateTime::<chrono::Utc>>,
+            pub expected_result: Vec<String>,
+            pub actual_result: Vec<String>,
             pub description: Vec<String>,
+            pub session: Vec<models::Session>,
             pub log: Vec<Vec<models::MonitorStatusLogEntry>>,
         }
 
@@ -4030,11 +3691,16 @@ impl std::str::FromStr for MonitorStatus {
 
             if let Some(key) = key_result {
                 match key {
-                    "monitorId" => intermediate_rep.monitor_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "statusId" => intermediate_rep.status_id.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "monitorType" => intermediate_rep.monitor_type.push(<models::MonitorType as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "monitorName" => intermediate_rep.monitor_name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "status" => intermediate_rep.status.push(<models::MonitorStatusIndicator as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "timestamp" => intermediate_rep.timestamp.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "lastResult" => intermediate_rep.last_result.push(<models::MonitorStatusResult as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expiresAt" => intermediate_rep.expires_at.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "expectedResult" => intermediate_rep.expected_result.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "actualResult" => intermediate_rep.actual_result.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "description" => intermediate_rep.description.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "session" => intermediate_rep.session.push(<models::Session as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "log" => return std::result::Result::Err("Parsing a container in this style is not supported in MonitorStatus".to_string()),
                     _ => return std::result::Result::Err("Unexpected key while parsing MonitorStatus".to_string())
                 }
@@ -4046,12 +3712,17 @@ impl std::str::FromStr for MonitorStatus {
 
         // Use the intermediate representation to return the struct
         std::result::Result::Ok(MonitorStatus {
-            monitor_id: intermediate_rep.monitor_id.into_iter().next().ok_or("monitorId missing in MonitorStatus".to_string())?,
+            status_id: intermediate_rep.status_id.into_iter().next().ok_or("statusId missing in MonitorStatus".to_string())?,
+            monitor_type: intermediate_rep.monitor_type.into_iter().next().ok_or("monitorType missing in MonitorStatus".to_string())?,
+            monitor_name: intermediate_rep.monitor_name.into_iter().next().ok_or("monitorName missing in MonitorStatus".to_string())?,
             status: intermediate_rep.status.into_iter().next().ok_or("status missing in MonitorStatus".to_string())?,
             timestamp: intermediate_rep.timestamp.into_iter().next().ok_or("timestamp missing in MonitorStatus".to_string())?,
-            last_result: intermediate_rep.last_result.into_iter().next().ok_or("lastResult missing in MonitorStatus".to_string())?,
+            expires_at: intermediate_rep.expires_at.into_iter().next().ok_or("expiresAt missing in MonitorStatus".to_string())?,
+            expected_result: intermediate_rep.expected_result.into_iter().next().ok_or("expectedResult missing in MonitorStatus".to_string())?,
+            actual_result: intermediate_rep.actual_result.into_iter().next().ok_or("actualResult missing in MonitorStatus".to_string())?,
             description: intermediate_rep.description.into_iter().next().ok_or("description missing in MonitorStatus".to_string())?,
-            log: intermediate_rep.log.into_iter().next(),
+            session: intermediate_rep.session.into_iter().next(),
+            log: intermediate_rep.log.into_iter().next().ok_or("log missing in MonitorStatus".to_string())?,
         })
     }
 }
@@ -4194,6 +3865,117 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into MonitorStatusArray - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct MonitorStatusContainer {
+    #[serde(rename = "statuse")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub statuse: Option<models::MonitorStatus>,
+
+}
+
+impl MonitorStatusContainer {
+    pub fn new() -> MonitorStatusContainer {
+        MonitorStatusContainer {
+            statuse: None,
+        }
+    }
+}
+
+/// Converts the MonitorStatusContainer value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for MonitorStatusContainer {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping statuse in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a MonitorStatusContainer value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for MonitorStatusContainer {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub statuse: Vec<models::MonitorStatus>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing MonitorStatusContainer".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "statuse" => intermediate_rep.statuse.push(<models::MonitorStatus as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing MonitorStatusContainer".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(MonitorStatusContainer {
+            statuse: intermediate_rep.statuse.into_iter().next(),
+        })
+    }
+}
+
+// Methods for converting between header::IntoHeaderValue<MonitorStatusContainer> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatusContainer>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatusContainer>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for MonitorStatusContainer - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatusContainer> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <MonitorStatusContainer as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into MonitorStatusContainer - {}",
                                 value, err))
                     }
              },
@@ -4351,129 +4133,6 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into MonitorStatusLogEntry - {}",
-                                value, err))
-                    }
-             },
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Unable to convert header: {:?} to string: {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
-pub struct MonitorStatusResult {
-    #[serde(rename = "expected")]
-    pub expected: String,
-
-    #[serde(rename = "actual")]
-    pub actual: String,
-
-}
-
-impl MonitorStatusResult {
-    pub fn new(expected: String, actual: String, ) -> MonitorStatusResult {
-        MonitorStatusResult {
-            expected: expected,
-            actual: actual,
-        }
-    }
-}
-
-/// Converts the MonitorStatusResult value to the Query Parameters representation (style=form, explode=false)
-/// specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde serializer
-impl std::string::ToString for MonitorStatusResult {
-    fn to_string(&self) -> String {
-        let mut params: Vec<String> = vec![];
-
-        params.push("expected".to_string());
-        params.push(self.expected.to_string());
-
-
-        params.push("actual".to_string());
-        params.push(self.actual.to_string());
-
-        params.join(",").to_string()
-    }
-}
-
-/// Converts Query Parameters representation (style=form, explode=false) to a MonitorStatusResult value
-/// as specified in https://swagger.io/docs/specification/serialization/
-/// Should be implemented in a serde deserializer
-impl std::str::FromStr for MonitorStatusResult {
-    type Err = String;
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        #[derive(Default)]
-        // An intermediate representation of the struct to use for parsing.
-        struct IntermediateRep {
-            pub expected: Vec<String>,
-            pub actual: Vec<String>,
-        }
-
-        let mut intermediate_rep = IntermediateRep::default();
-
-        // Parse into intermediate representation
-        let mut string_iter = s.split(',').into_iter();
-        let mut key_result = string_iter.next();
-
-        while key_result.is_some() {
-            let val = match string_iter.next() {
-                Some(x) => x,
-                None => return std::result::Result::Err("Missing value while parsing MonitorStatusResult".to_string())
-            };
-
-            if let Some(key) = key_result {
-                match key {
-                    "expected" => intermediate_rep.expected.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "actual" => intermediate_rep.actual.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    _ => return std::result::Result::Err("Unexpected key while parsing MonitorStatusResult".to_string())
-                }
-            }
-
-            // Get the next key
-            key_result = string_iter.next();
-        }
-
-        // Use the intermediate representation to return the struct
-        std::result::Result::Ok(MonitorStatusResult {
-            expected: intermediate_rep.expected.into_iter().next().ok_or("expected missing in MonitorStatusResult".to_string())?,
-            actual: intermediate_rep.actual.into_iter().next().ok_or("actual missing in MonitorStatusResult".to_string())?,
-        })
-    }
-}
-
-// Methods for converting between header::IntoHeaderValue<MonitorStatusResult> and hyper::header::HeaderValue
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<header::IntoHeaderValue<MonitorStatusResult>> for hyper::header::HeaderValue {
-    type Error = String;
-
-    fn try_from(hdr_value: header::IntoHeaderValue<MonitorStatusResult>) -> std::result::Result<Self, Self::Error> {
-        let hdr_value = hdr_value.to_string();
-        match hyper::header::HeaderValue::from_str(&hdr_value) {
-             std::result::Result::Ok(value) => std::result::Result::Ok(value),
-             std::result::Result::Err(e) => std::result::Result::Err(
-                 format!("Invalid header value for MonitorStatusResult - value: {} is invalid {}",
-                     hdr_value, e))
-        }
-    }
-}
-
-#[cfg(any(feature = "client", feature = "server"))]
-impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<MonitorStatusResult> {
-    type Error = String;
-
-    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
-        match hdr_value.to_str() {
-             std::result::Result::Ok(value) => {
-                    match <MonitorStatusResult as std::str::FromStr>::from_str(value) {
-                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
-                        std::result::Result::Err(err) => std::result::Result::Err(
-                            format!("Unable to convert header value '{}' into MonitorStatusResult - {}",
                                 value, err))
                     }
              },
@@ -5106,6 +4765,135 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into PlanArray - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct PlatformInfo {
+    #[serde(rename = "os")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub os: Option<String>,
+
+    #[serde(rename = "cpu")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub cpu: Option<String>,
+
+}
+
+impl PlatformInfo {
+    pub fn new() -> PlatformInfo {
+        PlatformInfo {
+            os: None,
+            cpu: None,
+        }
+    }
+}
+
+/// Converts the PlatformInfo value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for PlatformInfo {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+
+        if let Some(ref os) = self.os {
+            params.push("os".to_string());
+            params.push(os.to_string());
+        }
+
+
+        if let Some(ref cpu) = self.cpu {
+            params.push("cpu".to_string());
+            params.push(cpu.to_string());
+        }
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a PlatformInfo value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for PlatformInfo {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub os: Vec<String>,
+            pub cpu: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing PlatformInfo".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "os" => intermediate_rep.os.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "cpu" => intermediate_rep.cpu.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing PlatformInfo".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(PlatformInfo {
+            os: intermediate_rep.os.into_iter().next(),
+            cpu: intermediate_rep.cpu.into_iter().next(),
+        })
+    }
+}
+
+// Methods for converting between header::IntoHeaderValue<PlatformInfo> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<PlatformInfo>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<PlatformInfo>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for PlatformInfo - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<PlatformInfo> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <PlatformInfo as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into PlatformInfo - {}",
                                 value, err))
                     }
              },
@@ -6461,6 +6249,372 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into ServerInfo - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct Session {
+    #[serde(rename = "name")]
+    pub name: String,
+
+    #[serde(rename = "hostname")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub hostname: Option<String>,
+
+    #[serde(rename = "platform")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub platform: Option<models::PlatformInfo>,
+
+    /// UTC UNIX timestamp in with fractional offset.
+    #[serde(rename = "lastUpdated")]
+    pub last_updated: chrono::DateTime::<chrono::Utc>,
+
+}
+
+impl Session {
+    pub fn new(name: String, last_updated: chrono::DateTime::<chrono::Utc>, ) -> Session {
+        Session {
+            name: name,
+            hostname: None,
+            platform: None,
+            last_updated: last_updated,
+        }
+    }
+}
+
+/// Converts the Session value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for Session {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+
+        params.push("name".to_string());
+        params.push(self.name.to_string());
+
+
+        if let Some(ref hostname) = self.hostname {
+            params.push("hostname".to_string());
+            params.push(hostname.to_string());
+        }
+
+        // Skipping platform in query parameter serialization
+
+        // Skipping lastUpdated in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a Session value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for Session {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub name: Vec<String>,
+            pub hostname: Vec<String>,
+            pub platform: Vec<models::PlatformInfo>,
+            pub last_updated: Vec<chrono::DateTime::<chrono::Utc>>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing Session".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "hostname" => intermediate_rep.hostname.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "platform" => intermediate_rep.platform.push(<models::PlatformInfo as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "lastUpdated" => intermediate_rep.last_updated.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing Session".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(Session {
+            name: intermediate_rep.name.into_iter().next().ok_or("name missing in Session".to_string())?,
+            hostname: intermediate_rep.hostname.into_iter().next(),
+            platform: intermediate_rep.platform.into_iter().next(),
+            last_updated: intermediate_rep.last_updated.into_iter().next().ok_or("lastUpdated missing in Session".to_string())?,
+        })
+    }
+}
+
+// Methods for converting between header::IntoHeaderValue<Session> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<Session>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<Session>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for Session - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<Session> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <Session as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into Session - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct SessionArray {
+    #[serde(rename = "sessions")]
+    pub sessions: Vec<models::Session>,
+
+}
+
+impl SessionArray {
+    pub fn new(sessions: Vec<models::Session>, ) -> SessionArray {
+        SessionArray {
+            sessions: sessions,
+        }
+    }
+}
+
+/// Converts the SessionArray value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for SessionArray {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping sessions in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a SessionArray value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for SessionArray {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub sessions: Vec<Vec<models::Session>>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing SessionArray".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "sessions" => return std::result::Result::Err("Parsing a container in this style is not supported in SessionArray".to_string()),
+                    _ => return std::result::Result::Err("Unexpected key while parsing SessionArray".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(SessionArray {
+            sessions: intermediate_rep.sessions.into_iter().next().ok_or("sessions missing in SessionArray".to_string())?,
+        })
+    }
+}
+
+// Methods for converting between header::IntoHeaderValue<SessionArray> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<SessionArray>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<SessionArray>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for SessionArray - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<SessionArray> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <SessionArray as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into SessionArray - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct SessionContainer {
+    #[serde(rename = "session")]
+    pub session: models::Session,
+
+}
+
+impl SessionContainer {
+    pub fn new(session: models::Session, ) -> SessionContainer {
+        SessionContainer {
+            session: session,
+        }
+    }
+}
+
+/// Converts the SessionContainer value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::string::ToString for SessionContainer {
+    fn to_string(&self) -> String {
+        let mut params: Vec<String> = vec![];
+        // Skipping session in query parameter serialization
+
+        params.join(",").to_string()
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a SessionContainer value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for SessionContainer {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        #[derive(Default)]
+        // An intermediate representation of the struct to use for parsing.
+        struct IntermediateRep {
+            pub session: Vec<models::Session>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',').into_iter();
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing SessionContainer".to_string())
+            };
+
+            if let Some(key) = key_result {
+                match key {
+                    "session" => intermediate_rep.session.push(<models::Session as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing SessionContainer".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(SessionContainer {
+            session: intermediate_rep.session.into_iter().next().ok_or("session missing in SessionContainer".to_string())?,
+        })
+    }
+}
+
+// Methods for converting between header::IntoHeaderValue<SessionContainer> and hyper::header::HeaderValue
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<header::IntoHeaderValue<SessionContainer>> for hyper::header::HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<SessionContainer>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match hyper::header::HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for SessionContainer - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(any(feature = "client", feature = "server"))]
+impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderValue<SessionContainer> {
+    type Error = String;
+
+    fn try_from(hdr_value: hyper::header::HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <SessionContainer as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into SessionContainer - {}",
                                 value, err))
                     }
              },

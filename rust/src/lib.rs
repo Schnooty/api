@@ -214,10 +214,10 @@ pub enum GetTransactionsResponse {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
-pub enum CreateAgentSessionResponse {
+pub enum ClearSessionResponse {
     /// OK
     OK
-    (models::AgentSessionState)
+    (models::SessionContainer)
     ,
     /// Unauthorized
     Unauthorized
@@ -238,10 +238,54 @@ pub enum CreateAgentSessionResponse {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
-pub enum GetAgentSessionStateResponse {
+pub enum GetSessionResponse {
     /// OK
     OK
-    (models::AgentSessionState)
+    (models::SessionContainer)
+    ,
+    /// Unauthorized
+    Unauthorized
+    (models::ErrorList)
+    ,
+    /// BadRequest
+    BadRequest
+    (models::ErrorList)
+    ,
+    /// NotFound
+    NotFound
+    (models::ErrorList)
+    ,
+    /// UnprocessableEntity
+    UnprocessableEntity
+    (models::ErrorList)
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[must_use]
+pub enum GetSessionsResponse {
+    /// OK
+    OK
+    (models::SessionArray)
+    ,
+    /// Unauthorized
+    Unauthorized
+    (models::ErrorList)
+    ,
+    /// BadRequest
+    BadRequest
+    (models::ErrorList)
+    ,
+    /// Forbidden
+    Forbidden
+    (models::ErrorList)
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[must_use]
+pub enum PutSessionResponse {
+    /// OK
+    OK
+    (models::SessionContainer)
     ,
     /// Unauthorized
     Unauthorized
@@ -505,7 +549,7 @@ pub enum AlertsPostResponse {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
-pub enum AuthenticationJwtPostResponse {
+pub enum JwtGetResponse {
     /// OK
     OK
     (models::JwtObject)
@@ -557,114 +601,6 @@ pub enum GetInfoResponse {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
-pub enum GetMonitorByIdResponse {
-    /// OK
-    OK
-    (models::Monitor)
-    ,
-    /// Unauthorized
-    Unauthorized
-    (models::ErrorList)
-    ,
-    /// BadRequest
-    BadRequest
-    (models::ErrorList)
-    ,
-    /// NotFound
-    NotFound
-    (models::ErrorList)
-    ,
-    /// UnprocessableEntity
-    UnprocessableEntity
-    (models::ErrorList)
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum GetMonitorsResponse {
-    /// OK
-    OK
-    (models::MonitorArray)
-    ,
-    /// Unauthorized
-    Unauthorized
-    (models::ErrorList)
-    ,
-    /// BadRequest
-    BadRequest
-    (models::ErrorList)
-    ,
-    /// UnprocessableEntity
-    UnprocessableEntity
-    (models::ErrorList)
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum MonitorsIdDeleteResponse {
-    /// OK
-    OK
-    (models::Monitor)
-    ,
-    /// BadRequest
-    BadRequest
-    (models::ErrorList)
-    ,
-    /// Unauthorized
-    Unauthorized
-    (models::ErrorList)
-    ,
-    /// NotFound
-    NotFound
-    (models::ErrorList)
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum PostMonitorResponse {
-    /// Created
-    Created
-    (models::Monitor)
-    ,
-    /// BadRequest
-    BadRequest
-    (models::ErrorList)
-    ,
-    /// Unauthorized
-    Unauthorized
-    (models::ErrorList)
-    ,
-    /// UnprocessableEntity
-    UnprocessableEntity
-    (models::ErrorList)
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
-pub enum UpdateMonitorResponse {
-    /// OK
-    OK
-    (models::Monitor)
-    ,
-    /// BadRequest
-    BadRequest
-    (models::ErrorList)
-    ,
-    /// Unauthorized
-    Unauthorized
-    (models::ErrorList)
-    ,
-    /// NotFound
-    NotFound
-    (models::ErrorList)
-    ,
-    /// UnprocessableEntity
-    UnprocessableEntity
-    (models::ErrorList)
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-#[must_use]
 pub enum ConfirmRegistrationResponse {
     /// The registration was confirmed. You can now authenticate using the email address and password.
     TheRegistrationWasConfirmed
@@ -700,6 +636,46 @@ pub enum CreateRegistrationResponse {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
+pub enum ClearStatusResponse {
+    /// OK
+    OK
+    (models::MonitorStatusContainer)
+    ,
+    /// BadRequest
+    BadRequest
+    (models::ErrorList)
+    ,
+    /// Unauthorized
+    Unauthorized
+    (models::ErrorList)
+    ,
+    /// NotFound
+    NotFound
+    (models::ErrorList)
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[must_use]
+pub enum GetMonitorStatusResponse {
+    /// OK
+    OK
+    (models::MonitorStatusContainer)
+    ,
+    /// BadRequest
+    BadRequest
+    (models::ErrorList)
+    ,
+    /// Unauthorized
+    Unauthorized
+    (models::ErrorList)
+    ,
+    /// NotFound
+    NotFound
+    (models::ErrorList)
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[must_use]
 pub enum GetMonitorStatusesResponse {
     /// OK
     OK
@@ -720,9 +696,10 @@ pub enum GetMonitorStatusesResponse {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
-pub enum UpdateMonitorStatusesResponse {
-    /// NoContent
-    NoContent
+pub enum SetStatusResponse {
+    /// OK
+    OK
+    (models::MonitorStatusContainer)
     ,
     /// BadRequest
     BadRequest
@@ -730,10 +707,6 @@ pub enum UpdateMonitorStatusesResponse {
     ,
     /// Unauthorized
     Unauthorized
-    (models::ErrorList)
-    ,
-    /// UnprocessableEntity
-    UnprocessableEntity
     (models::ErrorList)
     ,
     /// NotFound
@@ -798,16 +771,25 @@ pub trait Api<C: Send + Sync> {
         to_timestamp: Option<chrono::DateTime::<chrono::Utc>>,
         context: &C) -> Result<GetTransactionsResponse, ApiError>;
 
-    async fn create_agent_session(
+    async fn clear_session(
         &self,
-        group_name: String,
-        agent_session_request: models::AgentSessionRequest,
-        context: &C) -> Result<CreateAgentSessionResponse, ApiError>;
+        identifier: String,
+        context: &C) -> Result<ClearSessionResponse, ApiError>;
 
-    async fn get_agent_session_state(
+    async fn get_session(
         &self,
-        group_name: String,
-        context: &C) -> Result<GetAgentSessionStateResponse, ApiError>;
+        identifier: String,
+        context: &C) -> Result<GetSessionResponse, ApiError>;
+
+    async fn get_sessions(
+        &self,
+        context: &C) -> Result<GetSessionsResponse, ApiError>;
+
+    async fn put_session(
+        &self,
+        identifier: String,
+        agent_session_request: models::AgentSessionRequest,
+        context: &C) -> Result<PutSessionResponse, ApiError>;
 
     async fn agents_get(
         &self,
@@ -860,9 +842,9 @@ pub trait Api<C: Send + Sync> {
         context: &C) -> Result<AlertsPostResponse, ApiError>;
 
     /// Create an API token in the form of a JWT.
-    async fn authentication_jwt_post(
+    async fn jwt_get(
         &self,
-        context: &C) -> Result<AuthenticationJwtPostResponse, ApiError>;
+        context: &C) -> Result<JwtGetResponse, ApiError>;
 
     /// Create a challenge to prove you are human
     async fn create_challenge(
@@ -879,35 +861,6 @@ pub trait Api<C: Send + Sync> {
         &self,
         context: &C) -> Result<GetInfoResponse, ApiError>;
 
-    /// Get a monitor by ID
-    async fn get_monitor_by_id(
-        &self,
-        id: String,
-        context: &C) -> Result<GetMonitorByIdResponse, ApiError>;
-
-    /// Get a list of all monitors in your account.
-    async fn get_monitors(
-        &self,
-        context: &C) -> Result<GetMonitorsResponse, ApiError>;
-
-    async fn monitors_id_delete(
-        &self,
-        id: String,
-        context: &C) -> Result<MonitorsIdDeleteResponse, ApiError>;
-
-    /// Create a new monitor
-    async fn post_monitor(
-        &self,
-        monitor: models::Monitor,
-        context: &C) -> Result<PostMonitorResponse, ApiError>;
-
-    /// Update an existing monitor by ID
-    async fn update_monitor(
-        &self,
-        id: String,
-        monitor: models::Monitor,
-        context: &C) -> Result<UpdateMonitorResponse, ApiError>;
-
     /// Confirm registration of account.
     async fn confirm_registration(
         &self,
@@ -921,14 +874,25 @@ pub trait Api<C: Send + Sync> {
         registration: models::Registration,
         context: &C) -> Result<CreateRegistrationResponse, ApiError>;
 
+    async fn clear_status(
+        &self,
+        status_id: String,
+        context: &C) -> Result<ClearStatusResponse, ApiError>;
+
+    async fn get_monitor_status(
+        &self,
+        status_id: String,
+        context: &C) -> Result<GetMonitorStatusResponse, ApiError>;
+
     async fn get_monitor_statuses(
         &self,
         context: &C) -> Result<GetMonitorStatusesResponse, ApiError>;
 
-    async fn update_monitor_statuses(
+    async fn set_status(
         &self,
-        monitor_status_array: models::MonitorStatusArray,
-        context: &C) -> Result<UpdateMonitorStatusesResponse, ApiError>;
+        status_id: String,
+        monitor_status: models::MonitorStatus,
+        context: &C) -> Result<SetStatusResponse, ApiError>;
 
 }
 
@@ -990,16 +954,25 @@ pub trait ApiNoContext<C: Send + Sync> {
         to_timestamp: Option<chrono::DateTime::<chrono::Utc>>,
         ) -> Result<GetTransactionsResponse, ApiError>;
 
-    async fn create_agent_session(
+    async fn clear_session(
         &self,
-        group_name: String,
-        agent_session_request: models::AgentSessionRequest,
-        ) -> Result<CreateAgentSessionResponse, ApiError>;
+        identifier: String,
+        ) -> Result<ClearSessionResponse, ApiError>;
 
-    async fn get_agent_session_state(
+    async fn get_session(
         &self,
-        group_name: String,
-        ) -> Result<GetAgentSessionStateResponse, ApiError>;
+        identifier: String,
+        ) -> Result<GetSessionResponse, ApiError>;
+
+    async fn get_sessions(
+        &self,
+        ) -> Result<GetSessionsResponse, ApiError>;
+
+    async fn put_session(
+        &self,
+        identifier: String,
+        agent_session_request: models::AgentSessionRequest,
+        ) -> Result<PutSessionResponse, ApiError>;
 
     async fn agents_get(
         &self,
@@ -1052,9 +1025,9 @@ pub trait ApiNoContext<C: Send + Sync> {
         ) -> Result<AlertsPostResponse, ApiError>;
 
     /// Create an API token in the form of a JWT.
-    async fn authentication_jwt_post(
+    async fn jwt_get(
         &self,
-        ) -> Result<AuthenticationJwtPostResponse, ApiError>;
+        ) -> Result<JwtGetResponse, ApiError>;
 
     /// Create a challenge to prove you are human
     async fn create_challenge(
@@ -1071,35 +1044,6 @@ pub trait ApiNoContext<C: Send + Sync> {
         &self,
         ) -> Result<GetInfoResponse, ApiError>;
 
-    /// Get a monitor by ID
-    async fn get_monitor_by_id(
-        &self,
-        id: String,
-        ) -> Result<GetMonitorByIdResponse, ApiError>;
-
-    /// Get a list of all monitors in your account.
-    async fn get_monitors(
-        &self,
-        ) -> Result<GetMonitorsResponse, ApiError>;
-
-    async fn monitors_id_delete(
-        &self,
-        id: String,
-        ) -> Result<MonitorsIdDeleteResponse, ApiError>;
-
-    /// Create a new monitor
-    async fn post_monitor(
-        &self,
-        monitor: models::Monitor,
-        ) -> Result<PostMonitorResponse, ApiError>;
-
-    /// Update an existing monitor by ID
-    async fn update_monitor(
-        &self,
-        id: String,
-        monitor: models::Monitor,
-        ) -> Result<UpdateMonitorResponse, ApiError>;
-
     /// Confirm registration of account.
     async fn confirm_registration(
         &self,
@@ -1113,14 +1057,25 @@ pub trait ApiNoContext<C: Send + Sync> {
         registration: models::Registration,
         ) -> Result<CreateRegistrationResponse, ApiError>;
 
+    async fn clear_status(
+        &self,
+        status_id: String,
+        ) -> Result<ClearStatusResponse, ApiError>;
+
+    async fn get_monitor_status(
+        &self,
+        status_id: String,
+        ) -> Result<GetMonitorStatusResponse, ApiError>;
+
     async fn get_monitor_statuses(
         &self,
         ) -> Result<GetMonitorStatusesResponse, ApiError>;
 
-    async fn update_monitor_statuses(
+    async fn set_status(
         &self,
-        monitor_status_array: models::MonitorStatusArray,
-        ) -> Result<UpdateMonitorStatusesResponse, ApiError>;
+        status_id: String,
+        monitor_status: models::MonitorStatus,
+        ) -> Result<SetStatusResponse, ApiError>;
 
 }
 
@@ -1237,23 +1192,40 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
         self.api().get_transactions(account_id, from_timestamp, to_timestamp, &context).await
     }
 
-    async fn create_agent_session(
+    async fn clear_session(
         &self,
-        group_name: String,
-        agent_session_request: models::AgentSessionRequest,
-        ) -> Result<CreateAgentSessionResponse, ApiError>
+        identifier: String,
+        ) -> Result<ClearSessionResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().create_agent_session(group_name, agent_session_request, &context).await
+        self.api().clear_session(identifier, &context).await
     }
 
-    async fn get_agent_session_state(
+    async fn get_session(
         &self,
-        group_name: String,
-        ) -> Result<GetAgentSessionStateResponse, ApiError>
+        identifier: String,
+        ) -> Result<GetSessionResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().get_agent_session_state(group_name, &context).await
+        self.api().get_session(identifier, &context).await
+    }
+
+    async fn get_sessions(
+        &self,
+        ) -> Result<GetSessionsResponse, ApiError>
+    {
+        let context = self.context().clone();
+        self.api().get_sessions(&context).await
+    }
+
+    async fn put_session(
+        &self,
+        identifier: String,
+        agent_session_request: models::AgentSessionRequest,
+        ) -> Result<PutSessionResponse, ApiError>
+    {
+        let context = self.context().clone();
+        self.api().put_session(identifier, agent_session_request, &context).await
     }
 
     async fn agents_get(
@@ -1347,12 +1319,12 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
     }
 
     /// Create an API token in the form of a JWT.
-    async fn authentication_jwt_post(
+    async fn jwt_get(
         &self,
-        ) -> Result<AuthenticationJwtPostResponse, ApiError>
+        ) -> Result<JwtGetResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().authentication_jwt_post(&context).await
+        self.api().jwt_get(&context).await
     }
 
     /// Create a challenge to prove you are human
@@ -1382,55 +1354,6 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
         self.api().get_info(&context).await
     }
 
-    /// Get a monitor by ID
-    async fn get_monitor_by_id(
-        &self,
-        id: String,
-        ) -> Result<GetMonitorByIdResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().get_monitor_by_id(id, &context).await
-    }
-
-    /// Get a list of all monitors in your account.
-    async fn get_monitors(
-        &self,
-        ) -> Result<GetMonitorsResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().get_monitors(&context).await
-    }
-
-    async fn monitors_id_delete(
-        &self,
-        id: String,
-        ) -> Result<MonitorsIdDeleteResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().monitors_id_delete(id, &context).await
-    }
-
-    /// Create a new monitor
-    async fn post_monitor(
-        &self,
-        monitor: models::Monitor,
-        ) -> Result<PostMonitorResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().post_monitor(monitor, &context).await
-    }
-
-    /// Update an existing monitor by ID
-    async fn update_monitor(
-        &self,
-        id: String,
-        monitor: models::Monitor,
-        ) -> Result<UpdateMonitorResponse, ApiError>
-    {
-        let context = self.context().clone();
-        self.api().update_monitor(id, monitor, &context).await
-    }
-
     /// Confirm registration of account.
     async fn confirm_registration(
         &self,
@@ -1452,6 +1375,24 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
         self.api().create_registration(registration, &context).await
     }
 
+    async fn clear_status(
+        &self,
+        status_id: String,
+        ) -> Result<ClearStatusResponse, ApiError>
+    {
+        let context = self.context().clone();
+        self.api().clear_status(status_id, &context).await
+    }
+
+    async fn get_monitor_status(
+        &self,
+        status_id: String,
+        ) -> Result<GetMonitorStatusResponse, ApiError>
+    {
+        let context = self.context().clone();
+        self.api().get_monitor_status(status_id, &context).await
+    }
+
     async fn get_monitor_statuses(
         &self,
         ) -> Result<GetMonitorStatusesResponse, ApiError>
@@ -1460,13 +1401,14 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
         self.api().get_monitor_statuses(&context).await
     }
 
-    async fn update_monitor_statuses(
+    async fn set_status(
         &self,
-        monitor_status_array: models::MonitorStatusArray,
-        ) -> Result<UpdateMonitorStatusesResponse, ApiError>
+        status_id: String,
+        monitor_status: models::MonitorStatus,
+        ) -> Result<SetStatusResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().update_monitor_statuses(monitor_status_array, &context).await
+        self.api().set_status(status_id, monitor_status, &context).await
     }
 
 }

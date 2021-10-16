@@ -46,8 +46,10 @@ use crate::{Api,
      GetSubscriptionByIdResponse,
      GetSubscriptionRecordsResponse,
      GetTransactionsResponse,
-     CreateAgentSessionResponse,
-     GetAgentSessionStateResponse,
+     ClearSessionResponse,
+     GetSessionResponse,
+     GetSessionsResponse,
+     PutSessionResponse,
      AgentsGetResponse,
      AgentsIdDeleteResponse,
      AgentsIdGetResponse,
@@ -58,19 +60,16 @@ use crate::{Api,
      AlertsIdGetResponse,
      AlertsIdPutResponse,
      AlertsPostResponse,
-     AuthenticationJwtPostResponse,
+     JwtGetResponse,
      CreateChallengeResponse,
      UpdateChallengeResponse,
      GetInfoResponse,
-     GetMonitorByIdResponse,
-     GetMonitorsResponse,
-     MonitorsIdDeleteResponse,
-     PostMonitorResponse,
-     UpdateMonitorResponse,
      ConfirmRegistrationResponse,
      CreateRegistrationResponse,
+     ClearStatusResponse,
+     GetMonitorStatusResponse,
      GetMonitorStatusesResponse,
-     UpdateMonitorStatusesResponse
+     SetStatusResponse
      };
 
 /// Convert input into a base path, e.g. "http://example:123". Also checks the scheme as it goes.
@@ -1574,151 +1573,16 @@ impl<S, C> Api<C> for Client<S, C> where
         }
     }
 
-    async fn create_agent_session(
+    async fn clear_session(
         &self,
-        param_group_name: String,
-        param_agent_session_request: models::AgentSessionRequest,
-        context: &C) -> Result<CreateAgentSessionResponse, ApiError>
+        param_identifier: String,
+        context: &C) -> Result<ClearSessionResponse, ApiError>
     {
         let mut client_service = self.client_service.clone();
         let mut uri = format!(
-            "{}/session/{group_name}",
+            "{}/sessions/{identifier}",
             self.base_path
-            ,group_name=utf8_percent_encode(&param_group_name.to_string(), ID_ENCODE_SET)
-        );
-
-        // Query parameters
-        let query_string = {
-            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
-            query_string.finish()
-        };
-        if !query_string.is_empty() {
-            uri += "?";
-            uri += &query_string;
-        }
-
-        let uri = match Uri::from_str(&uri) {
-            Ok(uri) => uri,
-            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
-        };
-
-        let mut request = match Request::builder()
-            .method("POST")
-            .uri(uri)
-            .body(Body::empty()) {
-                Ok(req) => req,
-                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
-        };
-
-        // Body parameter
-        let body = serde_json::to_string(&param_agent_session_request).expect("impossible to fail to serialize");
-                *request.body_mut() = Body::from(body);
-
-        let header = "application/json";
-        request.headers_mut().insert(CONTENT_TYPE, match HeaderValue::from_str(header) {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create header: {} - {}", header, e)))
-        });
-        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
-        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
-        });
-
-        let mut response = client_service.call((request, context.clone()))
-            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
-
-        match response.status().as_u16() {
-            200 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::AgentSessionState>(body)?;
-                Ok(CreateAgentSessionResponse::OK
-                    (body)
-                )
-            }
-            401 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(CreateAgentSessionResponse::Unauthorized
-                    (body)
-                )
-            }
-            400 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(CreateAgentSessionResponse::BadRequest
-                    (body)
-                )
-            }
-            404 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(CreateAgentSessionResponse::NotFound
-                    (body)
-                )
-            }
-            422 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(CreateAgentSessionResponse::UnprocessableEntity
-                    (body)
-                )
-            }
-            code => {
-                let headers = response.headers().clone();
-                let body = response.into_body()
-                       .take(100)
-                       .to_raw().await;
-                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
-                    code,
-                    headers,
-                    match body {
-                        Ok(body) => match String::from_utf8(body) {
-                            Ok(body) => body,
-                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
-                        },
-                        Err(e) => format!("<Failed to read body: {}>", e),
-                    }
-                )))
-            }
-        }
-    }
-
-    async fn get_agent_session_state(
-        &self,
-        param_group_name: String,
-        context: &C) -> Result<GetAgentSessionStateResponse, ApiError>
-    {
-        let mut client_service = self.client_service.clone();
-        let mut uri = format!(
-            "{}/session/{group_name}",
-            self.base_path
-            ,group_name=utf8_percent_encode(&param_group_name.to_string(), ID_ENCODE_SET)
+            ,identifier=utf8_percent_encode(&param_identifier.to_string(), ID_ENCODE_SET)
         );
 
         // Query parameters
@@ -1761,8 +1625,8 @@ impl<S, C> Api<C> for Client<S, C> where
                         .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::AgentSessionState>(body)?;
-                Ok(GetAgentSessionStateResponse::OK
+                let body = serde_json::from_str::<models::SessionContainer>(body)?;
+                Ok(ClearSessionResponse::OK
                     (body)
                 )
             }
@@ -1774,7 +1638,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetAgentSessionStateResponse::Unauthorized
+                Ok(ClearSessionResponse::Unauthorized
                     (body)
                 )
             }
@@ -1786,7 +1650,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetAgentSessionStateResponse::BadRequest
+                Ok(ClearSessionResponse::BadRequest
                     (body)
                 )
             }
@@ -1798,7 +1662,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetAgentSessionStateResponse::NotFound
+                Ok(ClearSessionResponse::NotFound
                     (body)
                 )
             }
@@ -1810,7 +1674,379 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetAgentSessionStateResponse::UnprocessableEntity
+                Ok(ClearSessionResponse::UnprocessableEntity
+                    (body)
+                )
+            }
+            code => {
+                let headers = response.headers().clone();
+                let body = response.into_body()
+                       .take(100)
+                       .to_raw().await;
+                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
+                    code,
+                    headers,
+                    match body {
+                        Ok(body) => match String::from_utf8(body) {
+                            Ok(body) => body,
+                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
+                        },
+                        Err(e) => format!("<Failed to read body: {}>", e),
+                    }
+                )))
+            }
+        }
+    }
+
+    async fn get_session(
+        &self,
+        param_identifier: String,
+        context: &C) -> Result<GetSessionResponse, ApiError>
+    {
+        let mut client_service = self.client_service.clone();
+        let mut uri = format!(
+            "{}/sessions/{identifier}",
+            self.base_path
+            ,identifier=utf8_percent_encode(&param_identifier.to_string(), ID_ENCODE_SET)
+        );
+
+        // Query parameters
+        let query_string = {
+            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
+            query_string.finish()
+        };
+        if !query_string.is_empty() {
+            uri += "?";
+            uri += &query_string;
+        }
+
+        let uri = match Uri::from_str(&uri) {
+            Ok(uri) => uri,
+            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
+        };
+
+        let mut request = match Request::builder()
+            .method("DELETE")
+            .uri(uri)
+            .body(Body::empty()) {
+                Ok(req) => req,
+                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
+        };
+
+        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
+        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
+            Ok(h) => h,
+            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
+        });
+
+        let mut response = client_service.call((request, context.clone()))
+            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
+
+        match response.status().as_u16() {
+            200 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::SessionContainer>(body)?;
+                Ok(GetSessionResponse::OK
+                    (body)
+                )
+            }
+            401 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetSessionResponse::Unauthorized
+                    (body)
+                )
+            }
+            400 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetSessionResponse::BadRequest
+                    (body)
+                )
+            }
+            404 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetSessionResponse::NotFound
+                    (body)
+                )
+            }
+            422 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetSessionResponse::UnprocessableEntity
+                    (body)
+                )
+            }
+            code => {
+                let headers = response.headers().clone();
+                let body = response.into_body()
+                       .take(100)
+                       .to_raw().await;
+                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
+                    code,
+                    headers,
+                    match body {
+                        Ok(body) => match String::from_utf8(body) {
+                            Ok(body) => body,
+                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
+                        },
+                        Err(e) => format!("<Failed to read body: {}>", e),
+                    }
+                )))
+            }
+        }
+    }
+
+    async fn get_sessions(
+        &self,
+        context: &C) -> Result<GetSessionsResponse, ApiError>
+    {
+        let mut client_service = self.client_service.clone();
+        let mut uri = format!(
+            "{}/sessions",
+            self.base_path
+        );
+
+        // Query parameters
+        let query_string = {
+            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
+            query_string.finish()
+        };
+        if !query_string.is_empty() {
+            uri += "?";
+            uri += &query_string;
+        }
+
+        let uri = match Uri::from_str(&uri) {
+            Ok(uri) => uri,
+            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
+        };
+
+        let mut request = match Request::builder()
+            .method("GET")
+            .uri(uri)
+            .body(Body::empty()) {
+                Ok(req) => req,
+                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
+        };
+
+        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
+        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
+            Ok(h) => h,
+            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
+        });
+
+        let mut response = client_service.call((request, context.clone()))
+            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
+
+        match response.status().as_u16() {
+            200 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::SessionArray>(body)?;
+                Ok(GetSessionsResponse::OK
+                    (body)
+                )
+            }
+            401 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetSessionsResponse::Unauthorized
+                    (body)
+                )
+            }
+            400 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetSessionsResponse::BadRequest
+                    (body)
+                )
+            }
+            403 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetSessionsResponse::Forbidden
+                    (body)
+                )
+            }
+            code => {
+                let headers = response.headers().clone();
+                let body = response.into_body()
+                       .take(100)
+                       .to_raw().await;
+                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
+                    code,
+                    headers,
+                    match body {
+                        Ok(body) => match String::from_utf8(body) {
+                            Ok(body) => body,
+                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
+                        },
+                        Err(e) => format!("<Failed to read body: {}>", e),
+                    }
+                )))
+            }
+        }
+    }
+
+    async fn put_session(
+        &self,
+        param_identifier: String,
+        param_agent_session_request: models::AgentSessionRequest,
+        context: &C) -> Result<PutSessionResponse, ApiError>
+    {
+        let mut client_service = self.client_service.clone();
+        let mut uri = format!(
+            "{}/sessions/{identifier}",
+            self.base_path
+            ,identifier=utf8_percent_encode(&param_identifier.to_string(), ID_ENCODE_SET)
+        );
+
+        // Query parameters
+        let query_string = {
+            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
+            query_string.finish()
+        };
+        if !query_string.is_empty() {
+            uri += "?";
+            uri += &query_string;
+        }
+
+        let uri = match Uri::from_str(&uri) {
+            Ok(uri) => uri,
+            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
+        };
+
+        let mut request = match Request::builder()
+            .method("PUT")
+            .uri(uri)
+            .body(Body::empty()) {
+                Ok(req) => req,
+                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
+        };
+
+        let body = serde_json::to_string(&param_agent_session_request).expect("impossible to fail to serialize");
+
+                *request.body_mut() = Body::from(body);
+
+        let header = "application/json";
+        request.headers_mut().insert(CONTENT_TYPE, match HeaderValue::from_str(header) {
+            Ok(h) => h,
+            Err(e) => return Err(ApiError(format!("Unable to create header: {} - {}", header, e)))
+        });
+
+        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
+        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
+            Ok(h) => h,
+            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
+        });
+
+        let mut response = client_service.call((request, context.clone()))
+            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
+
+        match response.status().as_u16() {
+            200 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::SessionContainer>(body)?;
+                Ok(PutSessionResponse::OK
+                    (body)
+                )
+            }
+            401 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(PutSessionResponse::Unauthorized
+                    (body)
+                )
+            }
+            400 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(PutSessionResponse::BadRequest
+                    (body)
+                )
+            }
+            404 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(PutSessionResponse::NotFound
+                    (body)
+                )
+            }
+            422 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(PutSessionResponse::UnprocessableEntity
                     (body)
                 )
             }
@@ -3207,13 +3443,13 @@ impl<S, C> Api<C> for Client<S, C> where
         }
     }
 
-    async fn authentication_jwt_post(
+    async fn jwt_get(
         &self,
-        context: &C) -> Result<AuthenticationJwtPostResponse, ApiError>
+        context: &C) -> Result<JwtGetResponse, ApiError>
     {
         let mut client_service = self.client_service.clone();
         let mut uri = format!(
-            "{}/authentication/jwt",
+            "{}/jwt",
             self.base_path
         );
 
@@ -3233,7 +3469,7 @@ impl<S, C> Api<C> for Client<S, C> where
         };
 
         let mut request = match Request::builder()
-            .method("POST")
+            .method("GET")
             .uri(uri)
             .body(Body::empty()) {
                 Ok(req) => req,
@@ -3275,7 +3511,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::JwtObject>(body)?;
-                Ok(AuthenticationJwtPostResponse::OK
+                Ok(JwtGetResponse::OK
                     (body)
                 )
             }
@@ -3287,7 +3523,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(AuthenticationJwtPostResponse::BadRequest
+                Ok(JwtGetResponse::BadRequest
                     (body)
                 )
             }
@@ -3299,7 +3535,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(AuthenticationJwtPostResponse::UnprocessableEntity
+                Ok(JwtGetResponse::UnprocessableEntity
                     (body)
                 )
             }
@@ -3586,696 +3822,6 @@ impl<S, C> Api<C> for Client<S, C> where
         }
     }
 
-    async fn get_monitor_by_id(
-        &self,
-        param_id: String,
-        context: &C) -> Result<GetMonitorByIdResponse, ApiError>
-    {
-        let mut client_service = self.client_service.clone();
-        let mut uri = format!(
-            "{}/monitors/{id}",
-            self.base_path
-            ,id=utf8_percent_encode(&param_id.to_string(), ID_ENCODE_SET)
-        );
-
-        // Query parameters
-        let query_string = {
-            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
-            query_string.finish()
-        };
-        if !query_string.is_empty() {
-            uri += "?";
-            uri += &query_string;
-        }
-
-        let uri = match Uri::from_str(&uri) {
-            Ok(uri) => uri,
-            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
-        };
-
-        let mut request = match Request::builder()
-            .method("GET")
-            .uri(uri)
-            .body(Body::empty()) {
-                Ok(req) => req,
-                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
-        };
-
-        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
-        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
-        });
-
-        if let Some(auth_data) = Has::<Option<AuthData>>::get(context).as_ref() {
-            // Currently only authentication with Basic and Bearer are supported
-            match auth_data {
-                &AuthData::Bearer(ref bearer_header) => {
-                    let auth = swagger::auth::Header(bearer_header.clone());
-                    let header = match HeaderValue::from_str(&format!("{}", auth)) {
-                        Ok(h) => h,
-                        Err(e) => return Err(ApiError(format!("Unable to create Authorization header: {}", e)))
-                    };
-                    request.headers_mut().insert(
-                        hyper::header::AUTHORIZATION,
-                        header);
-                },
-                _ => {}
-            }
-        }
-
-        let mut response = client_service.call((request, context.clone()))
-            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
-
-        match response.status().as_u16() {
-            200 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::Monitor>(body)?;
-                Ok(GetMonitorByIdResponse::OK
-                    (body)
-                )
-            }
-            401 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetMonitorByIdResponse::Unauthorized
-                    (body)
-                )
-            }
-            400 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetMonitorByIdResponse::BadRequest
-                    (body)
-                )
-            }
-            404 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetMonitorByIdResponse::NotFound
-                    (body)
-                )
-            }
-            422 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetMonitorByIdResponse::UnprocessableEntity
-                    (body)
-                )
-            }
-            code => {
-                let headers = response.headers().clone();
-                let body = response.into_body()
-                       .take(100)
-                       .to_raw().await;
-                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
-                    code,
-                    headers,
-                    match body {
-                        Ok(body) => match String::from_utf8(body) {
-                            Ok(body) => body,
-                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
-                        },
-                        Err(e) => format!("<Failed to read body: {}>", e),
-                    }
-                )))
-            }
-        }
-    }
-
-    async fn get_monitors(
-        &self,
-        context: &C) -> Result<GetMonitorsResponse, ApiError>
-    {
-        let mut client_service = self.client_service.clone();
-        let mut uri = format!(
-            "{}/monitors",
-            self.base_path
-        );
-
-        // Query parameters
-        let query_string = {
-            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
-            query_string.finish()
-        };
-        if !query_string.is_empty() {
-            uri += "?";
-            uri += &query_string;
-        }
-
-        let uri = match Uri::from_str(&uri) {
-            Ok(uri) => uri,
-            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
-        };
-
-        let mut request = match Request::builder()
-            .method("GET")
-            .uri(uri)
-            .body(Body::empty()) {
-                Ok(req) => req,
-                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
-        };
-
-        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
-        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
-        });
-
-        if let Some(auth_data) = Has::<Option<AuthData>>::get(context).as_ref() {
-            // Currently only authentication with Basic and Bearer are supported
-            match auth_data {
-                &AuthData::Bearer(ref bearer_header) => {
-                    let auth = swagger::auth::Header(bearer_header.clone());
-                    let header = match HeaderValue::from_str(&format!("{}", auth)) {
-                        Ok(h) => h,
-                        Err(e) => return Err(ApiError(format!("Unable to create Authorization header: {}", e)))
-                    };
-                    request.headers_mut().insert(
-                        hyper::header::AUTHORIZATION,
-                        header);
-                },
-                _ => {}
-            }
-        }
-
-        let mut response = client_service.call((request, context.clone()))
-            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
-
-        match response.status().as_u16() {
-            200 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::MonitorArray>(body)?;
-                Ok(GetMonitorsResponse::OK
-                    (body)
-                )
-            }
-            401 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetMonitorsResponse::Unauthorized
-                    (body)
-                )
-            }
-            400 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetMonitorsResponse::BadRequest
-                    (body)
-                )
-            }
-            422 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(GetMonitorsResponse::UnprocessableEntity
-                    (body)
-                )
-            }
-            code => {
-                let headers = response.headers().clone();
-                let body = response.into_body()
-                       .take(100)
-                       .to_raw().await;
-                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
-                    code,
-                    headers,
-                    match body {
-                        Ok(body) => match String::from_utf8(body) {
-                            Ok(body) => body,
-                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
-                        },
-                        Err(e) => format!("<Failed to read body: {}>", e),
-                    }
-                )))
-            }
-        }
-    }
-
-    async fn monitors_id_delete(
-        &self,
-        param_id: String,
-        context: &C) -> Result<MonitorsIdDeleteResponse, ApiError>
-    {
-        let mut client_service = self.client_service.clone();
-        let mut uri = format!(
-            "{}/monitors/{id}",
-            self.base_path
-            ,id=utf8_percent_encode(&param_id.to_string(), ID_ENCODE_SET)
-        );
-
-        // Query parameters
-        let query_string = {
-            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
-            query_string.finish()
-        };
-        if !query_string.is_empty() {
-            uri += "?";
-            uri += &query_string;
-        }
-
-        let uri = match Uri::from_str(&uri) {
-            Ok(uri) => uri,
-            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
-        };
-
-        let mut request = match Request::builder()
-            .method("DELETE")
-            .uri(uri)
-            .body(Body::empty()) {
-                Ok(req) => req,
-                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
-        };
-
-        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
-        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
-        });
-
-        if let Some(auth_data) = Has::<Option<AuthData>>::get(context).as_ref() {
-            // Currently only authentication with Basic and Bearer are supported
-            match auth_data {
-                &AuthData::Bearer(ref bearer_header) => {
-                    let auth = swagger::auth::Header(bearer_header.clone());
-                    let header = match HeaderValue::from_str(&format!("{}", auth)) {
-                        Ok(h) => h,
-                        Err(e) => return Err(ApiError(format!("Unable to create Authorization header: {}", e)))
-                    };
-                    request.headers_mut().insert(
-                        hyper::header::AUTHORIZATION,
-                        header);
-                },
-                _ => {}
-            }
-        }
-
-        let mut response = client_service.call((request, context.clone()))
-            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
-
-        match response.status().as_u16() {
-            200 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::Monitor>(body)?;
-                Ok(MonitorsIdDeleteResponse::OK
-                    (body)
-                )
-            }
-            400 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(MonitorsIdDeleteResponse::BadRequest
-                    (body)
-                )
-            }
-            401 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(MonitorsIdDeleteResponse::Unauthorized
-                    (body)
-                )
-            }
-            404 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(MonitorsIdDeleteResponse::NotFound
-                    (body)
-                )
-            }
-            code => {
-                let headers = response.headers().clone();
-                let body = response.into_body()
-                       .take(100)
-                       .to_raw().await;
-                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
-                    code,
-                    headers,
-                    match body {
-                        Ok(body) => match String::from_utf8(body) {
-                            Ok(body) => body,
-                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
-                        },
-                        Err(e) => format!("<Failed to read body: {}>", e),
-                    }
-                )))
-            }
-        }
-    }
-
-    async fn post_monitor(
-        &self,
-        param_monitor: models::Monitor,
-        context: &C) -> Result<PostMonitorResponse, ApiError>
-    {
-        let mut client_service = self.client_service.clone();
-        let mut uri = format!(
-            "{}/monitors",
-            self.base_path
-        );
-
-        // Query parameters
-        let query_string = {
-            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
-            query_string.finish()
-        };
-        if !query_string.is_empty() {
-            uri += "?";
-            uri += &query_string;
-        }
-
-        let uri = match Uri::from_str(&uri) {
-            Ok(uri) => uri,
-            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
-        };
-
-        let mut request = match Request::builder()
-            .method("POST")
-            .uri(uri)
-            .body(Body::empty()) {
-                Ok(req) => req,
-                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
-        };
-
-        let body = serde_json::to_string(&param_monitor).expect("impossible to fail to serialize");
-                *request.body_mut() = Body::from(body);
-
-        let header = "application/json";
-        request.headers_mut().insert(CONTENT_TYPE, match HeaderValue::from_str(header) {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create header: {} - {}", header, e)))
-        });
-        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
-        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
-        });
-
-        if let Some(auth_data) = Has::<Option<AuthData>>::get(context).as_ref() {
-            // Currently only authentication with Basic and Bearer are supported
-            match auth_data {
-                &AuthData::Bearer(ref bearer_header) => {
-                    let auth = swagger::auth::Header(bearer_header.clone());
-                    let header = match HeaderValue::from_str(&format!("{}", auth)) {
-                        Ok(h) => h,
-                        Err(e) => return Err(ApiError(format!("Unable to create Authorization header: {}", e)))
-                    };
-                    request.headers_mut().insert(
-                        hyper::header::AUTHORIZATION,
-                        header);
-                },
-                _ => {}
-            }
-        }
-
-        let mut response = client_service.call((request, context.clone()))
-            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
-
-        match response.status().as_u16() {
-            201 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::Monitor>(body)?;
-                Ok(PostMonitorResponse::Created
-                    (body)
-                )
-            }
-            400 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(PostMonitorResponse::BadRequest
-                    (body)
-                )
-            }
-            401 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(PostMonitorResponse::Unauthorized
-                    (body)
-                )
-            }
-            422 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(PostMonitorResponse::UnprocessableEntity
-                    (body)
-                )
-            }
-            code => {
-                let headers = response.headers().clone();
-                let body = response.into_body()
-                       .take(100)
-                       .to_raw().await;
-                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
-                    code,
-                    headers,
-                    match body {
-                        Ok(body) => match String::from_utf8(body) {
-                            Ok(body) => body,
-                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
-                        },
-                        Err(e) => format!("<Failed to read body: {}>", e),
-                    }
-                )))
-            }
-        }
-    }
-
-    async fn update_monitor(
-        &self,
-        param_id: String,
-        param_monitor: models::Monitor,
-        context: &C) -> Result<UpdateMonitorResponse, ApiError>
-    {
-        let mut client_service = self.client_service.clone();
-        let mut uri = format!(
-            "{}/monitors/{id}",
-            self.base_path
-            ,id=utf8_percent_encode(&param_id.to_string(), ID_ENCODE_SET)
-        );
-
-        // Query parameters
-        let query_string = {
-            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
-            query_string.finish()
-        };
-        if !query_string.is_empty() {
-            uri += "?";
-            uri += &query_string;
-        }
-
-        let uri = match Uri::from_str(&uri) {
-            Ok(uri) => uri,
-            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
-        };
-
-        let mut request = match Request::builder()
-            .method("PUT")
-            .uri(uri)
-            .body(Body::empty()) {
-                Ok(req) => req,
-                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
-        };
-
-        let body = serde_json::to_string(&param_monitor).expect("impossible to fail to serialize");
-
-                *request.body_mut() = Body::from(body);
-
-        let header = "application/json";
-        request.headers_mut().insert(CONTENT_TYPE, match HeaderValue::from_str(header) {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create header: {} - {}", header, e)))
-        });
-
-        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
-        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
-            Ok(h) => h,
-            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
-        });
-
-        if let Some(auth_data) = Has::<Option<AuthData>>::get(context).as_ref() {
-            // Currently only authentication with Basic and Bearer are supported
-            match auth_data {
-                &AuthData::Bearer(ref bearer_header) => {
-                    let auth = swagger::auth::Header(bearer_header.clone());
-                    let header = match HeaderValue::from_str(&format!("{}", auth)) {
-                        Ok(h) => h,
-                        Err(e) => return Err(ApiError(format!("Unable to create Authorization header: {}", e)))
-                    };
-                    request.headers_mut().insert(
-                        hyper::header::AUTHORIZATION,
-                        header);
-                },
-                _ => {}
-            }
-        }
-
-        let mut response = client_service.call((request, context.clone()))
-            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
-
-        match response.status().as_u16() {
-            200 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::Monitor>(body)?;
-                Ok(UpdateMonitorResponse::OK
-                    (body)
-                )
-            }
-            400 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(UpdateMonitorResponse::BadRequest
-                    (body)
-                )
-            }
-            401 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(UpdateMonitorResponse::Unauthorized
-                    (body)
-                )
-            }
-            404 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(UpdateMonitorResponse::NotFound
-                    (body)
-                )
-            }
-            422 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(UpdateMonitorResponse::UnprocessableEntity
-                    (body)
-                )
-            }
-            code => {
-                let headers = response.headers().clone();
-                let body = response.into_body()
-                       .take(100)
-                       .to_raw().await;
-                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
-                    code,
-                    headers,
-                    match body {
-                        Ok(body) => match String::from_utf8(body) {
-                            Ok(body) => body,
-                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
-                        },
-                        Err(e) => format!("<Failed to read body: {}>", e),
-                    }
-                )))
-            }
-        }
-    }
-
     async fn confirm_registration(
         &self,
         param_id: String,
@@ -4503,6 +4049,266 @@ impl<S, C> Api<C> for Client<S, C> where
         }
     }
 
+    async fn clear_status(
+        &self,
+        param_status_id: String,
+        context: &C) -> Result<ClearStatusResponse, ApiError>
+    {
+        let mut client_service = self.client_service.clone();
+        let mut uri = format!(
+            "{}/statuses/{status_id}",
+            self.base_path
+            ,status_id=utf8_percent_encode(&param_status_id.to_string(), ID_ENCODE_SET)
+        );
+
+        // Query parameters
+        let query_string = {
+            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
+            query_string.finish()
+        };
+        if !query_string.is_empty() {
+            uri += "?";
+            uri += &query_string;
+        }
+
+        let uri = match Uri::from_str(&uri) {
+            Ok(uri) => uri,
+            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
+        };
+
+        let mut request = match Request::builder()
+            .method("DELETE")
+            .uri(uri)
+            .body(Body::empty()) {
+                Ok(req) => req,
+                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
+        };
+
+        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
+        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
+            Ok(h) => h,
+            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
+        });
+
+        if let Some(auth_data) = Has::<Option<AuthData>>::get(context).as_ref() {
+            // Currently only authentication with Basic and Bearer are supported
+            match auth_data {
+                &AuthData::Bearer(ref bearer_header) => {
+                    let auth = swagger::auth::Header(bearer_header.clone());
+                    let header = match HeaderValue::from_str(&format!("{}", auth)) {
+                        Ok(h) => h,
+                        Err(e) => return Err(ApiError(format!("Unable to create Authorization header: {}", e)))
+                    };
+                    request.headers_mut().insert(
+                        hyper::header::AUTHORIZATION,
+                        header);
+                },
+                _ => {}
+            }
+        }
+
+        let mut response = client_service.call((request, context.clone()))
+            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
+
+        match response.status().as_u16() {
+            200 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::MonitorStatusContainer>(body)?;
+                Ok(ClearStatusResponse::OK
+                    (body)
+                )
+            }
+            400 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(ClearStatusResponse::BadRequest
+                    (body)
+                )
+            }
+            401 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(ClearStatusResponse::Unauthorized
+                    (body)
+                )
+            }
+            404 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(ClearStatusResponse::NotFound
+                    (body)
+                )
+            }
+            code => {
+                let headers = response.headers().clone();
+                let body = response.into_body()
+                       .take(100)
+                       .to_raw().await;
+                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
+                    code,
+                    headers,
+                    match body {
+                        Ok(body) => match String::from_utf8(body) {
+                            Ok(body) => body,
+                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
+                        },
+                        Err(e) => format!("<Failed to read body: {}>", e),
+                    }
+                )))
+            }
+        }
+    }
+
+    async fn get_monitor_status(
+        &self,
+        param_status_id: String,
+        context: &C) -> Result<GetMonitorStatusResponse, ApiError>
+    {
+        let mut client_service = self.client_service.clone();
+        let mut uri = format!(
+            "{}/statuses/{status_id}",
+            self.base_path
+            ,status_id=utf8_percent_encode(&param_status_id.to_string(), ID_ENCODE_SET)
+        );
+
+        // Query parameters
+        let query_string = {
+            let mut query_string = form_urlencoded::Serializer::new("".to_owned());
+            query_string.finish()
+        };
+        if !query_string.is_empty() {
+            uri += "?";
+            uri += &query_string;
+        }
+
+        let uri = match Uri::from_str(&uri) {
+            Ok(uri) => uri,
+            Err(err) => return Err(ApiError(format!("Unable to build URI: {}", err))),
+        };
+
+        let mut request = match Request::builder()
+            .method("GET")
+            .uri(uri)
+            .body(Body::empty()) {
+                Ok(req) => req,
+                Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
+        };
+
+        let header = HeaderValue::from_str(Has::<XSpanIdString>::get(context).0.clone().to_string().as_str());
+        request.headers_mut().insert(HeaderName::from_static("x-span-id"), match header {
+            Ok(h) => h,
+            Err(e) => return Err(ApiError(format!("Unable to create X-Span ID header value: {}", e)))
+        });
+
+        if let Some(auth_data) = Has::<Option<AuthData>>::get(context).as_ref() {
+            // Currently only authentication with Basic and Bearer are supported
+            match auth_data {
+                &AuthData::Bearer(ref bearer_header) => {
+                    let auth = swagger::auth::Header(bearer_header.clone());
+                    let header = match HeaderValue::from_str(&format!("{}", auth)) {
+                        Ok(h) => h,
+                        Err(e) => return Err(ApiError(format!("Unable to create Authorization header: {}", e)))
+                    };
+                    request.headers_mut().insert(
+                        hyper::header::AUTHORIZATION,
+                        header);
+                },
+                _ => {}
+            }
+        }
+
+        let mut response = client_service.call((request, context.clone()))
+            .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
+
+        match response.status().as_u16() {
+            200 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::MonitorStatusContainer>(body)?;
+                Ok(GetMonitorStatusResponse::OK
+                    (body)
+                )
+            }
+            400 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetMonitorStatusResponse::BadRequest
+                    (body)
+                )
+            }
+            401 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetMonitorStatusResponse::Unauthorized
+                    (body)
+                )
+            }
+            404 => {
+                let body = response.into_body();
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::ErrorList>(body)?;
+                Ok(GetMonitorStatusResponse::NotFound
+                    (body)
+                )
+            }
+            code => {
+                let headers = response.headers().clone();
+                let body = response.into_body()
+                       .take(100)
+                       .to_raw().await;
+                Err(ApiError(format!("Unexpected response code {}:\n{:?}\n\n{}",
+                    code,
+                    headers,
+                    match body {
+                        Ok(body) => match String::from_utf8(body) {
+                            Ok(body) => body,
+                            Err(e) => format!("<Body was not UTF8: {:?}>", e),
+                        },
+                        Err(e) => format!("<Failed to read body: {}>", e),
+                    }
+                )))
+            }
+        }
+    }
+
     async fn get_monitor_statuses(
         &self,
         context: &C) -> Result<GetMonitorStatusesResponse, ApiError>
@@ -4631,15 +4437,17 @@ impl<S, C> Api<C> for Client<S, C> where
         }
     }
 
-    async fn update_monitor_statuses(
+    async fn set_status(
         &self,
-        param_monitor_status_array: models::MonitorStatusArray,
-        context: &C) -> Result<UpdateMonitorStatusesResponse, ApiError>
+        param_status_id: String,
+        param_monitor_status: models::MonitorStatus,
+        context: &C) -> Result<SetStatusResponse, ApiError>
     {
         let mut client_service = self.client_service.clone();
         let mut uri = format!(
-            "{}/statuses",
+            "{}/statuses/{status_id}",
             self.base_path
+            ,status_id=utf8_percent_encode(&param_status_id.to_string(), ID_ENCODE_SET)
         );
 
         // Query parameters
@@ -4665,7 +4473,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
         };
 
-        let body = serde_json::to_string(&param_monitor_status_array).expect("impossible to fail to serialize");
+        let body = serde_json::to_string(&param_monitor_status).expect("impossible to fail to serialize");
 
                 *request.body_mut() = Body::from(body);
 
@@ -4702,10 +4510,16 @@ impl<S, C> Api<C> for Client<S, C> where
             .map_err(|e| ApiError(format!("No response received: {}", e))).await?;
 
         match response.status().as_u16() {
-            204 => {
+            200 => {
                 let body = response.into_body();
-                Ok(
-                    UpdateMonitorStatusesResponse::NoContent
+                let body = body
+                        .to_raw()
+                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
+                let body = str::from_utf8(&body)
+                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
+                let body = serde_json::from_str::<models::MonitorStatusContainer>(body)?;
+                Ok(SetStatusResponse::OK
+                    (body)
                 )
             }
             400 => {
@@ -4716,7 +4530,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(UpdateMonitorStatusesResponse::BadRequest
+                Ok(SetStatusResponse::BadRequest
                     (body)
                 )
             }
@@ -4728,19 +4542,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(UpdateMonitorStatusesResponse::Unauthorized
-                    (body)
-                )
-            }
-            422 => {
-                let body = response.into_body();
-                let body = body
-                        .to_raw()
-                        .map_err(|e| ApiError(format!("Failed to read response: {}", e))).await?;
-                let body = str::from_utf8(&body)
-                    .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
-                let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(UpdateMonitorStatusesResponse::UnprocessableEntity
+                Ok(SetStatusResponse::Unauthorized
                     (body)
                 )
             }
@@ -4752,7 +4554,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(UpdateMonitorStatusesResponse::NotFound
+                Ok(SetStatusResponse::NotFound
                     (body)
                 )
             }
