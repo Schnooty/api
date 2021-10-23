@@ -10,7 +10,7 @@ info:
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 paths:
   "/jwt":
-      get:
+      post:
         tags:
           - "Authentication"
         summary: "Create an API token in the form of a JWT."
@@ -1212,6 +1212,7 @@ components:
       type: object
       required: 
         - name
+        - startedAt
         - lastUpdated
         - expiresAt
       properties:
@@ -1222,6 +1223,8 @@ components:
         platform:
           $ref: "#/components/schemas/PlatformInfo"
         lastUpdated:
+          $ref: "#/components/schemas/DateTime"
+        startedAt:
           $ref: "#/components/schemas/DateTime"
     PlatformInfo:
       type: object
@@ -1438,22 +1441,11 @@ components:
       type: object
       description: "Server info and status about open connections"
       required:
-        - activeRequests
-        - activeJwtsLastHour
-        - requestsLastHour
-        - requestsLastMinute
-        - processMemoryBytes
-        - openInwardConnections
+        - status
       properties:
-        vcsRef: 
+        status: 
           type: string
-          example: 5ca8fb27561045fdf0894603179ebb18cb19523b
-        processMemoryBytes:
-          type: number
-          example: 52428800
-        openInwardConnections:
-          type: number 
-          example: 20
+          example: "OK"
     SubscriptionArray:
       type: array
       items:
