@@ -14,7 +14,7 @@ To see how to make this your own, look here:
 [README]((https://openapi-generator.tech))
 
 - API version: 1.0.0
-- Build date: 2021-10-24T10:13:52.857401+13:00[Pacific/Auckland]
+- Build date: 2021-10-24T10:53:04.415979+13:00[Pacific/Auckland]
 
 
 
@@ -159,7 +159,6 @@ Method | HTTP request | Description
  - [AccountType](docs/AccountType.md)
  - [Agent](docs/Agent.md)
  - [AgentApiKey](docs/AgentApiKey.md)
- - [AgentSessionRequest](docs/AgentSessionRequest.md)
  - [Alert](docs/Alert.md)
  - [AlertArray](docs/AlertArray.md)
  - [AlertBody](docs/AlertBody.md)

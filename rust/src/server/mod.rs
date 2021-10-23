@@ -1563,32 +1563,32 @@ impl<T, C> hyper::service::Service<(Request<Body>, C)> for Service<T, C> where
                 match result {
                             Ok(body) => {
                                 let mut unused_elements = Vec::new();
-                                let param_agent_session_request: Option<models::AgentSessionRequest> = if !body.is_empty() {
+                                let param_session: Option<models::Session> = if !body.is_empty() {
                                     let deserializer = &mut serde_json::Deserializer::from_slice(&*body);
                                     match serde_ignored::deserialize(deserializer, |path| {
                                             warn!("Ignoring unknown field in body: {}", path);
                                             unused_elements.push(path.to_string());
                                     }) {
-                                        Ok(param_agent_session_request) => param_agent_session_request,
+                                        Ok(param_session) => param_session,
                                         Err(e) => return Ok(Response::builder()
                                                         .status(StatusCode::BAD_REQUEST)
-                                                        .body(Body::from(format!("Couldn't parse body parameter AgentSessionRequest - doesn't match schema: {}", e)))
-                                                        .expect("Unable to create Bad Request response for invalid body parameter AgentSessionRequest due to schema")),
+                                                        .body(Body::from(format!("Couldn't parse body parameter Session - doesn't match schema: {}", e)))
+                                                        .expect("Unable to create Bad Request response for invalid body parameter Session due to schema")),
                                     }
                                 } else {
                                     None
                                 };
-                                let param_agent_session_request = match param_agent_session_request {
-                                    Some(param_agent_session_request) => param_agent_session_request,
+                                let param_session = match param_session {
+                                    Some(param_session) => param_session,
                                     None => return Ok(Response::builder()
                                                         .status(StatusCode::BAD_REQUEST)
-                                                        .body(Body::from("Missing required body parameter AgentSessionRequest"))
-                                                        .expect("Unable to create Bad Request response for missing body parameter AgentSessionRequest")),
+                                                        .body(Body::from("Missing required body parameter Session"))
+                                                        .expect("Unable to create Bad Request response for missing body parameter Session")),
                                 };
 
                                 let result = api_impl.put_session(
                                             param_identifier,
-                                            param_agent_session_request,
+                                            param_session,
                                         &context
                                     ).await;
                                 let mut response = Response::new(Body::empty());
@@ -1674,8 +1674,8 @@ impl<T, C> hyper::service::Service<(Request<Body>, C)> for Service<T, C> where
                             },
                             Err(e) => Ok(Response::builder()
                                                 .status(StatusCode::BAD_REQUEST)
-                                                .body(Body::from(format!("Couldn't read body parameter AgentSessionRequest: {}", e)))
-                                                .expect("Unable to create Bad Request response due to unable to read body parameter AgentSessionRequest")),
+                                                .body(Body::from(format!("Couldn't read body parameter Session: {}", e)))
+                                                .expect("Unable to create Bad Request response due to unable to read body parameter Session")),
                         }
             },
 

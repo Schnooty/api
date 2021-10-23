@@ -788,7 +788,7 @@ pub trait Api<C: Send + Sync> {
     async fn put_session(
         &self,
         identifier: String,
-        agent_session_request: models::AgentSessionRequest,
+        session: models::Session,
         context: &C) -> Result<PutSessionResponse, ApiError>;
 
     async fn agents_get(
@@ -971,7 +971,7 @@ pub trait ApiNoContext<C: Send + Sync> {
     async fn put_session(
         &self,
         identifier: String,
-        agent_session_request: models::AgentSessionRequest,
+        session: models::Session,
         ) -> Result<PutSessionResponse, ApiError>;
 
     async fn agents_get(
@@ -1221,11 +1221,11 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
     async fn put_session(
         &self,
         identifier: String,
-        agent_session_request: models::AgentSessionRequest,
+        session: models::Session,
         ) -> Result<PutSessionResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().put_session(identifier, agent_session_request, &context).await
+        self.api().put_session(identifier, session, &context).await
     }
 
     async fn agents_get(

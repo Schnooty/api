@@ -433,7 +433,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AgentSessionRequest"
+              $ref: "#/components/schemas/Session"
       tags: 
         - "Agent sessions"
       responses:
@@ -1098,15 +1098,6 @@ components:
           type: string
           maxLength: 160
           example: "Beginning HTTP request to https://www.example.com"
-    AgentSessionRequest:
-      type: object
-      required: ["sessionId"]
-      properties:
-        sessionId:
-          type: string
-        isNew:
-          type: boolean
-          description: "Optional indicator that tells the server that this is a new session."
     MonitorStatusIndicator: 
       type: string
       enum:

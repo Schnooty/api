@@ -921,7 +921,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AgentSessionRequest'
+              $ref: '#/components/schemas/Session'
         description: Create a new agent and generate a new API key.
         required: true
       responses:
@@ -1894,20 +1894,6 @@ components:
       required:
       - timestamp
       - value
-      type: object
-    AgentSessionRequest:
-      example:
-        sessionId: sessionId
-        isNew: true
-      properties:
-        sessionId:
-          type: string
-        isNew:
-          description: Optional indicator that tells the server that this is a new
-            session.
-          type: boolean
-      required:
-      - sessionId
       type: object
     MonitorStatusIndicator:
       enum:

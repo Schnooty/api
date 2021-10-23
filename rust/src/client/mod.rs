@@ -1937,7 +1937,7 @@ impl<S, C> Api<C> for Client<S, C> where
     async fn put_session(
         &self,
         param_identifier: String,
-        param_agent_session_request: models::AgentSessionRequest,
+        param_session: models::Session,
         context: &C) -> Result<PutSessionResponse, ApiError>
     {
         let mut client_service = self.client_service.clone();
@@ -1970,7 +1970,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 Err(e) => return Err(ApiError(format!("Unable to create request: {}", e)))
         };
 
-        let body = serde_json::to_string(&param_agent_session_request).expect("impossible to fail to serialize");
+        let body = serde_json::to_string(&param_session).expect("impossible to fail to serialize");
 
                 *request.body_mut() = Body::from(body);
 

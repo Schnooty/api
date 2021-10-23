@@ -270,11 +270,11 @@ impl<C> Api<C> for Server<C> where C: Has<XSpanIdString> + Send + Sync
     async fn put_session(
         &self,
         identifier: String,
-        agent_session_request: models::AgentSessionRequest,
+        session: models::Session,
         context: &C) -> Result<PutSessionResponse, ApiError>
     {
         let context = context.clone();
-        info!("put_session(\"{}\", {:?}) - X-Span-ID: {:?}", identifier, agent_session_request, context.get().0.clone());
+        info!("put_session(\"{}\", {:?}) - X-Span-ID: {:?}", identifier, session, context.get().0.clone());
         Err("Generic failuare".into())
     }
 

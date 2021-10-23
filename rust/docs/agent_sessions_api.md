@@ -83,7 +83,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **put_session**
-> models::SessionContainer put_session(identifier, agent_session_request)
+> models::SessionContainer put_session(identifier, session)
 
 
 ### Required Parameters
@@ -91,7 +91,7 @@ No authorization required
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
   **identifier** | **String**| Unique name for this session. | 
-  **agent_session_request** | [**AgentSessionRequest**](AgentSessionRequest.md)| Create a new agent and generate a new API key. | 
+  **session** | [**Session**](Session.md)| Create a new agent and generate a new API key. | 
 
 ### Return type
 
