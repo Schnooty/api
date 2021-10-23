@@ -16,7 +16,7 @@ servers:
 - url: /
 paths:
   /jwt:
-    get:
+    post:
       responses:
         "200":
           content:
@@ -1733,6 +1733,7 @@ components:
             lastUpdated: 2017-07-21T17:32:28Z
             hostname: hostname
             name: database-agent
+            startedAt: 2017-07-21T17:32:28Z
             platform:
               os: Linux
               cpu: AMD Ryzen 5 2600 Six-Core Processor
@@ -1752,6 +1753,7 @@ components:
             lastUpdated: 2017-07-21T17:32:28Z
             hostname: hostname
             name: database-agent
+            startedAt: 2017-07-21T17:32:28Z
             platform:
               os: Linux
               cpu: AMD Ryzen 5 2600 Six-Core Processor
@@ -1769,7 +1771,7 @@ components:
       type: object
     MonitorStatusContainer:
       example:
-        statuse:
+        status:
           statusId: aZjL810xa001dz8
           expectedResult: HTTP status code of 200
           log:
@@ -1782,6 +1784,7 @@ components:
             lastUpdated: 2017-07-21T17:32:28Z
             hostname: hostname
             name: database-agent
+            startedAt: 2017-07-21T17:32:28Z
             platform:
               os: Linux
               cpu: AMD Ryzen 5 2600 Six-Core Processor
@@ -1790,7 +1793,7 @@ components:
           timestamp: 2017-07-21T17:32:28Z
           actualResult: HTTP status code of 500
       properties:
-        statuse:
+        status:
           $ref: '#/components/schemas/MonitorStatus'
       required:
       - status
@@ -1809,6 +1812,7 @@ components:
           lastUpdated: 2017-07-21T17:32:28Z
           hostname: hostname
           name: database-agent
+          startedAt: 2017-07-21T17:32:28Z
           platform:
             os: Linux
             cpu: AMD Ryzen 5 2600 Six-Core Processor
@@ -2058,6 +2062,7 @@ components:
         lastUpdated: 2017-07-21T17:32:28Z
         hostname: hostname
         name: database-agent
+        startedAt: 2017-07-21T17:32:28Z
         platform:
           os: Linux
           cpu: AMD Ryzen 5 2600 Six-Core Processor
@@ -2077,10 +2082,17 @@ components:
           format: date-time
           readOnly: true
           type: string
+        startedAt:
+          description: UTC UNIX timestamp in with fractional offset.
+          example: 2017-07-21T17:32:28Z
+          format: date-time
+          readOnly: true
+          type: string
       required:
       - expiresAt
       - lastUpdated
       - name
+      - startedAt
       type: object
     PlatformInfo:
       example:
@@ -2100,12 +2112,14 @@ components:
         - lastUpdated: 2017-07-21T17:32:28Z
           hostname: hostname
           name: database-agent
+          startedAt: 2017-07-21T17:32:28Z
           platform:
             os: Linux
             cpu: AMD Ryzen 5 2600 Six-Core Processor
         - lastUpdated: 2017-07-21T17:32:28Z
           hostname: hostname
           name: database-agent
+          startedAt: 2017-07-21T17:32:28Z
           platform:
             os: Linux
             cpu: AMD Ryzen 5 2600 Six-Core Processor
@@ -2123,6 +2137,7 @@ components:
           lastUpdated: 2017-07-21T17:32:28Z
           hostname: hostname
           name: database-agent
+          startedAt: 2017-07-21T17:32:28Z
           platform:
             os: Linux
             cpu: AMD Ryzen 5 2600 Six-Core Processor
@@ -2406,26 +2421,13 @@ components:
     ServerInfo:
       description: Server info and status about open connections
       example:
-        processMemoryBytes: 52428800
-        openInwardConnections: 20
-        vcsRef: 5ca8fb27561045fdf0894603179ebb18cb19523b
+        status: OK
       properties:
-        vcsRef:
-          example: 5ca8fb27561045fdf0894603179ebb18cb19523b
+        status:
+          example: OK
           type: string
-        processMemoryBytes:
-          example: 52428800
-          type: number
-        openInwardConnections:
-          example: 20
-          type: number
       required:
-      - activeJwtsLastHour
-      - activeRequests
-      - openInwardConnections
-      - processMemoryBytes
-      - requestsLastHour
-      - requestsLastMinute
+      - status
       type: object
     SubscriptionArray:
       items:

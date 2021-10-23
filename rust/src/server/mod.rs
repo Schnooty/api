@@ -46,7 +46,7 @@ use crate::{Api,
      AlertsIdGetResponse,
      AlertsIdPutResponse,
      AlertsPostResponse,
-     JwtGetResponse,
+     JwtPostResponse,
      CreateChallengeResponse,
      UpdateChallengeResponse,
      GetInfoResponse,
@@ -2853,8 +2853,8 @@ impl<T, C> hyper::service::Service<(Request<Body>, C)> for Service<T, C> where
                         }
             },
 
-            // JwtGet - GET /jwt
-            &hyper::Method::GET if path.matched(paths::ID_JWT) => {
+            // JwtPost - POST /jwt
+            &hyper::Method::POST if path.matched(paths::ID_JWT) => {
                 {
                     let authorization = match (&context as &dyn Has<Option<Authorization>>).get() {
                         &Some(ref authorization) => authorization,
@@ -2865,7 +2865,7 @@ impl<T, C> hyper::service::Service<(Request<Body>, C)> for Service<T, C> where
                     };
                 }
 
-                                let result = api_impl.jwt_get(
+                                let result = api_impl.jwt_post(
                                         &context
                                     ).await;
                                 let mut response = Response::new(Body::empty());
@@ -2876,36 +2876,36 @@ impl<T, C> hyper::service::Service<(Request<Body>, C)> for Service<T, C> where
 
                                         match result {
                                             Ok(rsp) => match rsp {
-                                                JwtGetResponse::OK
+                                                JwtPostResponse::OK
                                                     (body)
                                                 => {
                                                     *response.status_mut() = StatusCode::from_u16(200).expect("Unable to turn 200 into a StatusCode");
                                                     response.headers_mut().insert(
                                                         CONTENT_TYPE,
                                                         HeaderValue::from_str("application/json")
-                                                            .expect("Unable to create Content-Type header for JWT_GET_OK"));
+                                                            .expect("Unable to create Content-Type header for JWT_POST_OK"));
                                                     let body = serde_json::to_string(&body).expect("impossible to fail to serialize");
                                                     *response.body_mut() = Body::from(body);
                                                 },
-                                                JwtGetResponse::BadRequest
+                                                JwtPostResponse::BadRequest
                                                     (body)
                                                 => {
                                                     *response.status_mut() = StatusCode::from_u16(400).expect("Unable to turn 400 into a StatusCode");
                                                     response.headers_mut().insert(
                                                         CONTENT_TYPE,
                                                         HeaderValue::from_str("application/json")
-                                                            .expect("Unable to create Content-Type header for JWT_GET_BAD_REQUEST"));
+                                                            .expect("Unable to create Content-Type header for JWT_POST_BAD_REQUEST"));
                                                     let body = serde_json::to_string(&body).expect("impossible to fail to serialize");
                                                     *response.body_mut() = Body::from(body);
                                                 },
-                                                JwtGetResponse::UnprocessableEntity
+                                                JwtPostResponse::UnprocessableEntity
                                                     (body)
                                                 => {
                                                     *response.status_mut() = StatusCode::from_u16(422).expect("Unable to turn 422 into a StatusCode");
                                                     response.headers_mut().insert(
                                                         CONTENT_TYPE,
                                                         HeaderValue::from_str("application/json")
-                                                            .expect("Unable to create Content-Type header for JWT_GET_UNPROCESSABLE_ENTITY"));
+                                                            .expect("Unable to create Content-Type header for JWT_POST_UNPROCESSABLE_ENTITY"));
                                                     let body = serde_json::to_string(&body).expect("impossible to fail to serialize");
                                                     *response.body_mut() = Body::from(body);
                                                 },
@@ -3832,8 +3832,8 @@ impl<T> RequestParser<T> for ApiRequestParser {
             &hyper::Method::PUT if path.matched(paths::ID_ALERTS_ID) => Ok("AlertsIdPut"),
             // AlertsPost - POST /alerts
             &hyper::Method::POST if path.matched(paths::ID_ALERTS) => Ok("AlertsPost"),
-            // JwtGet - GET /jwt
-            &hyper::Method::GET if path.matched(paths::ID_JWT) => Ok("JwtGet"),
+            // JwtPost - POST /jwt
+            &hyper::Method::POST if path.matched(paths::ID_JWT) => Ok("JwtPost"),
             // CreateChallenge - POST /challenge
             &hyper::Method::POST if path.matched(paths::ID_CHALLENGE) => Ok("CreateChallenge"),
             // UpdateChallenge - POST /challenge/{id}

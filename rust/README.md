@@ -14,7 +14,7 @@ To see how to make this your own, look here:
 [README]((https://openapi-generator.tech))
 
 - API version: 1.0.0
-- Build date: 2021-10-17T09:35:51.234446+13:00[Pacific/Auckland]
+- Build date: 2021-10-24T10:13:52.857401+13:00[Pacific/Auckland]
 
 
 
@@ -77,7 +77,7 @@ cargo run --example client AgentsIdGet
 cargo run --example client AlertsGet
 cargo run --example client AlertsIdDelete
 cargo run --example client AlertsIdGet
-cargo run --example client JwtGet
+cargo run --example client JwtPost
 cargo run --example client CreateChallenge
 cargo run --example client UpdateChallenge
 cargo run --example client GetInfo
@@ -141,7 +141,7 @@ Method | HTTP request | Description
 [****](docs/alerts_api.md#) | **GET** /alerts/{id} | 
 [****](docs/alerts_api.md#) | **PUT** /alerts/{id} | 
 [****](docs/alerts_api.md#) | **POST** /alerts | 
-[****](docs/authentication_api.md#) | **GET** /jwt | Create an API token in the form of a JWT.
+[****](docs/authentication_api.md#) | **POST** /jwt | Create an API token in the form of a JWT.
 [**create_challenge**](docs/challenge_api.md#create_challenge) | **POST** /challenge | Create a challenge to prove you are human
 [**update_challenge**](docs/challenge_api.md#update_challenge) | **POST** /challenge/{id} | Solve a challenge and prove you are human.
 [**get_info**](docs/info_api.md#get_info) | **GET** /info | 

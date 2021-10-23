@@ -1042,7 +1042,7 @@ components:
       type: object
       required: ["status"]
       properties:
-        statuse: 
+        status: 
           $ref: "#/components/schemas/MonitorStatus"
     MonitorStatus:
       type: object

@@ -3879,16 +3879,15 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct MonitorStatusContainer {
-    #[serde(rename = "statuse")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub statuse: Option<models::MonitorStatus>,
+    #[serde(rename = "status")]
+    pub status: models::MonitorStatus,
 
 }
 
 impl MonitorStatusContainer {
-    pub fn new() -> MonitorStatusContainer {
+    pub fn new(status: models::MonitorStatus, ) -> MonitorStatusContainer {
         MonitorStatusContainer {
-            statuse: None,
+            status: status,
         }
     }
 }
@@ -3899,7 +3898,7 @@ impl MonitorStatusContainer {
 impl std::string::ToString for MonitorStatusContainer {
     fn to_string(&self) -> String {
         let mut params: Vec<String> = vec![];
-        // Skipping statuse in query parameter serialization
+        // Skipping status in query parameter serialization
 
         params.join(",").to_string()
     }
@@ -3915,7 +3914,7 @@ impl std::str::FromStr for MonitorStatusContainer {
         #[derive(Default)]
         // An intermediate representation of the struct to use for parsing.
         struct IntermediateRep {
-            pub statuse: Vec<models::MonitorStatus>,
+            pub status: Vec<models::MonitorStatus>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -3932,7 +3931,7 @@ impl std::str::FromStr for MonitorStatusContainer {
 
             if let Some(key) = key_result {
                 match key {
-                    "statuse" => intermediate_rep.statuse.push(<models::MonitorStatus as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "status" => intermediate_rep.status.push(<models::MonitorStatus as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing MonitorStatusContainer".to_string())
                 }
             }
@@ -3943,7 +3942,7 @@ impl std::str::FromStr for MonitorStatusContainer {
 
         // Use the intermediate representation to return the struct
         std::result::Result::Ok(MonitorStatusContainer {
-            statuse: intermediate_rep.statuse.into_iter().next(),
+            status: intermediate_rep.status.into_iter().next().ok_or("status missing in MonitorStatusContainer".to_string())?,
         })
     }
 }
@@ -6126,24 +6125,15 @@ impl std::convert::TryFrom<hyper::header::HeaderValue> for header::IntoHeaderVal
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct ServerInfo {
-    #[serde(rename = "vcsRef")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub vcs_ref: Option<String>,
-
-    #[serde(rename = "processMemoryBytes")]
-    pub process_memory_bytes: f64,
-
-    #[serde(rename = "openInwardConnections")]
-    pub open_inward_connections: f64,
+    #[serde(rename = "status")]
+    pub status: String,
 
 }
 
 impl ServerInfo {
-    pub fn new(process_memory_bytes: f64, open_inward_connections: f64, ) -> ServerInfo {
+    pub fn new(status: String, ) -> ServerInfo {
         ServerInfo {
-            vcs_ref: None,
-            process_memory_bytes: process_memory_bytes,
-            open_inward_connections: open_inward_connections,
+            status: status,
         }
     }
 }
@@ -6155,18 +6145,8 @@ impl std::string::ToString for ServerInfo {
     fn to_string(&self) -> String {
         let mut params: Vec<String> = vec![];
 
-        if let Some(ref vcs_ref) = self.vcs_ref {
-            params.push("vcsRef".to_string());
-            params.push(vcs_ref.to_string());
-        }
-
-
-        params.push("processMemoryBytes".to_string());
-        params.push(self.process_memory_bytes.to_string());
-
-
-        params.push("openInwardConnections".to_string());
-        params.push(self.open_inward_connections.to_string());
+        params.push("status".to_string());
+        params.push(self.status.to_string());
 
         params.join(",").to_string()
     }
@@ -6182,9 +6162,7 @@ impl std::str::FromStr for ServerInfo {
         #[derive(Default)]
         // An intermediate representation of the struct to use for parsing.
         struct IntermediateRep {
-            pub vcs_ref: Vec<String>,
-            pub process_memory_bytes: Vec<f64>,
-            pub open_inward_connections: Vec<f64>,
+            pub status: Vec<String>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -6201,9 +6179,7 @@ impl std::str::FromStr for ServerInfo {
 
             if let Some(key) = key_result {
                 match key {
-                    "vcsRef" => intermediate_rep.vcs_ref.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "processMemoryBytes" => intermediate_rep.process_memory_bytes.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
-                    "openInwardConnections" => intermediate_rep.open_inward_connections.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "status" => intermediate_rep.status.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing ServerInfo".to_string())
                 }
             }
@@ -6214,9 +6190,7 @@ impl std::str::FromStr for ServerInfo {
 
         // Use the intermediate representation to return the struct
         std::result::Result::Ok(ServerInfo {
-            vcs_ref: intermediate_rep.vcs_ref.into_iter().next(),
-            process_memory_bytes: intermediate_rep.process_memory_bytes.into_iter().next().ok_or("processMemoryBytes missing in ServerInfo".to_string())?,
-            open_inward_connections: intermediate_rep.open_inward_connections.into_iter().next().ok_or("openInwardConnections missing in ServerInfo".to_string())?,
+            status: intermediate_rep.status.into_iter().next().ok_or("status missing in ServerInfo".to_string())?,
         })
     }
 }
@@ -6278,15 +6252,20 @@ pub struct Session {
     #[serde(rename = "lastUpdated")]
     pub last_updated: chrono::DateTime::<chrono::Utc>,
 
+    /// UTC UNIX timestamp in with fractional offset.
+    #[serde(rename = "startedAt")]
+    pub started_at: chrono::DateTime::<chrono::Utc>,
+
 }
 
 impl Session {
-    pub fn new(name: String, last_updated: chrono::DateTime::<chrono::Utc>, ) -> Session {
+    pub fn new(name: String, last_updated: chrono::DateTime::<chrono::Utc>, started_at: chrono::DateTime::<chrono::Utc>, ) -> Session {
         Session {
             name: name,
             hostname: None,
             platform: None,
             last_updated: last_updated,
+            started_at: started_at,
         }
     }
 }
@@ -6311,6 +6290,8 @@ impl std::string::ToString for Session {
 
         // Skipping lastUpdated in query parameter serialization
 
+        // Skipping startedAt in query parameter serialization
+
         params.join(",").to_string()
     }
 }
@@ -6329,6 +6310,7 @@ impl std::str::FromStr for Session {
             pub hostname: Vec<String>,
             pub platform: Vec<models::PlatformInfo>,
             pub last_updated: Vec<chrono::DateTime::<chrono::Utc>>,
+            pub started_at: Vec<chrono::DateTime::<chrono::Utc>>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -6349,6 +6331,7 @@ impl std::str::FromStr for Session {
                     "hostname" => intermediate_rep.hostname.push(<String as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "platform" => intermediate_rep.platform.push(<models::PlatformInfo as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     "lastUpdated" => intermediate_rep.last_updated.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
+                    "startedAt" => intermediate_rep.started_at.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| format!("{}", x))?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Session".to_string())
                 }
             }
@@ -6363,6 +6346,7 @@ impl std::str::FromStr for Session {
             hostname: intermediate_rep.hostname.into_iter().next(),
             platform: intermediate_rep.platform.into_iter().next(),
             last_updated: intermediate_rep.last_updated.into_iter().next().ok_or("lastUpdated missing in Session".to_string())?,
+            started_at: intermediate_rep.started_at.into_iter().next().ok_or("startedAt missing in Session".to_string())?,
         })
     }
 }

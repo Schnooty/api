@@ -29,7 +29,7 @@ use openapi_client::{Api, ApiNoContext, Client, ContextWrapperExt, models,
                       AlertsIdGetResponse,
                       AlertsIdPutResponse,
                       AlertsPostResponse,
-                      JwtGetResponse,
+                      JwtPostResponse,
                       CreateChallengeResponse,
                       UpdateChallengeResponse,
                       GetInfoResponse,
@@ -76,7 +76,7 @@ fn main() {
                 "AlertsGet",
                 "AlertsIdDelete",
                 "AlertsIdGet",
-                "JwtGet",
+                "JwtPost",
                 "CreateChallenge",
                 "UpdateChallenge",
                 "GetInfo",
@@ -286,8 +286,8 @@ fn main() {
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },
         */
-        Some("JwtGet") => {
-            let result = rt.block_on(client.jwt_get(
+        Some("JwtPost") => {
+            let result = rt.block_on(client.jwt_post(
             ));
             info!("{:?} (X-Span-ID: {:?})", result, (client.context() as &dyn Has<XSpanIdString>).get().clone());
         },

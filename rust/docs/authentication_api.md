@@ -4,7 +4,7 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-****](authentication_api.md#) | **GET** /jwt | Create an API token in the form of a JWT.
+****](authentication_api.md#) | **POST** /jwt | Create an API token in the form of a JWT.
 
 
 # ****

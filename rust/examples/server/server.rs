@@ -120,7 +120,7 @@ use openapi_client::{
     AlertsIdGetResponse,
     AlertsIdPutResponse,
     AlertsPostResponse,
-    JwtGetResponse,
+    JwtPostResponse,
     CreateChallengeResponse,
     UpdateChallengeResponse,
     GetInfoResponse,
@@ -379,12 +379,12 @@ impl<C> Api<C> for Server<C> where C: Has<XSpanIdString> + Send + Sync
     }
 
     /// Create an API token in the form of a JWT.
-    async fn jwt_get(
+    async fn jwt_post(
         &self,
-        context: &C) -> Result<JwtGetResponse, ApiError>
+        context: &C) -> Result<JwtPostResponse, ApiError>
     {
         let context = context.clone();
-        info!("jwt_get() - X-Span-ID: {:?}", context.get().0.clone());
+        info!("jwt_post() - X-Span-ID: {:?}", context.get().0.clone());
         Err("Generic failuare".into())
     }
 

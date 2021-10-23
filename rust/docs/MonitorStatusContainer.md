@@ -3,7 +3,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**statuse** | [***models::MonitorStatus**](MonitorStatus.md) |  | [optional] [default to None]
+**status** | [***models::MonitorStatus**](MonitorStatus.md) |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

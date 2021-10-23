@@ -549,7 +549,7 @@ pub enum AlertsPostResponse {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
-pub enum JwtGetResponse {
+pub enum JwtPostResponse {
     /// OK
     OK
     (models::JwtObject)
@@ -842,9 +842,9 @@ pub trait Api<C: Send + Sync> {
         context: &C) -> Result<AlertsPostResponse, ApiError>;
 
     /// Create an API token in the form of a JWT.
-    async fn jwt_get(
+    async fn jwt_post(
         &self,
-        context: &C) -> Result<JwtGetResponse, ApiError>;
+        context: &C) -> Result<JwtPostResponse, ApiError>;
 
     /// Create a challenge to prove you are human
     async fn create_challenge(
@@ -1025,9 +1025,9 @@ pub trait ApiNoContext<C: Send + Sync> {
         ) -> Result<AlertsPostResponse, ApiError>;
 
     /// Create an API token in the form of a JWT.
-    async fn jwt_get(
+    async fn jwt_post(
         &self,
-        ) -> Result<JwtGetResponse, ApiError>;
+        ) -> Result<JwtPostResponse, ApiError>;
 
     /// Create a challenge to prove you are human
     async fn create_challenge(
@@ -1319,12 +1319,12 @@ impl<T: Api<C> + Send + Sync, C: Clone + Send + Sync> ApiNoContext<C> for Contex
     }
 
     /// Create an API token in the form of a JWT.
-    async fn jwt_get(
+    async fn jwt_post(
         &self,
-        ) -> Result<JwtGetResponse, ApiError>
+        ) -> Result<JwtPostResponse, ApiError>
     {
         let context = self.context().clone();
-        self.api().jwt_get(&context).await
+        self.api().jwt_post(&context).await
     }
 
     /// Create a challenge to prove you are human

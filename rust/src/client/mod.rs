@@ -60,7 +60,7 @@ use crate::{Api,
      AlertsIdGetResponse,
      AlertsIdPutResponse,
      AlertsPostResponse,
-     JwtGetResponse,
+     JwtPostResponse,
      CreateChallengeResponse,
      UpdateChallengeResponse,
      GetInfoResponse,
@@ -3443,9 +3443,9 @@ impl<S, C> Api<C> for Client<S, C> where
         }
     }
 
-    async fn jwt_get(
+    async fn jwt_post(
         &self,
-        context: &C) -> Result<JwtGetResponse, ApiError>
+        context: &C) -> Result<JwtPostResponse, ApiError>
     {
         let mut client_service = self.client_service.clone();
         let mut uri = format!(
@@ -3469,7 +3469,7 @@ impl<S, C> Api<C> for Client<S, C> where
         };
 
         let mut request = match Request::builder()
-            .method("GET")
+            .method("POST")
             .uri(uri)
             .body(Body::empty()) {
                 Ok(req) => req,
@@ -3511,7 +3511,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::JwtObject>(body)?;
-                Ok(JwtGetResponse::OK
+                Ok(JwtPostResponse::OK
                     (body)
                 )
             }
@@ -3523,7 +3523,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(JwtGetResponse::BadRequest
+                Ok(JwtPostResponse::BadRequest
                     (body)
                 )
             }
@@ -3535,7 +3535,7 @@ impl<S, C> Api<C> for Client<S, C> where
                 let body = str::from_utf8(&body)
                     .map_err(|e| ApiError(format!("Response was not valid UTF8: {}", e)))?;
                 let body = serde_json::from_str::<models::ErrorList>(body)?;
-                Ok(JwtGetResponse::UnprocessableEntity
+                Ok(JwtPostResponse::UnprocessableEntity
                     (body)
                 )
             }
