@@ -91,7 +91,7 @@ No authorization required
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
   **identifier** | **String**| Unique name for this session. | 
-  **session** | [**Session**](Session.md)| Create a new agent and generate a new API key. | 
+  **session** | [**Session**](Session.md)| Update session info or create a new one if it doesn't exist. | 
 
 ### Return type
 

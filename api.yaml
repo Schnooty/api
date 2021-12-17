@@ -428,7 +428,7 @@ paths:
     put:
       operationId: "put_session"
       requestBody:
-        description: "Create a new agent and generate a new API key."
+        description: "Update session info or create a new one if it doesn't exist."
         required: true
         content:
           application/json:

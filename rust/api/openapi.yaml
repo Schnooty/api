@@ -922,7 +922,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Session'
-        description: Create a new agent and generate a new API key.
+        description: Update session info or create a new one if it doesn't exist.
         required: true
       responses:
         "200":
