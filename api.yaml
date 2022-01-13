@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  description: "This is the Schnooty API. It is used by both our agent and web application to manage your monitors, agents, alerts, account settings and everything else"
+  description: "This is the Schnooty API. You can use it to manage your alerts, account settings, and everything related to Schnooty."
   version: "1.0.0"
   title: "Schnooty API"
   contact:
@@ -13,7 +13,7 @@ paths:
       post:
         tags:
           - "Authentication"
-        summary: "Create an API token in the form of a JWT."
+        summary: "Get an API token in the form of a JWT."
         responses:
           200:
             description: OK
@@ -39,7 +39,7 @@ paths:
     post:
       tags: 
         - "Challenge"
-      summary: "Create a challenge to prove you are human"
+      summary: "Initiate a challenge to prove something such as you being human."
       operationId: create_challenge
       responses:
         201:
@@ -50,12 +50,12 @@ paths:
     post:
       tags: 
           - "Challenge"
-      summary: "Solve a challenge and prove you are human."
+      summary: "Solve a challenge and prove something, such as you being human."
       operationId: update_challenge
       parameters: 
         - name: id
           in: path
-          description: ID of registration to confirm.
+          description: "ID of registration to confirm."
           schema:
             $ref: "#/components/schemas/IdString"
           required: true
@@ -69,7 +69,6 @@ paths:
       tags: 
         - "Registration"
       summary: "Register your email address and password."
-      description: "This is the endpoint you will use to create an account. This will enable you to use the API. By submitting your email address, password, and a name for your account, you will be emailed a confirmation code. The confirmation code will be valid for 24 hours or less, and may only be used once. Note that this API will respond with a 200 response code even if your email address is in Open Monitor's system. This is for privacy reasons."
       operationId: "create_registration"
       requestBody:
         description: "Details for registering an account."
@@ -94,13 +93,13 @@ paths:
       parameters: 
         - name: id
           in: path
-          description: ID of registration to confirm.
+          description: "ID of registration to confirm."
           schema:
             $ref: "#/components/schemas/IdString"
           required: true
       operationId: "confirm_registration"
       requestBody:
-        description: "Details including confirmation code that prove the user's email address."
+        description: "Details including confirmation code that prove your email address."
         required: true
         content:
           application/json:
@@ -108,7 +107,7 @@ paths:
               $ref: "#/components/schemas/RegistrationConfirmation"
       responses:
         204:
-          description: "The registration was confirmed. You can now authenticate using the email address and password."
+          description: "The registration was confirmed and you will be able use the rest of the API."
         400:
           $ref: "#/components/responses/BadRequest"
         404:
@@ -219,7 +218,7 @@ paths:
     post:
       tags:
         - "Alerts"
-      description: 
+      description:
         Create a new alert that can be activated when a monitor goes down. An alert can be a message (email, Microsoft teams), or it can call a web service (webhook). An alert is associated with zero or more of your monitors. If your alert has more than one monitor, the alert will be activated only when the number of monitors that goes down exceededs the `threshold`.  
       requestBody:
         description: "Create a new alert."
@@ -245,7 +244,7 @@ paths:
     parameters: 
       - name: id
         in: path
-        description: ID of the alert.
+        description: "ID of the alert."
         schema:
           $ref: "#/components/schemas/IdString"
         required: true
@@ -340,6 +339,9 @@ paths:
           $ref: "#/components/responses/Forbidden"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "write.agents"
   "/agents/{id}":
     parameters: 
       - name: id
@@ -364,6 +366,9 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "read.agents"
     put:
       tags:
         - "Agents"
@@ -387,6 +392,9 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "write.agents"
     delete:
       tags:
         - "Agents"
@@ -403,6 +411,9 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "write.agents"
   "/sessions":
     get:
       operationId: "get_sessions"
@@ -417,6 +428,9 @@ paths:
           $ref: "#/components/responses/BadRequest"
         403:
           $ref: "#/components/responses/Forbidden"
+      security:
+      - BearerAuth:
+        - "read.sessions"
   "/sessions/{identifier}":
     parameters:
         - name: identifier
@@ -447,6 +461,9 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "write.sessions"
     get:
       operationId: "clear_session"
       tags: 
@@ -462,6 +479,9 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "read.sessions"
     delete:
       operationId: "get_session"
       tags: 
@@ -477,6 +497,9 @@ paths:
           $ref: "#/components/responses/NotFound"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
+      security:
+      - BearerAuth:
+        - "write.sessions"
   "/accounts":
     get:
       tags: 
@@ -491,6 +514,9 @@ paths:
           $ref: "#/components/responses/Unauthorised"
         403:
           $ref: "#/components/responses/Forbidden"
+      security:
+      - BearerAuth:
+        - "read.accounts"
     post:
       tags: 
         - "Account management"
@@ -513,6 +539,9 @@ paths:
           $ref: "#/components/responses/Forbidden"
         404:
           $ref: "#/components/responses/NotFound"
+      security:
+      - BearerAuth:
+        - "write.accounts"
   "/accounts/{id}":
     get:
       tags: 
@@ -536,6 +565,9 @@ paths:
           $ref: "#/components/responses/NotFound"
         403:
           $ref: "#/components/responses/Forbidden"
+      security:
+      - BearerAuth:
+        - "read.accounts"
     put:
       tags: 
         - "Account management"
@@ -564,6 +596,9 @@ paths:
           $ref: "#/components/responses/Forbidden"
         404:
           $ref: "#/components/responses/NotFound"
+      security:
+      - BearerAuth:
+        - "write.accounts"
   "/transactions":
     get:
       tags: 
@@ -597,6 +632,9 @@ paths:
           $ref: "#/components/responses/Forbidden"
         404:
           $ref: "#/components/responses/NotFound"
+      security:
+      - BearerAuth:
+        - "write.transactions"
   "/balances":
     get:
       tags: 
@@ -618,6 +656,10 @@ paths:
           $ref: "#/components/responses/NotFound"
         400:
           $ref: "#/components/responses/BadRequest"
+      security:
+      - BearerAuth:
+        - "read.transactions"
+        - "read.accounts"
   "/plans":
     get:
       tags: 
@@ -649,6 +691,9 @@ paths:
           $ref: "#/components/responses/Unauthorised"
         400:
           $ref: "#/components/responses/BadRequest"
+      security:
+      - BearerAuth:
+        - "write.subscriptions"
     get:
       tags: 
         - "Account management"
@@ -660,6 +705,9 @@ paths:
           $ref: "#/components/responses/Unauthorised"
         400:
           $ref: "#/components/responses/BadRequest"
+      security:
+      - BearerAuth:
+        - "read.subscriptions"
   "/subscriptions/{id}":
     parameters:
       - name: id
@@ -679,6 +727,9 @@ paths:
           $ref: "#/components/responses/Unauthorised"
         400:
           $ref: "#/components/responses/BadRequest"
+      security:
+      - BearerAuth:
+        - "read.subscriptions"
   "/info":
     get:
       operationId: "get_info"
